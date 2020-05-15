@@ -7,7 +7,8 @@ namespace PlayerWatching.Demo
     {
         static void Main(string[] args)
         {
-            var watcher = new YandexMusicWatcher();
+            var interval = TimeSpan.FromSeconds(1);
+            var watcher = new YandexMusicWatcher(interval);
             watcher.TrackChanged += OnWatcherTrackChanged;
             watcher.StartMonitoring();
 

@@ -19,10 +19,22 @@ namespace PlayerWatching
             }
         }
 
+        private PlayerState _playerState;
+        public PlayerState PlayerState
+        {
+            get => _playerState;
+            protected set
+            {
+                if (value != _playerState)
+                {
+                    _playerState = value;
+                    PlayerStateChanged?.Invoke(this, _playerState);
+                }
+            }
+        }
+
         public event EventHandler<Track> TrackChanged;
-        public event EventHandler Played;
-        public event EventHandler Stopped;
-        public event EventHandler Paused;
+        public event EventHandler<PlayerState> PlayerStateChanged;
         public event EventHandler<TimeSpan> ProgressChanged;
 
         public abstract void StartMonitoring();

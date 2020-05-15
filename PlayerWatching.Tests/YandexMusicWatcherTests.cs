@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Threading.Tasks;
 
 namespace PlayerWatching.Tests
@@ -9,7 +10,8 @@ namespace PlayerWatching.Tests
         [TestMethod]
         public async Task YandexMusicWatcherStartMonitoringTest()
         {
-            var watcher = new YandexMusicWatcher();
+            var interval = TimeSpan.FromMilliseconds(500);
+            var watcher = new YandexMusicWatcher(interval);
             watcher.StartMonitoring();
             await Task.Delay(3000);
         }

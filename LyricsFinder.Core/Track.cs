@@ -19,6 +19,8 @@ namespace LyricsFinder.Core
 
         public bool IsTrackEmpty => this == new Track();
 
+        public override string ToString() => $"{Artist} - {Title}";
+
         public override bool Equals(object obj)
         {
             return Equals(obj as Track);
@@ -37,6 +39,14 @@ namespace LyricsFinder.Core
             return HashCode.Combine(Artist, Title, Album);
         }
 
-        public override string ToString() => $"{Artist} - {Title}";
+        public static bool operator ==(Track left, Track right)
+        {
+            return EqualityComparer<Track>.Default.Equals(left, right);
+        }
+
+        public static bool operator !=(Track left, Track right)
+        {
+            return !(left == right);
+        }
     }
 }
