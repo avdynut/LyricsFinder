@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Threading;
 
 namespace PlayerWatching.Tests
 {
@@ -8,23 +7,29 @@ namespace PlayerWatching.Tests
     public class YandexMusicWatcherTests
     {
         [TestMethod]
-        public void YandexMusicWatcherTrackChangedTest()
+        public void YandexMusicWatcherUpdateTest()
         {
-            var interval = TimeSpan.FromMilliseconds(200);
-            var watcher = new YandexMusicWatcher(interval);
-            var resetEvent = new ManualResetEventSlim();
+            var watcher = new YandexMusicWatcher();
 
-            watcher.TrackChanged += (s, track) => resetEvent.Set();
+            Assert.IsNull(watcher.Track);
+            Assert.AreEqual(PlayerState.Unknown, watcher.PlayerState);
 
-            watcher.StartMonitoring();
+            var result = watcher.UpdateMediaInfo();
 
-            var result = resetEvent.Wait(TimeSpan.FromSeconds(1));
-            Assert.IsTrue(result, "TrackChanged event is not occured");
             Assert.IsNotNull(watcher.Track);
-            Assert.IsFalse(watcher.Track.IsTrackEmpty);
-
             Console.WriteLine(watcher.Track);
-            watcher.StopMonitoring();
+            Console.WriteLine($"PlayerState: {watcher.PlayerState}");
+
+            if (result)
+            {
+                Assert.IsFalse(watcher.Track.IsTrackEmpty);
+                Assert.AreNotEqual(PlayerState.Unknown, watcher.PlayerState);
+            }
+            else
+            {
+                Assert.IsTrue(watcher.Track.IsTrackEmpty);
+                Assert.AreEqual(PlayerState.Unknown, watcher.PlayerState);
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using FlaUI.Core.Input;
+﻿using FlaUI.Core.AutomationElements;
+using FlaUI.Core.Input;
 using FlaUI.Core.WindowsAPI;
 using FlaUI.UIA3;
 using LyricsFinder.Core;
@@ -7,7 +8,7 @@ using System;
 namespace PlayerWatching
 {
     // todo: add localized constants
-    public class SmtcWatcher
+    public class SmtcWatcher : IPlayerWatcher
     {
         private const string PlayButtonAutomationId = "idPlayPause";
         private const string PlayButtonPlayingText = "Приостановить";
@@ -18,8 +19,18 @@ namespace PlayerWatching
         private const string ArtistTextAutomationId = "idArtistName";
         private const string ArtistPrecedingText = "Сведения о дорожке ";
 
+        private readonly UIA3Automation _automation;
+        private readonly AutomationElement _desktop;
+
+        public string Name => "SystemMediaTransportControls";
         public Track Track { get; private set; }
         public PlayerState PlayerState { get; private set; }
+
+        public SmtcWatcher()
+        {
+            _automation = new UIA3Automation();
+            _desktop = _automation.GetDesktop();
+        }
 
         public bool UpdateMediaInfo()
         {
@@ -31,17 +42,14 @@ namespace PlayerWatching
             Keyboard.Type(VirtualKeyShort.VOLUME_UP);
             Keyboard.Type(VirtualKeyShort.VOLUME_DOWN);
 
-            using var automation = new UIA3Automation();
-            var desktop = automation.GetDesktop();
-
             try
             {
-                var titleText = desktop.FindFirstDescendant(TitleTextAutomationId).Name;
-                var artistText = desktop.FindFirstDescendant(ArtistTextAutomationId).Name;
+                var titleText = _desktop.FindFirstDescendant(TitleTextAutomationId).Name;
+                var artistText = _desktop.FindFirstDescendant(ArtistTextAutomationId).Name;
                 track.Title = titleText.Replace(TitlePrecedingText, string.Empty);
                 track.Artist = artistText.Replace(ArtistPrecedingText, string.Empty);
 
-                var playButtonText = desktop.FindFirstDescendant(PlayButtonAutomationId).Name;
+                var playButtonText = _desktop.FindFirstDescendant(PlayButtonAutomationId).Name;
                 playerState = playButtonText.Contains(PlayButtonPlayingText) ? PlayerState.Playing : PlayerState.Paused;
                 result = true;
             }
@@ -53,6 +61,11 @@ namespace PlayerWatching
             Track = track;
             PlayerState = playerState;
             return result;
+        }
+
+        public void Dispose()
+        {
+            _automation.Dispose();
         }
     }
 }

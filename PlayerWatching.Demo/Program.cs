@@ -1,5 +1,6 @@
 ﻿using LyricsFinder.Core;
 using System;
+using System.Collections.Generic;
 
 namespace PlayerWatching.Demo
 {
@@ -8,9 +9,9 @@ namespace PlayerWatching.Demo
         static void Main(string[] args)
         {
             var interval = TimeSpan.FromSeconds(1);
-            var watcher = new YandexMusicWatcher(interval);
+            var playerWatchers = new List<IPlayerWatcher> { new YandexMusicWatcher() };
+            var watcher = new MultiPlayerWatcher(playerWatchers, interval);
             watcher.TrackChanged += OnWatcherTrackChanged;
-            watcher.StartMonitoring();
 
             Console.ReadLine();
         }

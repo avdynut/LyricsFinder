@@ -6,9 +6,10 @@ using System;
 
 namespace PlayerWatching
 {
-    public class YandexMusicWatcher : TimerPlayerWatcher
+    public class YandexMusicWatcher : IPlayerWatcher
     {
         private const string YandexMusicWindowTitleRu = "Яндекс.Музыка";
+        private const string PlayButtonAutomationId = "PlayButton";
 
         private const string TitleButtonAutomationId = "TitleButton";
         private const string TitleTextBlockAutomationId = "Title";
@@ -20,21 +21,22 @@ namespace PlayerWatching
         private const int PhoneModeMaxWidth = 500;
         private const int TopmostModeMaxHeight = 384;
 
-        private UIA3Automation _automation;
-        private AutomationElement _desktop;
+        private readonly UIA3Automation _automation;
+        private readonly AutomationElement _desktop;
 
-        public YandexMusicWatcher(TimeSpan interval) : base(interval)
-        {
-        }
+        public string Name => "Yandex.Music";
+        public Track Track { get; private set; }
+        public PlayerState PlayerState { get; private set; }
 
-        protected override void Initialize()
+        public YandexMusicWatcher()
         {
             _automation = new UIA3Automation();
             _desktop = _automation.GetDesktop();
         }
 
-        protected override void UpdateTrack()
+        public bool UpdateMediaInfo()
         {
+            var result = false;
             var track = new Track();
             var yandexMusicParentWindow = _desktop.FindFirstChild(x => x.ByName(YandexMusicWindowTitleRu));
 
@@ -72,6 +74,7 @@ namespace PlayerWatching
                     }
 
                     Track = track;
+                    result = true;
                 }
                 catch (Exception ex)
                 {
@@ -82,11 +85,13 @@ namespace PlayerWatching
             {
                 Console.WriteLine("Cannot find Yandex.Music window");
             }
+
+            return result;
         }
 
-        protected override void Dispose()
+        public void Dispose()
         {
-            _automation?.Dispose();
+            _automation.Dispose();
         }
     }
 }
