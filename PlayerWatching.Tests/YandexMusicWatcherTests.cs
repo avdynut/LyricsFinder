@@ -1,6 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace PlayerWatching.Tests
 {
@@ -8,12 +8,23 @@ namespace PlayerWatching.Tests
     public class YandexMusicWatcherTests
     {
         [TestMethod]
-        public async Task YandexMusicWatcherStartMonitoringTest()
+        public void YandexMusicWatcherTrackChangedTest()
         {
-            var interval = TimeSpan.FromMilliseconds(500);
+            var interval = TimeSpan.FromMilliseconds(200);
             var watcher = new YandexMusicWatcher(interval);
+            var resetEvent = new ManualResetEventSlim();
+
+            watcher.TrackChanged += (s, track) => resetEvent.Set();
+
             watcher.StartMonitoring();
-            await Task.Delay(3000);
+
+            var result = resetEvent.Wait(TimeSpan.FromSeconds(1));
+            Assert.IsTrue(result, "TrackChanged event is not occured");
+            Assert.IsNotNull(watcher.Track);
+            Assert.IsFalse(watcher.Track.IsTrackEmpty);
+
+            Console.WriteLine(watcher.Track);
+            watcher.StopMonitoring();
         }
     }
 }

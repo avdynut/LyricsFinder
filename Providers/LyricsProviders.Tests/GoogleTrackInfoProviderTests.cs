@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace LyricsProviders.Tests
 {
     [TestClass]
-    public class GoogleLyricsProviderTests
+    public class GoogleTrackInfoProviderTests
     {
         [TestMethod]
         public async Task GoogleLyricsProviderNotFoundLyricsTest()
@@ -23,7 +23,7 @@ namespace LyricsProviders.Tests
 
         [DataTestMethod]
         [DynamicData(nameof(GetTestLyrics), DynamicDataSourceType.Method)]
-        public async Task GoogleLyricsProviderFindLyricsTest(TestTrack testTrack)
+        public async Task GoogleTrackInfoProviderFindLyricsTest(TestTrack testTrack)
         {
             var provider = new GoogleTrackInfoProvider();
             var track = await provider.FindTrackAsync(testTrack.TrackInfo);

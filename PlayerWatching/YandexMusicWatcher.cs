@@ -71,7 +71,6 @@ namespace PlayerWatching
                         track.Artist = window.FindFirstChild(ArtistButtonAutomationId)?.Name;
                     }
 
-                    Console.WriteLine(track);
                     Track = track;
                 }
                 catch (Exception ex)

@@ -2,6 +2,7 @@
 using FlaUI.Core.WindowsAPI;
 using FlaUI.UIA3;
 using LyricsFinder.Core;
+using System;
 
 namespace PlayerWatching
 {
@@ -20,9 +21,11 @@ namespace PlayerWatching
         public Track Track { get; private set; }
         public PlayerState PlayerState { get; private set; }
 
-        public void UpdateMediaInfo()
+        public bool UpdateMediaInfo()
         {
             var track = new Track();
+            var playerState = PlayerState.Unknown;
+            var result = false;
 
             // change system volume to see SMTC window
             Keyboard.Type(VirtualKeyShort.VOLUME_UP);
@@ -31,15 +34,25 @@ namespace PlayerWatching
             using var automation = new UIA3Automation();
             var desktop = automation.GetDesktop();
 
-            var titleText = desktop.FindFirstDescendant(TitleTextAutomationId).Name;
-            var artistText = desktop.FindFirstDescendant(ArtistTextAutomationId).Name;
-            track.Title = titleText.Replace(TitlePrecedingText, string.Empty);
-            track.Artist = artistText.Replace(ArtistPrecedingText, string.Empty);
+            try
+            {
+                var titleText = desktop.FindFirstDescendant(TitleTextAutomationId).Name;
+                var artistText = desktop.FindFirstDescendant(ArtistTextAutomationId).Name;
+                track.Title = titleText.Replace(TitlePrecedingText, string.Empty);
+                track.Artist = artistText.Replace(ArtistPrecedingText, string.Empty);
 
-            var playButtonText = desktop.FindFirstDescendant(PlayButtonAutomationId).Name;
-            PlayerState = playButtonText.Contains(PlayButtonPlayingText) ? PlayerState.Playing : PlayerState.Paused;
+                var playButtonText = desktop.FindFirstDescendant(PlayButtonAutomationId).Name;
+                playerState = playButtonText.Contains(PlayButtonPlayingText) ? PlayerState.Playing : PlayerState.Paused;
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Cannot read track info: {ex.Message}");
+            }
 
             Track = track;
+            PlayerState = playerState;
+            return result;
         }
     }
 }

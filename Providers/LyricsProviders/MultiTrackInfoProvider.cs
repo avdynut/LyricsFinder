@@ -8,6 +8,7 @@ namespace LyricsProviders
 {
     public class MultiTrackInfoProvider : ITrackInfoProvider
     {
+        public string Name => "Multi";
         public IEnumerable<ITrackInfoProvider> LyricsProviders { get; }
 
         public async Task<Track> FindTrackAsync(TrackInfo trackInfo)

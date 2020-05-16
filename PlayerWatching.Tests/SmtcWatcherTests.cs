@@ -14,14 +14,22 @@ namespace PlayerWatching.Tests
             Assert.IsNull(watcher.Track);
             Assert.AreEqual(PlayerState.Unknown, watcher.PlayerState);
 
-            watcher.UpdateMediaInfo();
+            var result = watcher.UpdateMediaInfo();
 
             Assert.IsNotNull(watcher.Track);
-            Assert.IsFalse(watcher.Track.IsTrackEmpty);
-            Assert.AreNotEqual(PlayerState.Unknown, watcher.PlayerState);
-
             Console.WriteLine(watcher.Track);
             Console.WriteLine($"PlayerState: {watcher.PlayerState}");
+
+            if (result)
+            {
+                Assert.IsFalse(watcher.Track.IsTrackEmpty);
+                Assert.AreNotEqual(PlayerState.Unknown, watcher.PlayerState);
+            }
+            else
+            {
+                Assert.IsTrue(watcher.Track.IsTrackEmpty);
+                Assert.AreEqual(PlayerState.Unknown, watcher.PlayerState);
+            }
         }
     }
 }

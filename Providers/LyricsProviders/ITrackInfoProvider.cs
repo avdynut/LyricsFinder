@@ -5,6 +5,7 @@ namespace LyricsProviders
 {
     public interface ITrackInfoProvider
     {
+        string Name { get; }
         Task<Track> FindTrackAsync(TrackInfo trackInfo);
     }
 }

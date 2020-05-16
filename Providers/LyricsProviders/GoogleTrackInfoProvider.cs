@@ -19,6 +19,8 @@ namespace LyricsProviders
 
         private const string LyricsDivClassName = "Oh5wg";
 
+        public override string Name => "Google";
+
         public override async Task<Track> FindTrackAsync(TrackInfo trackInfo)
         {
             string query = $"{trackInfo.Artist} {trackInfo.Title}";
@@ -61,7 +63,7 @@ namespace LyricsProviders
                 var blocksEnumerator = (divLyricsBlock.children as IHTMLElementCollection).GetEnumerator();
                 blocksEnumerator.MoveNext();
                 var firstBlockChildren = (((IHTMLElement)blocksEnumerator.Current).children as IHTMLElementCollection).Cast<IHTMLElement>();
-                
+
                 var verses = (firstBlockChildren.ElementAt(4).children as IHTMLElementCollection).Cast<IHTMLElement>();
 
                 var textVerses = verses.Select(x => x.innerText);
