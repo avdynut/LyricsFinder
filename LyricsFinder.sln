@@ -15,7 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LyricsFinder.Core", "Lyrics
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerWatching.Tests", "PlayerWatching.Tests\PlayerWatching.Tests.csproj", "{D811000D-7E56-4A16-B179-82C7DF7F28C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerWatching.Demo", "PlayerWatching.Demo\PlayerWatching.Demo.csproj", "{AC52652B-314F-4050-BBC1-644D937F4EA1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerWatching.Demo", "PlayerWatching.Demo\PlayerWatching.Demo.csproj", "{AC52652B-314F-4050-BBC1-644D937F4EA1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lyrixator", "Lyrixator\Lyrixator.csproj", "{57BE1897-7CBE-431D-B1F1-B63BC21B274B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +49,10 @@ Global
 		{AC52652B-314F-4050-BBC1-644D937F4EA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AC52652B-314F-4050-BBC1-644D937F4EA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AC52652B-314F-4050-BBC1-644D937F4EA1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57BE1897-7CBE-431D-B1F1-B63BC21B274B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57BE1897-7CBE-431D-B1F1-B63BC21B274B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57BE1897-7CBE-431D-B1F1-B63BC21B274B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57BE1897-7CBE-431D-B1F1-B63BC21B274B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

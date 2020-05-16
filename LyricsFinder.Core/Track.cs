@@ -48,5 +48,10 @@ namespace LyricsFinder.Core
         {
             return !(left == right);
         }
+
+        public TrackInfo ToTrackInfo()
+        {
+            return new TrackInfo { Title = Title, Artist = Artist, Album = Album, Year = Year };
+        }
     }
 }
