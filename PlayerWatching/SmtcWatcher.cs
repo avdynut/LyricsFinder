@@ -4,6 +4,7 @@ using FlaUI.Core.WindowsAPI;
 using FlaUI.UIA3;
 using LyricsFinder.Core;
 using System;
+using System.Threading;
 
 namespace PlayerWatching
 {
@@ -41,6 +42,9 @@ namespace PlayerWatching
             // change system volume to see SMTC window
             Keyboard.Type(VirtualKeyShort.VOLUME_UP);
             Keyboard.Type(VirtualKeyShort.VOLUME_DOWN);
+
+            // wait some to load automation elements
+            Thread.Sleep(50);
 
             try
             {
