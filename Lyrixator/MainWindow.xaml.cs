@@ -15,14 +15,18 @@ namespace Lyrixator
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly MultiPlayerWatcher _watcher;
-        private readonly ITrackInfoProvider _trackInfoProvider;
-        private readonly HotKey _hotKey;
+        private MultiPlayerWatcher _watcher;
+        private ITrackInfoProvider _trackInfoProvider;
+        private HotKey _hotKey;
 
         public MainWindow()
         {
             InitializeComponent();
+            //InitializeTools();
+        }
 
+        private void InitializeTools()
+        {
             var interval = TimeSpan.FromSeconds(1);
             var playerWatchers = new List<IPlayerWatcher> { new YandexMusicWatcher() };
             _watcher = new MultiPlayerWatcher(playerWatchers, interval);
@@ -67,11 +71,17 @@ namespace Lyrixator
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            _watcher.TrackChanged -= OnWatcherTrackChanged;
-            _watcher.Dispose();
+            if (_watcher != null)
+            {
+                _watcher.TrackChanged -= OnWatcherTrackChanged;
+                _watcher.Dispose();
+            }
 
-            _hotKey.OnHotKeyPressed -= OnHotKeyPressed;
-            _hotKey.Dispose();
+            if (_hotKey != null)
+            {
+                _hotKey.OnHotKeyPressed -= OnHotKeyPressed;
+                _hotKey.Dispose();
+            }
 
             base.OnClosing(e);
         }
