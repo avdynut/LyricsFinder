@@ -85,5 +85,12 @@ namespace Lyrixator
 
             base.OnClosing(e);
         }
+
+        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
+        {
+            base.OnMouseLeftButtonDown(e);
+
+            DragMove();
+        }
     }
 }
