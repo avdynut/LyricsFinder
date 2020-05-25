@@ -4,9 +4,11 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>music-note.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="1.0.8" />
     <PackageReference Include="MaterialDesignThemes" Version="3.1.2" />
     <PackageReference Include="NLog" Version="4.7.2" />
   </ItemGroup>
@@ -15,6 +17,10 @@
     <ProjectReference Include="..\LyricsFinder.Core\LyricsFinder.Core.csproj" />
     <ProjectReference Include="..\PlayerWatching\PlayerWatching.csproj" />
     <ProjectReference Include="..\Providers\LyricsProviders\LyricsProviders.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="music-note.ico" />
   </ItemGroup>
 
 </Project>

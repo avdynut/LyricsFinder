@@ -3,44 +3,65 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:tb="http://www.hardcodet.net/taskbar"
         Title="Lyrixator"
         Width="800"
         Height="450"
         AllowsTransparency="True"
         Background="Transparent"
         FontFamily="{DynamicResource MaterialDesignFont}"
+        ResizeMode="CanResizeWithGrip"
         TextElement.FontSize="14"
         TextElement.FontWeight="Medium"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Topmost="True"
         WindowStyle="None"
         mc:Ignorable="d">
 
+    <Window.Resources>
+        <Storyboard x:Key="ShowBackgroundStoryboard">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                             To="1"
+                             Duration="0:0:0.5"/>
+        </Storyboard>
+        <Storyboard x:Key="FadeBackgroundStoryboard">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                             To="0.1"
+                             Duration="0:0:1"/>
+        </Storyboard>
+    </Window.Resources>
+
     <Grid>
+        <tb:TaskbarIcon Name="TrayIcon"
+                        IconSource="/music-note.ico"
+                        MenuActivation="RightClick"
+                        TrayLeftMouseUp="OnTaskbarIconTrayLeftMouseUp">
+            <tb:TaskbarIcon.ContextMenu>
+                <ContextMenu>
+                    <Separator/>
+                    <MenuItem Click="OnExitClick" Header="Exit"/>
+                </ContextMenu>
+            </tb:TaskbarIcon.ContextMenu>
+            <tb:TaskbarIcon.TrayToolTip>
+                <Border Background="{DynamicResource MaterialDesignLightBackground}">
+                    <Label Content="Lyrixator"/>
+                </Border>
+            </tb:TaskbarIcon.TrayToolTip>
+        </tb:TaskbarIcon>
+
         <Border Background="{DynamicResource MaterialDesignPaper}"
                 BorderBrush="Blue"
                 BorderThickness="1"
-                CornerRadius="5">
+                CornerRadius="10">
             <Border.Style>
                 <Style TargetType="Border">
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsMouseOver}" Value="True">
                             <DataTrigger.EnterActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                                         To="1"
-                                                         Duration="0:0:0.5"/>
-                                    </Storyboard>
-                                </BeginStoryboard>
+                                <BeginStoryboard Storyboard="{StaticResource ShowBackgroundStoryboard}"/>
                             </DataTrigger.EnterActions>
                             <DataTrigger.ExitActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                                         To="0.1"
-                                                         Duration="0:0:1"/>
-                                    </Storyboard>
-                                </BeginStoryboard>
+                                <BeginStoryboard Storyboard="{StaticResource FadeBackgroundStoryboard}"/>
                             </DataTrigger.ExitActions>
                         </DataTrigger>
                     </Style.Triggers>
@@ -56,7 +77,18 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <Grid Grid.Row="0" Height="30"/>
+            <Grid Grid.Row="0" Height="30">
+                <StackPanel Margin="10,0"
+                            HorizontalAlignment="Right"
+                            Orientation="Horizontal">
+                    <CheckBox Margin="20,0"
+                              IsChecked="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Topmost}"
+                              Content="Topmost"/>
+                    <Button Click="OnMinimizeButtonClick" Content="Minimize"/>
+                    <Button Click="OnMaximizeButtonClick" Content="Maximize/Restore"/>
+                    <Button Click="OnExitClick" Content="Close"/>
+                </StackPanel>
+            </Grid>
 
             <TextBox Name="Title" Grid.Row="1"/>
             <TextBox Name="Artist" Grid.Row="2"/>

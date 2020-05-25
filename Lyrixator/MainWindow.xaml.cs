@@ -92,5 +92,45 @@ namespace Lyrixator
 
             DragMove();
         }
+
+        private void OnTaskbarIconTrayLeftMouseUp(object sender, RoutedEventArgs e)
+        {
+            if (WindowState == WindowState.Minimized)
+            {
+                WindowState = WindowState.Normal;
+            }
+            else
+            {
+                MinimizeWindow();
+            }
+        }
+
+        private void OnMinimizeButtonClick(object sender, RoutedEventArgs e)
+        {
+            MinimizeWindow();
+        }
+
+        private void MinimizeWindow()
+        {
+            ShowInTaskbar = true;
+            WindowState = WindowState.Minimized;
+            ShowInTaskbar = false;
+        }
+
+        private void OnMaximizeButtonClick(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+        }
+
+        private void OnExitClick(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            TrayIcon.Dispose();
+            base.OnClosed(e);
+        }
     }
 }
