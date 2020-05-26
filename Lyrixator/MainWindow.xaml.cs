@@ -22,7 +22,7 @@ namespace Lyrixator
         public MainWindow()
         {
             InitializeComponent();
-            //InitializeTools();
+            InitializeTools();
         }
 
         private void InitializeTools()
@@ -30,7 +30,7 @@ namespace Lyrixator
             var interval = TimeSpan.FromSeconds(1);
             var playerWatchers = new List<IPlayerWatcher> { new YandexMusicWatcher() };
             _watcher = new MultiPlayerWatcher(playerWatchers, interval);
-            _watcher.TrackChanged += OnWatcherTrackChanged;
+            //_watcher.TrackChanged += OnWatcherTrackChanged;
 
             var providers = new List<ITrackInfoProvider> { new GoogleTrackInfoProvider() };
             _trackInfoProvider = new MultiTrackInfoProvider(providers);
@@ -58,15 +58,24 @@ namespace Lyrixator
                 Lyrics.Text = track.Lyrics?.Text;
             });
 
-            var trackInfo = track.ToTrackInfo();
-            var foundTrack = await _trackInfoProvider.FindTrackAsync(trackInfo);
+            await FindLyricsAsync(track.ToTrackInfo());
+        }
 
+        private async Task FindLyricsAsync(TrackInfo trackInfo)
+        {
+            var foundTrack = await _trackInfoProvider.FindTrackAsync(trackInfo);
             Dispatcher.Invoke(() => Lyrics.Text = foundTrack.Lyrics.Text);
         }
 
         private async void OnWatcherTrackChanged(object sender, Track track)
         {
             await UpdateTrackInfoAsync(track);
+        }
+
+        private async void OnFindButtonClick(object sender, RoutedEventArgs e)
+        {
+            var trackInfo = new TrackInfo { Artist = Artist.Text, Title = Title.Text };
+            await FindLyricsAsync(trackInfo);
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -119,6 +128,11 @@ namespace Lyrixator
 
         private void OnMaximizeButtonClick(object sender, RoutedEventArgs e)
         {
+            MaximizeWindow();
+        }
+
+        private void MaximizeWindow()
+        {
             WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
         }
 
@@ -131,6 +145,14 @@ namespace Lyrixator
         {
             TrayIcon.Dispose();
             base.OnClosed(e);
+        }
+
+        private void OnTitleBarMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount >= 2)
+            {
+                MaximizeWindow();
+            }
         }
     }
 }
