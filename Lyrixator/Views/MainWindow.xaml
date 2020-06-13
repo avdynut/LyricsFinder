@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:prism="http://prismlibrary.com/"
         xmlns:tb="http://www.hardcodet.net/taskbar"
         xmlns:vm="clr-namespace:Lyrixator.ViewModels"
@@ -91,9 +92,12 @@
                     <CheckBox Margin="20,0"
                               IsChecked="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Topmost}"
                               Content="Topmost"/>
-                    <Button Click="OnMinimizeButtonClick" Content="Minimize"/>
-                    <Button Click="OnMaximizeButtonClick" Content="Maximize/Restore"/>
-                    <Button Click="OnExitClick" Content="Close"/>
+
+                    <Button Click="OnMinimizeButtonClick" Content="{md:PackIcon WindowMinimize}"/>
+                    <Button Name="MaximizeButton"
+                            Click="OnMaximizeButtonClick"
+                            Content="{md:PackIcon WindowMaximize}"/>
+                    <Button Click="OnExitClick" Content="{md:PackIcon WindowClose}"/>
                 </StackPanel>
             </Grid>
 

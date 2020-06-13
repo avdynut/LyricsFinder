@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MaterialDesignThemes.Wpf;
+using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
@@ -78,7 +79,16 @@ namespace Lyrixator.Views
 
         private void MaximizeWindow()
         {
-            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+            if (WindowState == WindowState.Maximized)
+            {
+                WindowState = WindowState.Normal;
+                MaximizeButton.Content = new PackIcon { Kind = PackIconKind.WindowMaximize };
+            }
+            else
+            {
+                WindowState = WindowState.Maximized;
+                MaximizeButton.Content = new PackIcon { Kind = PackIconKind.WindowRestore };
+            }
         }
     }
 }
