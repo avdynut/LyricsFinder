@@ -16,6 +16,21 @@ namespace Lyrixator.Views
             InitializeComponent();
         }
 
+        protected override void OnActivated(EventArgs e)
+        {
+            base.OnActivated(e);
+
+            TopPanel.Opacity = 1;
+        }
+
+        protected override void OnDeactivated(EventArgs e)
+        {
+            base.OnDeactivated(e);
+
+            TopPanel.Opacity = 0;
+            Lyrics.IsReadOnly = true;
+        }
+
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
             base.OnMouseLeftButtonDown(e);
@@ -89,6 +104,11 @@ namespace Lyrixator.Views
                 WindowState = WindowState.Maximized;
                 MaximizeButton.Content = new PackIcon { Kind = PackIconKind.WindowRestore };
             }
+        }
+
+        private void OnLyricsMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            Lyrics.IsReadOnly = false;
         }
     }
 }

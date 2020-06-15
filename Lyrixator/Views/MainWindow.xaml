@@ -56,7 +56,7 @@
 
         <Border Background="{DynamicResource MaterialDesignPaper}"
                 BorderBrush="Blue"
-                BorderThickness="1"
+                BorderThickness="0"
                 CornerRadius="10">
             <Border.Style>
                 <Style TargetType="Border">
@@ -77,57 +77,79 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <Grid Name="TitleBar"
-                  Grid.Row="0"
-                  Height="30"
-                  Background="Transparent"
-                  MouseLeftButtonDown="OnTitleBarMouseLeftButtonDown">
-                <StackPanel Margin="10,0"
-                            HorizontalAlignment="Right"
-                            Orientation="Horizontal">
-                    <CheckBox Margin="20,0"
-                              IsChecked="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Topmost}"
-                              Content="Topmost"/>
+            <StackPanel Name="TopPanel" Grid.Row="0">
 
-                    <Button Click="OnMinimizeButtonClick" Content="{md:PackIcon WindowMinimize}"/>
-                    <Button Name="MaximizeButton"
-                            Click="OnMaximizeButtonClick"
-                            Content="{md:PackIcon WindowMaximize}"/>
-                    <Button Click="OnExitClick" Content="{md:PackIcon WindowClose}"/>
-                </StackPanel>
+                <Grid Name="TitleBar"
+                      Background="Transparent"
+                      MouseLeftButtonDown="OnTitleBarMouseLeftButtonDown">
+                    <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                        <ToggleButton IsChecked="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Topmost}"
+                                      Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                      ToolTip="Topmost">
+                            <md:PackIcon Kind="Pin" RenderTransformOrigin=".5,.5">
+                                <md:PackIcon.RenderTransform>
+                                    <RotateTransform Angle="45"/>
+                                </md:PackIcon.RenderTransform>
+                            </md:PackIcon>
+                            <md:ToggleButtonAssist.OnContent>
+                                <md:PackIcon Kind="Pin"/>
+                            </md:ToggleButtonAssist.OnContent>
+                        </ToggleButton>
+
+                        <Button Padding="8,4"
+                                Click="OnMinimizeButtonClick"
+                                Style="{DynamicResource MaterialDesignFlatButton}"
+                                Content="{md:PackIcon WindowMinimize}"/>
+                        <Button Name="MaximizeButton"
+                                Padding="8,4"
+                                Click="OnMaximizeButtonClick"
+                                Style="{DynamicResource MaterialDesignFlatButton}"
+                                Content="{md:PackIcon WindowMaximize}"/>
+                        <Button Padding="8,4"
+                                Click="OnExitClick"
+                                Style="{DynamicResource MaterialDesignFlatButton}"
+                                Content="{md:PackIcon WindowClose}"/>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Name="SearchPanel" Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <UniformGrid Grid.Column="0" Rows="2">
+                        <TextBox Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox Text="{Binding Artist, UpdateSourceTrigger=PropertyChanged}"/>
+                    </UniformGrid>
+                    <Button Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Command="{Binding FindLyricsCommand}"
+                            IsDefault="True"
+                            Style="{DynamicResource MaterialDesignIconButton}"
+                            Content="{md:PackIcon Kind=Search}"/>
+                </Grid>
+            </StackPanel>
+
+            <Grid Name="LyricsPanel" Grid.Row="1">
+                <TextBox Name="Lyrics"
+                         HorizontalContentAlignment="Center"
+                         AcceptsReturn="True"
+                         Background="Transparent"
+                         FontSize="20"
+                         IsReadOnly="True"
+                         MouseDoubleClick="OnLyricsMouseDoubleClick"
+                         Style="{x:Null}"
+                         Text="{Binding Lyrics}"
+                         TextWrapping="Wrap"
+                         VerticalScrollBarVisibility="Auto">
+                    <TextBox.Effect>
+                        <DropShadowEffect Color="LightBlue"/>
+                    </TextBox.Effect>
+                </TextBox>
             </Grid>
-
-            <Grid Grid.Row="1" Margin="10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <UniformGrid Grid.Column="0" Rows="2">
-                    <TextBox Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"/>
-                    <TextBox Text="{Binding Artist, UpdateSourceTrigger=PropertyChanged}"/>
-                </UniformGrid>
-                <Button Grid.Column="1"
-                        VerticalAlignment="Center"
-                        Command="{Binding FindLyricsCommand}"
-                        IsDefault="True"
-                        Style="{DynamicResource MaterialDesignIconButton}"
-                        Content="Find"/>
-            </Grid>
-
-            <TextBox Grid.Row="2"
-                     AcceptsReturn="True"
-                     Background="Transparent"
-                     Style="{x:Null}"
-                     Text="{Binding Lyrics}"
-                     VerticalScrollBarVisibility="Auto">
-                <TextBox.Effect>
-                    <DropShadowEffect Color="White"/>
-                </TextBox.Effect>
-            </TextBox>
         </Grid>
     </Grid>
 
