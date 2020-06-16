@@ -27,12 +27,12 @@
         <Storyboard x:Key="ShowBackgroundStoryboard">
             <DoubleAnimation Storyboard.TargetProperty="Opacity"
                              To="1"
-                             Duration="0:0:0.5"/>
+                             Duration="0:0:0.3"/>
         </Storyboard>
         <Storyboard x:Key="FadeBackgroundStoryboard">
             <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                             To="0.5"
-                             Duration="0:0:1"/>
+                             To="0"
+                             Duration="0:0:0.5"/>
         </Storyboard>
     </Window.Resources>
 
@@ -54,37 +54,32 @@
             </tb:TaskbarIcon.TrayToolTip>
         </tb:TaskbarIcon>
 
-        <Border Background="{DynamicResource MaterialDesignPaper}"
-                BorderBrush="Blue"
-                BorderThickness="0"
-                CornerRadius="10">
-            <Border.Style>
-                <Style TargetType="Border">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsMouseOver}" Value="True">
-                            <DataTrigger.EnterActions>
-                                <BeginStoryboard Storyboard="{StaticResource ShowBackgroundStoryboard}"/>
-                            </DataTrigger.EnterActions>
-                            <DataTrigger.ExitActions>
-                                <BeginStoryboard Storyboard="{StaticResource FadeBackgroundStoryboard}"/>
-                            </DataTrigger.ExitActions>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Border.Style>
-        </Border>
-
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <StackPanel Name="TopPanel" Grid.Row="0">
+            <StackPanel Name="TopPanel"
+                        Grid.Row="0"
+                        Background="{DynamicResource MaterialDesignPaper}">
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsActive}" Value="True">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard Storyboard="{StaticResource ShowBackgroundStoryboard}"/>
+                                </DataTrigger.EnterActions>
+                                <DataTrigger.ExitActions>
+                                    <BeginStoryboard Storyboard="{StaticResource FadeBackgroundStoryboard}"/>
+                                </DataTrigger.ExitActions>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
 
-                <Grid Name="TitleBar"
-                      Background="Transparent"
-                      MouseLeftButtonDown="OnTitleBarMouseLeftButtonDown">
+                <Grid Name="TitleBar" MouseLeftButtonDown="OnTitleBarMouseLeftButtonDown">
                     <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                         <ToggleButton IsChecked="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Topmost}"
                                       Style="{StaticResource MaterialDesignSwitchToggleButton}"
@@ -138,6 +133,7 @@
                          HorizontalContentAlignment="Center"
                          AcceptsReturn="True"
                          Background="Transparent"
+                         BorderThickness="0"
                          FontSize="20"
                          IsReadOnly="True"
                          MouseDoubleClick="OnLyricsMouseDoubleClick"
@@ -149,6 +145,18 @@
                         <DropShadowEffect Color="LightBlue"/>
                     </TextBox.Effect>
                 </TextBox>
+            </Grid>
+
+            <Grid Name="BottomPanel"
+                  Grid.Row="2"
+                  MinHeight="10">
+                <Slider IsMoveToPointEnabled="True"
+                        Style="{DynamicResource MaterialDesignDiscreteSlider}"
+                        ToolTip="Font Size"
+                        Visibility="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        Value="{Binding ElementName=Lyrics, Path=FontSize}"
+                        Minimum="7"
+                        Maximum="200"/>
             </Grid>
         </Grid>
     </Grid>

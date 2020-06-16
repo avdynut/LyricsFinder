@@ -3,6 +3,7 @@ using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace Lyrixator.Views
 {
@@ -11,24 +12,27 @@ namespace Lyrixator.Views
     /// </summary>
     public partial class MainWindow : Window
     {
+        private readonly Brush _lyricsPanelBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFAFAFA"));
+
         public MainWindow()
         {
             InitializeComponent();
+            LyricsPanel.Background = BottomPanel.Background = _lyricsPanelBrush;
         }
 
         protected override void OnActivated(EventArgs e)
         {
             base.OnActivated(e);
 
-            TopPanel.Opacity = 1;
+            LyricsPanel.Background.Opacity = BottomPanel.Background.Opacity = 1;
         }
 
         protected override void OnDeactivated(EventArgs e)
         {
             base.OnDeactivated(e);
 
-            TopPanel.Opacity = 0;
             Lyrics.IsReadOnly = true;
+            LyricsPanel.Background.Opacity = BottomPanel.Background.Opacity = 0.3;
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
