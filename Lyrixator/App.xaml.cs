@@ -1,8 +1,10 @@
 ﻿using LyricsProviders;
+using NLog;
 using PlayerWatching;
 using Prism.Ioc;
 using Prism.Ninject;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace Lyrixator
 {
@@ -11,6 +13,8 @@ namespace Lyrixator
     /// </summary>
     public partial class App : PrismApplication
     {
+        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.Register<IPlayerWatcher, YandexMusicWatcher>();
@@ -20,6 +24,11 @@ namespace Lyrixator
         protected override Window CreateShell()
         {
             return Container.Resolve<Views.MainWindow>();
+        }
+
+        private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        {
+            _logger.Fatal(e.Exception, "Unhandled error");
         }
     }
 }

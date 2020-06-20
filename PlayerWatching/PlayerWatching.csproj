@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="FlaUI.UIA3" Version="3.1.0" />
+    <PackageReference Include="NLog" Version="4.7.2" />
   </ItemGroup>
 
   <ItemGroup>

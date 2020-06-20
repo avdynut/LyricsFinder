@@ -3,6 +3,7 @@ using FlaUI.Core.Input;
 using FlaUI.Core.WindowsAPI;
 using FlaUI.UIA3;
 using LyricsFinder.Core;
+using NLog;
 using System;
 using System.Threading;
 
@@ -20,6 +21,7 @@ namespace PlayerWatching
         private const string ArtistTextAutomationId = "idArtistName";
         private const string ArtistPrecedingText = "Сведения о дорожке ";
 
+        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly UIA3Automation _automation;
         private readonly AutomationElement _desktop;
 
@@ -59,7 +61,7 @@ namespace PlayerWatching
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Cannot read track info: {ex.Message}");
+                _logger.Warn(ex, "Cannot read track info from SMTC");
             }
 
             Track = track;

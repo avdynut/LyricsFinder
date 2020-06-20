@@ -135,6 +135,7 @@
                          Background="Transparent"
                          BorderThickness="0"
                          FontSize="20"
+                         Foreground="#D6EDFF"
                          IsReadOnly="True"
                          MouseDoubleClick="OnLyricsMouseDoubleClick"
                          Style="{x:Null}"
@@ -142,7 +143,9 @@
                          TextWrapping="Wrap"
                          VerticalScrollBarVisibility="Auto">
                     <TextBox.Effect>
-                        <DropShadowEffect Color="LightBlue"/>
+                        <DropShadowEffect BlurRadius="15"
+                                          ShadowDepth="0"
+                                          Color="Black"/>
                     </TextBox.Effect>
                 </TextBox>
             </Grid>

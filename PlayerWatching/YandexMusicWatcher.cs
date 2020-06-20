@@ -2,12 +2,14 @@
 using FlaUI.Core.Definitions;
 using FlaUI.UIA3;
 using LyricsFinder.Core;
+using NLog;
 using System;
 
 namespace PlayerWatching
 {
     public class YandexMusicWatcher : IPlayerWatcher
     {
+        // todo: consider window title for other languages
         private const string YandexMusicWindowTitleRu = "Яндекс.Музыка";
         private const string PlayButtonAutomationId = "PlayButton";
 
@@ -21,6 +23,7 @@ namespace PlayerWatching
         private const int PhoneModeMaxWidth = 500;
         private const int TopmostModeMaxHeight = 384;
 
+        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly UIA3Automation _automation;
         private readonly AutomationElement _desktop;
 
@@ -51,12 +54,16 @@ namespace PlayerWatching
 
                     if (size.Height <= TopmostModeMaxHeight)    // in topmost mode
                     {
+                        _logger.Trace("Getting song info from Y.Music in topmost mode");
+
                         track.Title = window.FindFirstChild(TitleTextBlockAutomationId)?.Name;
                         track.Artist = window.FindFirstChild(ArtistTextBlockAutomationId)?.Name;
                     }
                     else if (size.Width < PhoneModeMaxWidth && size.Height >= PhoneModeMaxWidth) // in phone mode
                     {
+                        _logger.Trace("Getting song info from Y.Music in phone mode");
                         var children = window.FindAllChildren(x => x.ByControlType(ControlType.Button));
+
                         for (int i = 0; i < children.Length; i++)
                         {
                             if (children[i].AutomationId == TitleButtonPhoneModeAutomationId)
@@ -69,6 +76,7 @@ namespace PlayerWatching
                     }
                     else // normal mode
                     {
+                        _logger.Trace("Getting song info from Y.Music");
                         track.Title = window.FindFirstChild(TitleButtonAutomationId)?.Name;
                         track.Artist = window.FindFirstChild(ArtistButtonAutomationId)?.Name;
                     }
@@ -78,12 +86,8 @@ namespace PlayerWatching
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Cannot find song info: {ex.Message}");
+                    _logger.Error(ex, "Cannot find song info");
                 }
-            }
-            else
-            {
-                Console.WriteLine("Cannot find Yandex.Music window");
             }
 
             return result;

@@ -1,4 +1,5 @@
 ﻿using LyricsFinder.Core;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -7,16 +8,18 @@ namespace PlayerWatching
 {
     public class MultiPlayerWatcher : IPlayer
     {
+        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly Timer _timer;
 
         public TimeSpan Interval { get; }
         public IEnumerable<IPlayerWatcher> PlayerWatchers { get; }
+        public IPlayerWatcher ActualWatcher { get; private set; }
 
         private Track track;
         public Track Track
         {
             get => track;
-            protected set
+            private set
             {
                 if (value != track && value?.IsTrackEmpty == false)
                 {
@@ -30,7 +33,7 @@ namespace PlayerWatching
         public PlayerState PlayerState
         {
             get => _playerState;
-            protected set
+            private set
             {
                 if (value != _playerState)
                 {
@@ -49,6 +52,7 @@ namespace PlayerWatching
             PlayerWatchers = playerWatchers ?? throw new ArgumentNullException(nameof(playerWatchers));
             Interval = interval;
 
+            _logger.Debug($"Initialize multi watcher with timer {Interval}");
             _timer = new Timer(_ => UpdateMediaInfo(), null, TimeSpan.Zero, Interval);
         }
 
@@ -60,8 +64,12 @@ namespace PlayerWatching
 
                 if (result)
                 {
+                    ActualWatcher = watcher;
                     Track = watcher.Track;
-                    PlayerState = watcher.PlayerState;
+                    PlayerState = watcher.PlayerState;                    
+
+                    if (PlayerState == PlayerState.Playing)
+                        return;
                 }
             }
         }

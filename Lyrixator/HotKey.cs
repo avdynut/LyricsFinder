@@ -1,5 +1,5 @@
-﻿using System;
-using System.Diagnostics;
+﻿using NLog;
+using System;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
@@ -9,6 +9,8 @@ namespace Lyrixator
 {
     public class HotKey : IDisposable
     {
+        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
         [DllImport("user32.dll")]
         private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
 
@@ -30,18 +32,20 @@ namespace Lyrixator
 
             var virtualKey = KeyInterop.VirtualKeyFromKey(key);
 
+            _logger.Trace($"Registering hot key {keyModifiers}+{key}");
             if (RegisterHotKey(_windowHandle, _id, (uint)keyModifiers, (uint)virtualKey))
             {
                 ComponentDispatcher.ThreadFilterMessage += OnComponentDispatcherThreadFilterMessage;
             }
             else
             {
-                Debug.WriteLine("Cannot register hotkey");
+                _logger.Error("Cannot register hotkey");
             }
         }
 
         public void Dispose()
         {
+            _logger.Trace("Disposing hot key");
             ComponentDispatcher.ThreadFilterMessage -= OnComponentDispatcherThreadFilterMessage;
             UnregisterHotKey(_windowHandle, _id);
         }
@@ -50,6 +54,7 @@ namespace Lyrixator
         {
             if (!handled && msg.message == _hotKeyMessage)
             {
+                _logger.Trace("Hotkey pressed");
                 OnHotKeyPressed?.Invoke(this, EventArgs.Empty);
                 handled = true;
             }

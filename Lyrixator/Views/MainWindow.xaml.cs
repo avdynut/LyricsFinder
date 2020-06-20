@@ -1,4 +1,5 @@
 ﻿using MaterialDesignThemes.Wpf;
+using NLog;
 using System;
 using System.ComponentModel;
 using System.Windows;
@@ -12,6 +13,7 @@ namespace Lyrixator.Views
     /// </summary>
     public partial class MainWindow : Window
     {
+        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly Brush _lyricsPanelBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFAFAFA"));
 
         public MainWindow()
@@ -32,7 +34,7 @@ namespace Lyrixator.Views
             base.OnDeactivated(e);
 
             Lyrics.IsReadOnly = true;
-            LyricsPanel.Background.Opacity = BottomPanel.Background.Opacity = 0.3;
+            LyricsPanel.Background.Opacity = BottomPanel.Background.Opacity = 0;
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
@@ -44,6 +46,8 @@ namespace Lyrixator.Views
 
         protected override void OnClosing(CancelEventArgs e)
         {
+            _logger.Trace("Disposing before exit");
+
             if (DataContext is IDisposable disposable)
             {
                 disposable.Dispose();

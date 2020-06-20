@@ -1,5 +1,6 @@
 ﻿using LyricsFinder.Core;
 using LyricsProviders;
+using NLog;
 using PlayerWatching;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -13,6 +14,7 @@ namespace Lyrixator.ViewModels
 {
     public class MainWindowViewModel : BindableBase, IDisposable
     {
+        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly MultiPlayerWatcher _watcher;
         private readonly ITrackInfoProvider _trackInfoProvider;
         private readonly HotKey _hotKey;
@@ -44,7 +46,7 @@ namespace Lyrixator.ViewModels
         {
             var interval = TimeSpan.FromSeconds(1);
             _watcher = new MultiPlayerWatcher(playerWatchers, interval);
-            //_watcher.TrackChanged += OnWatcherTrackChanged;
+            _watcher.TrackChanged += OnWatcherTrackChanged;
 
             _trackInfoProvider = new MultiTrackInfoProvider(providers);
 
@@ -69,6 +71,8 @@ namespace Lyrixator.ViewModels
 
         private async Task UpdateTrackInfoAsync(Track track)
         {
+            _logger.Info("Update track info {track}", track);
+
             Title = track.Title;
             Artist = track.Artist;
             Lyrics = track.Lyrics?.Text;
@@ -80,10 +84,13 @@ namespace Lyrixator.ViewModels
         {
             var foundTrack = await _trackInfoProvider.FindTrackAsync(trackInfo);
             Lyrics = foundTrack.Lyrics.Text;
+
+            _logger.Debug($"Find lyrics length {Lyrics?.Length}");
         }
 
         private async void OnWatcherTrackChanged(object sender, Track track)
         {
+            _logger.Debug($"Track changed {_watcher.ActualWatcher?.Name} - {_watcher.PlayerState}");
             await UpdateTrackInfoAsync(track);
         }
 
