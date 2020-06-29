@@ -8,8 +8,6 @@
         xmlns:tb="http://www.hardcodet.net/taskbar"
         xmlns:vm="clr-namespace:Lyrixator.ViewModels"
         Title="Lyrixator"
-        Width="420"
-        Height="450"
         d:DataContext="{d:DesignInstance vm:MainWindowViewModel}"
         prism:ViewModelLocator.AutoWireViewModel="True"
         AllowsTransparency="True"
@@ -19,7 +17,6 @@
         TextElement.FontSize="14"
         TextElement.FontWeight="Medium"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-        Topmost="True"
         WindowStyle="None"
         mc:Ignorable="d">
 

@@ -1,5 +1,8 @@
-﻿using MaterialDesignThemes.Wpf;
+﻿using Lyrixator.Configuration;
+using MaterialDesignThemes.Wpf;
 using NLog;
+using nucs.JsonSettings;
+using nucs.JsonSettings.Autosave;
 using System;
 using System.ComponentModel;
 using System.Windows;
@@ -15,11 +18,40 @@ namespace Lyrixator.Views
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly Brush _lyricsPanelBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFAFAFA"));
+        private readonly WindowSettings _settings = JsonSettings.Load<WindowSettings>().EnableAutosave();
 
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        protected override void OnInitialized(EventArgs e)
+        {
+            base.OnInitialized(e);
+
+            RestoreWindowParameters();
             LyricsPanel.Background = BottomPanel.Background = _lyricsPanelBrush;
+        }
+
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        {
+            base.OnRenderSizeChanged(sizeInfo);
+            _settings.WindowSize = sizeInfo.NewSize;
+        }
+
+        protected override void OnLocationChanged(EventArgs e)
+        {
+            base.OnLocationChanged(e);
+            _settings.WindowPosition = new Point(Left, Top);
+        }
+
+        protected override void OnStateChanged(EventArgs e)
+        {
+            base.OnStateChanged(e);
+
+            var iconKind = WindowState == WindowState.Maximized ? PackIconKind.WindowRestore : PackIconKind.WindowMaximize;
+            MaximizeButton.Content = new PackIcon { Kind = iconKind };
+            _settings.WindowState = WindowState;
         }
 
         protected override void OnActivated(EventArgs e)
@@ -55,7 +87,23 @@ namespace Lyrixator.Views
 
             TrayIcon.Dispose();
 
+            _settings.Topmost = Topmost;
+            _settings.Save();
             base.OnClosing(e);
+        }
+
+        private void RestoreWindowParameters()
+        {
+            Width = _settings.WindowSize.Width;
+            Height = _settings.WindowSize.Height;
+            WindowState = _settings.WindowState;
+            Topmost = _settings.Topmost;
+
+            if (_settings.WindowPosition.HasValue)
+            {
+                Left = _settings.WindowPosition.Value.X;
+                Top = _settings.WindowPosition.Value.Y;
+            }
         }
 
         private void OnTaskbarIconTrayLeftMouseUp(object sender, RoutedEventArgs e)
@@ -97,21 +145,12 @@ namespace Lyrixator.Views
         {
             ShowInTaskbar = true;
             WindowState = WindowState.Minimized;
-            ShowInTaskbar = false;
+            ShowInTaskbar = _settings.DisplayInTaskbar;
         }
 
         private void MaximizeWindow()
         {
-            if (WindowState == WindowState.Maximized)
-            {
-                WindowState = WindowState.Normal;
-                MaximizeButton.Content = new PackIcon { Kind = PackIconKind.WindowMaximize };
-            }
-            else
-            {
-                WindowState = WindowState.Maximized;
-                MaximizeButton.Content = new PackIcon { Kind = PackIconKind.WindowRestore };
-            }
+            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
         }
 
         private void OnLyricsMouseDoubleClick(object sender, MouseButtonEventArgs e)

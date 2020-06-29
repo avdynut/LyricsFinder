@@ -1,5 +1,8 @@
 ﻿using LyricsProviders;
+using Lyrixator.Configuration;
 using NLog;
+using nucs.JsonSettings;
+using nucs.JsonSettings.Autosave;
 using PlayerWatching;
 using Prism.Ioc;
 using Prism.Ninject;
@@ -17,6 +20,9 @@ namespace Lyrixator
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
+            var settings = JsonSettings.Load<Settings>().EnableAutosave();
+            containerRegistry.RegisterInstance(settings);
+
             containerRegistry.Register<IPlayerWatcher, YandexMusicWatcher>();
             containerRegistry.Register<ITrackInfoProvider, GoogleTrackInfoProvider>();
         }
