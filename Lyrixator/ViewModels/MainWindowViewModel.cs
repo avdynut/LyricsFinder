@@ -1,6 +1,9 @@
 ﻿using LyricsFinder.Core;
 using LyricsProviders;
+using Lyrixator.Configuration;
 using NLog;
+using nucs.JsonSettings;
+using nucs.JsonSettings.Autosave;
 using PlayerWatching;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -41,6 +44,8 @@ namespace Lyrixator.ViewModels
         }
 
         public ICommand FindLyricsCommand { get; }
+
+        public LyricsSettings LyricsSettings { get; } = JsonSettings.Load<LyricsSettings>().EnableAutosave();
 
         public MainWindowViewModel(IEnumerable<IPlayerWatcher> playerWatchers, IEnumerable<ITrackInfoProvider> providers)
         {

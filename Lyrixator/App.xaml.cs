@@ -1,5 +1,6 @@
 ﻿using LyricsProviders;
 using Lyrixator.Configuration;
+using Newtonsoft.Json.Converters;
 using NLog;
 using nucs.JsonSettings;
 using nucs.JsonSettings.Autosave;
@@ -20,6 +21,8 @@ namespace Lyrixator
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
+            JsonSettings.SerializationSettings.Converters.Add(new StringEnumConverter());
+
             var settings = JsonSettings.Load<Settings>().EnableAutosave();
             containerRegistry.RegisterInstance(settings);
 
