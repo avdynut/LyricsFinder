@@ -9,19 +9,17 @@ using System.Threading;
 
 namespace PlayerWatching
 {
-    // todo: add localized constants
+    /// <summary>
+    /// Watcher for System Media Transport Controls window.
+    /// </summary>
     public class SmtcWatcher : IPlayerWatcher
     {
         private const string PlayButtonAutomationId = "idPlayPause";
-        private const string PlayButtonPlayingText = "Приостановить";
-
         private const string TitleTextAutomationId = "idStreamName";
-        private const string TitlePrecedingText = "Название дорожки ";
-
         private const string ArtistTextAutomationId = "idArtistName";
-        private const string ArtistPrecedingText = "Сведения о дорожке ";
 
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        private readonly SmtcLocalization _localization = SmtcLocalization.GetLocalization();
         private readonly UIA3Automation _automation;
         private readonly AutomationElement _desktop;
 
@@ -52,11 +50,11 @@ namespace PlayerWatching
             {
                 var titleText = _desktop.FindFirstDescendant(TitleTextAutomationId).Name;
                 var artistText = _desktop.FindFirstDescendant(ArtistTextAutomationId).Name;
-                track.Title = titleText.Replace(TitlePrecedingText, string.Empty);
-                track.Artist = artistText.Replace(ArtistPrecedingText, string.Empty);
+                track.Title = titleText.Replace(_localization.TitlePrecedingText, string.Empty);
+                track.Artist = artistText.Replace(_localization.ArtistPrecedingText, string.Empty);
 
                 var playButtonText = _desktop.FindFirstDescendant(PlayButtonAutomationId).Name;
-                playerState = playButtonText.Contains(PlayButtonPlayingText) ? PlayerState.Playing : PlayerState.Paused;
+                playerState = playButtonText.Contains(_localization.PlayButtonPlayingText) ? PlayerState.Playing : PlayerState.Paused;
                 result = true;
             }
             catch (Exception ex)

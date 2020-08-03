@@ -35,9 +35,7 @@ namespace LyricsProviders
             var html = await httpClient.GetStringAsync(url);
 
 #if DEBUG
-            var googleFolder = "google-results";
-            Directory.CreateDirectory(googleFolder);
-            File.WriteAllText(Path.Combine(googleFolder, $"{query}.html"), html);
+            SaveHtmlFile(encodedString, html);
 #endif
 
             var doc = (IHTMLDocument2)new HTMLDocument();
@@ -85,6 +83,20 @@ namespace LyricsProviders
                 _logger.Warn(ex, "Error while parsing lyrics");
             }
             return null;
+        }
+
+        private void SaveHtmlFile(string query, string html)
+        {
+            try
+            {
+                var googleFolder = "google-results";
+                Directory.CreateDirectory(googleFolder);
+                File.WriteAllText(Path.Combine(googleFolder, $"{query}.html"), html);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Cannot save html file");
+            }
         }
     }
 }
