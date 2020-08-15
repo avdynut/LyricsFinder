@@ -3,16 +3,14 @@ using FlaUI.Core.Definitions;
 using FlaUI.UIA3;
 using LyricsFinder.Core;
 using NLog;
+using PlayerWatching.Localization;
 using System;
 
 namespace PlayerWatching
 {
     public class YandexMusicWatcher : IPlayerWatcher
     {
-        // todo: consider window title for other languages
-        private const string YandexMusicWindowTitleRu = "Яндекс.Музыка";
         private const string PlayButtonAutomationId = "PlayButton";
-
         private const string TitleButtonAutomationId = "TitleButton";
         private const string TitleTextBlockAutomationId = "Title";
         private const string TitleButtonPhoneModeAutomationId = "PhoneTrackButton";
@@ -24,6 +22,7 @@ namespace PlayerWatching
         private const int TopmostModeMaxHeight = 384;
 
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        private readonly YandexMusicLocalization _localization = YandexMusicLocalization.Localizations.GetCurrentLocalization();
         private readonly UIA3Automation _automation;
         private readonly AutomationElement _desktop;
 
@@ -41,7 +40,7 @@ namespace PlayerWatching
         {
             var result = false;
             var track = new Track();
-            var yandexMusicParentWindow = _desktop.FindFirstChild(x => x.ByName(YandexMusicWindowTitleRu));
+            var yandexMusicParentWindow = _desktop.FindFirstChild(x => x.ByName(_localization.WindowTitle));
 
             if (yandexMusicParentWindow != null)
             {

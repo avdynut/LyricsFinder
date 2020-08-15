@@ -4,6 +4,7 @@ using FlaUI.Core.WindowsAPI;
 using FlaUI.UIA3;
 using LyricsFinder.Core;
 using NLog;
+using PlayerWatching.Localization;
 using System;
 using System.Threading;
 
@@ -19,7 +20,7 @@ namespace PlayerWatching
         private const string ArtistTextAutomationId = "idArtistName";
 
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-        private readonly SmtcLocalization _localization = SmtcLocalization.GetLocalization();
+        private readonly SmtcLocalization _localization = SmtcLocalization.Localizations.GetCurrentLocalization();
         private readonly UIA3Automation _automation;
         private readonly AutomationElement _desktop;
 
