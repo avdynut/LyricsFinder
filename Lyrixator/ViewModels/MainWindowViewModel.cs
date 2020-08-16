@@ -9,6 +9,7 @@ using Prism.Commands;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -45,12 +46,12 @@ namespace Lyrixator.ViewModels
 
         public ICommand FindLyricsCommand { get; }
 
+        public Settings Settings { get; } = JsonSettings.Load<Settings>().EnableAutosave();
         public LyricsSettings LyricsSettings { get; } = JsonSettings.Load<LyricsSettings>().EnableAutosave();
 
         public MainWindowViewModel(IEnumerable<IPlayerWatcher> playerWatchers, IEnumerable<ITrackInfoProvider> providers)
         {
-            var interval = TimeSpan.FromSeconds(1);
-            _watcher = new MultiPlayerWatcher(playerWatchers, interval);
+            _watcher = new MultiPlayerWatcher(playerWatchers, Settings.CheckInterval);
             _watcher.TrackChanged += OnWatcherTrackChanged;
 
             _trackInfoProvider = new MultiTrackInfoProvider(providers);
@@ -90,7 +91,22 @@ namespace Lyrixator.ViewModels
             var foundTrack = await _trackInfoProvider.FindTrackAsync(trackInfo);
             Lyrics = foundTrack.Lyrics.Text;
 
-            _logger.Debug($"Find lyrics length {Lyrics?.Length}");
+            if (Lyrics?.Length > 0)
+            {
+                _logger.Debug($"Found lyrics for {foundTrack}");
+
+                var file = Path.Combine(Settings.LyricsDirectory, $"{foundTrack}.txt");
+
+                if (!File.Exists(file))
+                {
+                    Directory.CreateDirectory(Settings.LyricsDirectory);
+                    File.WriteAllText(file, Lyrics);
+                }
+            }
+            else
+            {
+                _logger.Debug("Lyrics not found");
+            }
         }
 
         private async void OnWatcherTrackChanged(object sender, Track track)

@@ -19,6 +19,18 @@ namespace LyricsFinder.Core
 
         public bool IsTrackEmpty => this == new Track();
 
+        public Track()
+        {
+        }
+
+        public Track(TrackInfo trackInfo)
+        {
+            Artist = trackInfo.Artist;
+            Title = trackInfo.Title;
+            Album = trackInfo.Album;
+            Year = trackInfo.Year;
+        }
+
         public override string ToString() => $"{Artist} - {Title}";
 
         public override bool Equals(object obj)

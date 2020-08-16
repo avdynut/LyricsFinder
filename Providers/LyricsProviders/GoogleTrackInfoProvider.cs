@@ -42,7 +42,8 @@ namespace LyricsProviders
             doc.write(html);
             var lyricsText = ParseLyrics((HTMLDocument)doc);
 
-            var track = new Track();
+            var track = new Track(trackInfo);
+
             if (string.IsNullOrEmpty(lyricsText))
             {
                 track.Lyrics = new NoneLyric("Not Found");
@@ -51,6 +52,7 @@ namespace LyricsProviders
             else
             {
                 track.Lyrics = new UnsyncedLyric(lyricsText);
+                // todo: parse artist and title
                 _logger.Trace("Found lyrics");
             }
 
