@@ -1,4 +1,5 @@
 ﻿using LyricsProviders;
+using LyricsProviders.GoogleProvider;
 using Newtonsoft.Json.Converters;
 using NLog;
 using nucs.JsonSettings;

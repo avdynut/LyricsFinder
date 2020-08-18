@@ -1,4 +1,5 @@
 ﻿using LyricsFinder.Core;
+using LyricsProviders.GoogleProvider;
 using System;
 using System.Threading.Tasks;
 

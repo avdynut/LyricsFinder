@@ -1,5 +1,6 @@
 using LyricsFinder.Core;
 using LyricsFinder.Core.LyricTypes;
+using LyricsProviders.GoogleProvider;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Threading.Tasks;

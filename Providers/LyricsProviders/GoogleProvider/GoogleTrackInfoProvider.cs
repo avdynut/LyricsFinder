@@ -2,6 +2,7 @@
 using LyricsFinder.Core.LyricTypes;
 using MSHTML;
 using NLog;
+using nucs.JsonSettings;
 using System;
 using System.IO;
 using System.Linq;
@@ -9,17 +10,12 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace LyricsProviders
+namespace LyricsProviders.GoogleProvider
 {
     public class GoogleTrackInfoProvider : WebTrackInfoProvider
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-
-        private const string SearchUrl = "https://www.google.com/search?q=";
-        private const string UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.75 Safari/537.36";
-        private const string AcceptLanguages = "ru,en";
-
-        private const string LyricsDivClassName = "Oh5wg";
+        private readonly GoogleSettings _settings = JsonSettings.Load<GoogleSettings>();
 
         public override string Name => "Google";
 
@@ -27,11 +23,11 @@ namespace LyricsProviders
         {
             string query = $"{trackInfo.Artist} {trackInfo.Title}";
             string encodedString = HttpUtility.UrlEncode(query);
-            string url = SearchUrl + encodedString;
+            string url = _settings.SearchUrl + encodedString;
 
             using var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgent);
-            httpClient.DefaultRequestHeaders.AcceptLanguage.ParseAdd(AcceptLanguages);
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(_settings.UserAgent);
+            httpClient.DefaultRequestHeaders.AcceptLanguage.ParseAdd(_settings.AcceptLanguages);
             var html = await httpClient.GetStringAsync(url);
 
 #if DEBUG
@@ -63,7 +59,7 @@ namespace LyricsProviders
         {
             try
             {
-                var elementsEnumerator = doc.getElementsByClassName(LyricsDivClassName).GetEnumerator();
+                var elementsEnumerator = doc.getElementsByClassName(_settings.LyricsDivClassName).GetEnumerator();
                 elementsEnumerator.MoveNext();
                 var divLyricsBlock = (IHTMLElement)elementsEnumerator.Current;
 
