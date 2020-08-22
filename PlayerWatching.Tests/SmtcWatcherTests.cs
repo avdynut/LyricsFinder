@@ -17,11 +17,11 @@ namespace PlayerWatching.Tests
             var result = watcher.UpdateMediaInfo();
 
             Assert.IsNotNull(watcher.Track);
-            Console.WriteLine(watcher.Track);
             Console.WriteLine($"PlayerState: {watcher.PlayerState}");
 
             if (result)
             {
+                Console.WriteLine(watcher.Track);
                 Assert.IsFalse(watcher.Track.IsTrackEmpty);
                 Assert.AreNotEqual(PlayerState.Unknown, watcher.PlayerState);
             }

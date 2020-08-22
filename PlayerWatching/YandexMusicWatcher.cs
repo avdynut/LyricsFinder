@@ -80,8 +80,8 @@ namespace PlayerWatching
                         track.Artist = window.FindFirstChild(ArtistButtonAutomationId)?.Name;
                     }
 
+                    result = track != Track && !track.IsTrackEmpty;
                     Track = track;
-                    result = true;
                 }
                 catch (Exception ex)
                 {

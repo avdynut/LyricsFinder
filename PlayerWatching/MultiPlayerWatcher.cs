@@ -3,13 +3,14 @@ using NLog;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace PlayerWatching
 {
     public class MultiPlayerWatcher : IPlayer
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-        private readonly Timer _timer;
+        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         public TimeSpan Interval { get; }
         public IEnumerable<IPlayerWatcher> PlayerWatchers { get; }
@@ -53,7 +54,16 @@ namespace PlayerWatching
             Interval = interval;
 
             _logger.Debug($"Initialize multi watcher with timer {Interval}");
-            _timer = new Timer(_ => UpdateMediaInfo(), null, TimeSpan.Zero, Interval);
+            Task.Run(Process, _cancellationTokenSource.Token);
+        }
+
+        private void Process()
+        {
+            while (true)
+            {
+                UpdateMediaInfo();
+                Thread.Sleep(Interval);
+            }
         }
 
         private void UpdateMediaInfo()
@@ -66,7 +76,7 @@ namespace PlayerWatching
                 {
                     ActualWatcher = watcher;
                     Track = watcher.Track;
-                    PlayerState = watcher.PlayerState;                    
+                    PlayerState = watcher.PlayerState;
 
                     if (PlayerState == PlayerState.Playing)
                         return;
@@ -76,7 +86,8 @@ namespace PlayerWatching
 
         public void Dispose()
         {
-            _timer?.Dispose();
+            _cancellationTokenSource.Cancel();
+            _cancellationTokenSource.Dispose();
 
             foreach (var watcher in PlayerWatchers)
             {

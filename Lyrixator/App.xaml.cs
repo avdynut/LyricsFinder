@@ -4,7 +4,6 @@ using LyricsProviders.GoogleProvider;
 using Newtonsoft.Json.Converters;
 using NLog;
 using nucs.JsonSettings;
-using nucs.JsonSettings.Autosave;
 using PlayerWatching;
 using Prism.Ioc;
 using Prism.Ninject;
@@ -25,9 +24,10 @@ namespace Lyrixator
             JsonSettings.SerializationSettings.Converters.Add(new StringEnumConverter());
 
             containerRegistry
-                .RegisterInstance(JsonSettings.Load<DirectoriesProviderSettings>().EnableAutosave())
+                .RegisterInstance(JsonSettings.Load<DirectoriesProviderSettings>())
                 .Register<ITrackInfoProvider, DirectoriesTrackInfoProvider>()
                 .Register<ITrackInfoProvider, GoogleTrackInfoProvider>()
+                .Register<IPlayerWatcher, SmtcWatcher>()
                 .Register<IPlayerWatcher, YandexMusicWatcher>();
         }
 

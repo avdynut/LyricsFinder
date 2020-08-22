@@ -12,7 +12,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 
 namespace Lyrixator.ViewModels
@@ -23,7 +22,6 @@ namespace Lyrixator.ViewModels
         private readonly DirectoriesProviderSettings _directoriesSettings;
         private readonly MultiPlayerWatcher _watcher;
         private readonly ITrackInfoProvider _trackInfoProvider;
-        private readonly HotKey _hotKey;
 
         private string _artist;
         public string Artist
@@ -60,24 +58,11 @@ namespace Lyrixator.ViewModels
 
             _trackInfoProvider = new MultiTrackInfoProvider(providers);
 
-            _hotKey = new HotKey(Application.Current.MainWindow, KeyModifiers.Ctrl | KeyModifiers.Alt, Key.L);
-            _hotKey.OnHotKeyPressed += OnHotKeyPressed;
-
             FindLyricsCommand = new DelegateCommand(async () => await FindLyricsAsync(), CanFindLyrics)
                 .ObservesProperty(() => Artist).ObservesProperty(() => Title);
         }
 
         private bool CanFindLyrics() => !string.IsNullOrEmpty(Artist) && !string.IsNullOrEmpty(Title);
-
-        private async void OnHotKeyPressed(object sender, EventArgs e)
-        {
-            using var watcher = new SmtcWatcher();
-
-            if (watcher.UpdateMediaInfo())
-            {
-                await UpdateTrackInfoAsync(watcher.Track);
-            }
-        }
 
         private async Task UpdateTrackInfoAsync(Track track)
         {
@@ -133,12 +118,6 @@ namespace Lyrixator.ViewModels
             {
                 _watcher.TrackChanged -= OnWatcherTrackChanged;
                 _watcher.Dispose();
-            }
-
-            if (_hotKey != null)
-            {
-                _hotKey.OnHotKeyPressed -= OnHotKeyPressed;
-                _hotKey.Dispose();
             }
         }
     }
