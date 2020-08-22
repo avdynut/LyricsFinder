@@ -113,8 +113,8 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <UniformGrid Grid.Column="0" Rows="2">
-                        <TextBox Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBox Text="{Binding Artist, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox md:HintAssist.Hint="Artist" Text="{Binding Artist, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox md:HintAssist.Hint="Title" Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"/>
                     </UniformGrid>
                     <Button Grid.Column="1"
                             VerticalAlignment="Center"

@@ -3,7 +3,7 @@ using System.IO;
 
 namespace LyricsProviders.GoogleProvider
 {
-    public class GoogleSettings : JsonSettings
+    public class GoogleProviderSettings : JsonSettings
     {
         public override string FileName { get; set; } = Path.Combine("settings", "google_provider.json");
 

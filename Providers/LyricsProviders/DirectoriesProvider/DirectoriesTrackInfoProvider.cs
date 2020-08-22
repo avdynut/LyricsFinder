@@ -5,23 +5,24 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace LyricsProviders
+namespace LyricsProviders.DirectoriesProvider
 {
     public class DirectoriesTrackInfoProvider : ITrackInfoProvider
     {
         private const string ArtistMask = "%Artist";
         private const string TitleMask = "%Title";
+        public static string DefaultFileNameMask { get; } = $"{ArtistMask} - {TitleMask}";
 
         public string Name => "Directories";
 
-        public string SearchPattern { get; }
+        public DirectoriesProviderSettings Settings { get; }
         public List<DirectoryInfo> LyricsFolders { get; } = new List<DirectoryInfo>();
 
-        public DirectoriesTrackInfoProvider(IEnumerable<string> lyricsFolders, string searchPattern = "%Artist - %Title")
+        public DirectoriesTrackInfoProvider(DirectoriesProviderSettings settings)
         {
-            SearchPattern = searchPattern ?? throw new ArgumentNullException(nameof(searchPattern));
+            Settings = settings ?? throw new ArgumentNullException(nameof(settings));
 
-            foreach (var folder in lyricsFolders)
+            foreach (var folder in settings.LyricsDirectories)
             {
                 var directory = new DirectoryInfo(folder);
                 if (directory.Exists)
@@ -43,7 +44,7 @@ namespace LyricsProviders
                     RecurseSubdirectories = true
                 };
 
-                var pattern = SearchPattern.Replace(ArtistMask, trackInfo.Artist).Replace(TitleMask, trackInfo.Title);
+                var pattern = GetFileName(Settings.LyricsFileNamePattern, trackInfo);
                 foreach (var file in directory.EnumerateFiles(pattern + "*", enumerationOptions))
                 {
                     var lyrics = await File.ReadAllTextAsync(file.FullName);
@@ -57,6 +58,11 @@ namespace LyricsProviders
 
             track.Lyrics = new NoneLyric("Not Found");
             return track;
+        }
+
+        public static string GetFileName(string pattern, TrackInfo trackInfo)
+        {
+            return pattern.Replace(ArtistMask, trackInfo.Artist).Replace(TitleMask, trackInfo.Title);
         }
     }
 }

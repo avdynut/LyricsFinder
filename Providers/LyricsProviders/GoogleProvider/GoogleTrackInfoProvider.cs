@@ -15,7 +15,7 @@ namespace LyricsProviders.GoogleProvider
     public class GoogleTrackInfoProvider : WebTrackInfoProvider
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-        private readonly GoogleSettings _settings = JsonSettings.Load<GoogleSettings>();
+        private readonly GoogleProviderSettings _settings = JsonSettings.Load<GoogleProviderSettings>();
 
         public override string Name => "Google";
 

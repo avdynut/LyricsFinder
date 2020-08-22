@@ -1,8 +1,10 @@
 ﻿using LyricsProviders;
+using LyricsProviders.DirectoriesProvider;
 using LyricsProviders.GoogleProvider;
 using Newtonsoft.Json.Converters;
 using NLog;
 using nucs.JsonSettings;
+using nucs.JsonSettings.Autosave;
 using PlayerWatching;
 using Prism.Ioc;
 using Prism.Ninject;
@@ -22,8 +24,11 @@ namespace Lyrixator
         {
             JsonSettings.SerializationSettings.Converters.Add(new StringEnumConverter());
 
-            containerRegistry.Register<IPlayerWatcher, YandexMusicWatcher>();
-            containerRegistry.Register<ITrackInfoProvider, GoogleTrackInfoProvider>();
+            containerRegistry
+                .RegisterInstance(JsonSettings.Load<DirectoriesProviderSettings>().EnableAutosave())
+                .Register<ITrackInfoProvider, DirectoriesTrackInfoProvider>()
+                .Register<ITrackInfoProvider, GoogleTrackInfoProvider>()
+                .Register<IPlayerWatcher, YandexMusicWatcher>();
         }
 
         protected override Window CreateShell()

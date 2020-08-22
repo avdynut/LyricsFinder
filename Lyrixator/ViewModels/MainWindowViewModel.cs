@@ -1,15 +1,16 @@
 ﻿using LyricsFinder.Core;
 using LyricsProviders;
+using LyricsProviders.DirectoriesProvider;
 using Lyrixator.Configuration;
 using NLog;
 using nucs.JsonSettings;
-using nucs.JsonSettings.Autosave;
 using PlayerWatching;
 using Prism.Commands;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -19,6 +20,7 @@ namespace Lyrixator.ViewModels
     public class MainWindowViewModel : BindableBase, IDisposable
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        private readonly DirectoriesProviderSettings _directoriesSettings;
         private readonly MultiPlayerWatcher _watcher;
         private readonly ITrackInfoProvider _trackInfoProvider;
         private readonly HotKey _hotKey;
@@ -46,12 +48,14 @@ namespace Lyrixator.ViewModels
 
         public ICommand FindLyricsCommand { get; }
 
-        public Settings Settings { get; } = JsonSettings.Load<Settings>().EnableAutosave();
-        public LyricsSettings LyricsSettings { get; } = JsonSettings.Load<LyricsSettings>().EnableAutosave();
+        public LyricsSettings LyricsSettings { get; } = JsonSettings.Load<LyricsSettings>();
 
-        public MainWindowViewModel(IEnumerable<IPlayerWatcher> playerWatchers, IEnumerable<ITrackInfoProvider> providers)
+        public MainWindowViewModel(DirectoriesProviderSettings directoriesSettings, IEnumerable<IPlayerWatcher> playerWatchers, IEnumerable<ITrackInfoProvider> providers)
         {
-            _watcher = new MultiPlayerWatcher(playerWatchers, Settings.CheckInterval);
+            _directoriesSettings = directoriesSettings;
+            var settings = JsonSettings.Load<Settings>();
+
+            _watcher = new MultiPlayerWatcher(playerWatchers, settings.CheckInterval);
             _watcher.TrackChanged += OnWatcherTrackChanged;
 
             _trackInfoProvider = new MultiTrackInfoProvider(providers);
@@ -95,11 +99,13 @@ namespace Lyrixator.ViewModels
             {
                 _logger.Debug($"Found lyrics for {foundTrack}");
 
-                var file = Path.Combine(Settings.LyricsDirectory, $"{foundTrack}.txt");
+                var fileName = DirectoriesTrackInfoProvider.GetFileName(_directoriesSettings.LyricsFileNamePattern, foundTrack);
+                var lyricsDirectory = _directoriesSettings.LyricsDirectories.First();
+                var file = Path.Combine(lyricsDirectory, fileName + ".txt");
 
                 if (!File.Exists(file))
                 {
-                    Directory.CreateDirectory(Settings.LyricsDirectory);
+                    Directory.CreateDirectory(lyricsDirectory);
                     File.WriteAllText(file, Lyrics);
                 }
             }

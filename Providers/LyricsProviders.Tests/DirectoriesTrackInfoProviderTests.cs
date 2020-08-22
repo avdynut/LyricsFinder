@@ -1,4 +1,5 @@
 ﻿using LyricsFinder.Core;
+using LyricsProviders.DirectoriesProvider;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -13,8 +14,11 @@ namespace LyricsProviders.Tests
         [TestMethod]
         public void CreateNotExistingFoldersTest()
         {
-            var folders = new List<string> { "1", "2", "3" };
-            var provider = new DirectoriesTrackInfoProvider(folders);
+            var settings = new DirectoriesProviderSettings
+            {
+                LyricsDirectories = new List<string> { "1", "2", "3" }
+            };
+            var provider = new DirectoriesTrackInfoProvider(settings);
 
             Assert.IsNotNull(provider.LyricsFolders);
             Assert.AreEqual(0, provider.LyricsFolders.Count, "Folders are not exist");
@@ -24,6 +28,7 @@ namespace LyricsProviders.Tests
         public async Task FindLyricsTest()
         {
             var folders = new List<string> { "a", "b", "c" };
+            var settings = new DirectoriesProviderSettings { LyricsDirectories = folders };
 
             foreach (var folder in folders)
             {
@@ -41,7 +46,7 @@ namespace LyricsProviders.Tests
 
             var trackInfo = new TrackInfo { Artist = artist, Title = title };
 
-            var provider = new DirectoriesTrackInfoProvider(folders);
+            var provider = new DirectoriesTrackInfoProvider(settings);
 
             Assert.IsNotNull(provider.LyricsFolders);
             Assert.AreEqual(folders.Count, provider.LyricsFolders.Count);

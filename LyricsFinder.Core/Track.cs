@@ -5,13 +5,9 @@ using System.Windows.Media;
 
 namespace LyricsFinder.Core
 {
-    public class Track : IEquatable<Track>
+    public class Track : TrackInfo, IEquatable<Track>
     {
-        public string Artist { get; set; }
-        public string Title { get; set; }
-        public string Album { get; set; }
         public ImageSource AlbumArt { get; set; }
-        public int Year { get; set; }
         public TimeSpan Duration { get; set; }
         public Uri Source { get; set; }
         public IEnumerable<string> Genres { get; set; }
@@ -30,8 +26,6 @@ namespace LyricsFinder.Core
             Album = trackInfo.Album;
             Year = trackInfo.Year;
         }
-
-        public override string ToString() => $"{Artist} - {Title}";
 
         public override bool Equals(object obj)
         {
