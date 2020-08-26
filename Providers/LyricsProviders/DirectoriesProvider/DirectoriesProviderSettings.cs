@@ -9,9 +9,9 @@ namespace LyricsProviders.DirectoriesProvider
     {
         public override string FileName { get; set; } = Path.Combine("settings", "directories_provider.json");
 
-        public IEnumerable<string> LyricsDirectories { get; set; } = new List<string> { "lyrics" };
+        public virtual IEnumerable<string> LyricsDirectories { get; set; } = new List<string> { "lyrics" };
 
-        public string LyricsFileNamePattern { get; set; } = DirectoriesTrackInfoProvider.DefaultFileNameMask;
+        public virtual string LyricsFileNamePattern { get; set; } = DirectoriesTrackInfoProvider.DefaultFileNameMask;
 
         public DirectoriesProviderSettings()
         {
@@ -21,7 +21,6 @@ namespace LyricsProviders.DirectoriesProvider
         private void OnAfterLoad()
         {
             LyricsDirectories = LyricsDirectories.Distinct().ToList(); // JsonSettings creates double values of the default element
-            Save();
         }
     }
 }

@@ -52,13 +52,23 @@ namespace PlayerWatching
         {
             PlayerWatchers = playerWatchers ?? throw new ArgumentNullException(nameof(playerWatchers));
             Interval = interval;
+        }
 
-            _logger.Debug($"Initialize multi watcher with timer {Interval}");
+        public void Initialize()
+        {
+            // UI automation has to be initialized in background thread to avoid freezing UI
             Task.Run(Process, _cancellationTokenSource.Token);
         }
 
         private void Process()
         {
+            foreach (var watcher in PlayerWatchers)
+            {
+                watcher.Initialize();
+            }
+
+            _logger.Debug($"Initialize multi watcher with timer {Interval}");
+
             while (true)
             {
                 UpdateMediaInfo();

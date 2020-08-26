@@ -8,6 +8,9 @@ using System;
 
 namespace PlayerWatching
 {
+    /// <summary>
+    /// Watcher for the Yandex.Music player.
+    /// </summary>
     public class YandexMusicWatcher : IPlayerWatcher
     {
         private const string PlayButtonAutomationId = "PlayButton";
@@ -23,14 +26,16 @@ namespace PlayerWatching
 
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly YandexMusicLocalization _localization = YandexMusicLocalization.Localizations.GetCurrentLocalization();
-        private readonly UIA3Automation _automation;
-        private readonly AutomationElement _desktop;
+        
+        private UIA3Automation _automation;
+        private AutomationElement _desktop;
 
-        public string Name => "Yandex.Music";
+        public const string Name = "Yandex.Music";
+        public string DisplayName => Name;
         public Track Track { get; private set; }
         public PlayerState PlayerState { get; private set; }
 
-        public YandexMusicWatcher()
+        public void Initialize()
         {
             _automation = new UIA3Automation();
             _desktop = _automation.GetDesktop();

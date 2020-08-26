@@ -2,7 +2,8 @@
 {
     public interface IPlayerWatcher : IPlayer
     {
-        string Name { get; }
+        string DisplayName { get; }
+        void Initialize();
         bool UpdateMediaInfo();
     }
 }

@@ -1,12 +1,15 @@
 ﻿using LyricsProviders;
 using LyricsProviders.DirectoriesProvider;
 using LyricsProviders.GoogleProvider;
+using Lyrixator.Configuration;
 using Newtonsoft.Json.Converters;
 using NLog;
 using nucs.JsonSettings;
+using nucs.JsonSettings.Autosave;
 using PlayerWatching;
 using Prism.Ioc;
 using Prism.Ninject;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -24,11 +27,25 @@ namespace Lyrixator
             JsonSettings.SerializationSettings.Converters.Add(new StringEnumConverter());
 
             containerRegistry
-                .RegisterInstance(JsonSettings.Load<DirectoriesProviderSettings>())
                 .Register<ITrackInfoProvider, DirectoriesTrackInfoProvider>()
                 .Register<ITrackInfoProvider, GoogleTrackInfoProvider>()
-                .Register<IPlayerWatcher, SmtcWatcher>()
-                .Register<IPlayerWatcher, YandexMusicWatcher>();
+                .Register<IPlayerWatcher, SmtcWatcher>(SmtcWatcher.Name)
+                .Register<IPlayerWatcher, YandexMusicWatcher>(YandexMusicWatcher.Name);
+
+            var settings = JsonSettings.Load<Settings>().EnableAutosave();
+            var playerWatchers = new List<IPlayerWatcher>();
+
+            foreach (var watcher in settings.PlayerWatchers)
+            {
+                if (watcher.Value && containerRegistry.IsRegistered<IPlayerWatcher>(watcher.Key))
+                {
+                    playerWatchers.Add(Container.Resolve<IPlayerWatcher>(watcher.Key));
+                }
+            }
+
+            containerRegistry
+                .RegisterInstance(settings)
+                .RegisterInstance(new MultiPlayerWatcher(playerWatchers, settings.CheckInterval));
         }
 
         protected override Window CreateShell()

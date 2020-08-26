@@ -12,11 +12,12 @@ namespace PlayerWatching.Tests
         public void MultiPlayerWatcherMonitoringTest()
         {
             var interval = TimeSpan.FromMilliseconds(200);
-            var playerWatchers = new List<IPlayerWatcher> { new YandexMusicWatcher() };
+            var playerWatchers = new List<IPlayerWatcher> { new SmtcWatcher(), new YandexMusicWatcher() };
             var watcher = new MultiPlayerWatcher(playerWatchers, interval);
             var resetEvent = new ManualResetEventSlim();
 
             watcher.TrackChanged += (s, track) => resetEvent.Set();
+            watcher.Initialize();
 
             var result = resetEvent.Wait(TimeSpan.FromSeconds(1));
             Assert.IsTrue(result, "TrackChanged event is not occured");
@@ -24,6 +25,7 @@ namespace PlayerWatching.Tests
             Assert.IsFalse(watcher.Track.IsTrackEmpty);
 
             Console.WriteLine(watcher.Track);
+            watcher.Dispose();
         }
     }
 }

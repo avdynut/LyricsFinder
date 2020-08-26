@@ -10,6 +10,7 @@ namespace PlayerWatching.Tests
         public void SmtcWatcherUpdateTest()
         {
             var watcher = new SmtcWatcher();
+            watcher.Initialize();
 
             Assert.IsNull(watcher.Track);
             Assert.AreEqual(PlayerState.Unknown, watcher.PlayerState);
@@ -30,6 +31,8 @@ namespace PlayerWatching.Tests
                 Assert.IsTrue(watcher.Track.IsTrackEmpty);
                 Assert.AreEqual(PlayerState.Unknown, watcher.PlayerState);
             }
+
+            watcher.Dispose();
         }
     }
 }

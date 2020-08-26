@@ -10,6 +10,7 @@ namespace PlayerWatching.Tests
         public void YandexMusicWatcherUpdateTest()
         {
             var watcher = new YandexMusicWatcher();
+            watcher.Initialize();
 
             Assert.IsNull(watcher.Track);
             Assert.AreEqual(PlayerState.Unknown, watcher.PlayerState);
@@ -23,13 +24,15 @@ namespace PlayerWatching.Tests
             if (result)
             {
                 Assert.IsFalse(watcher.Track.IsTrackEmpty);
-               // Assert.AreNotEqual(PlayerState.Unknown, watcher.PlayerState);
+                // Assert.AreNotEqual(PlayerState.Unknown, watcher.PlayerState);
             }
             else
             {
                 Assert.IsTrue(watcher.Track.IsTrackEmpty);
                 Assert.AreEqual(PlayerState.Unknown, watcher.PlayerState);
             }
+
+            watcher.Dispose();
         }
     }
 }

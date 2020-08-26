@@ -4,6 +4,7 @@ using LyricsProviders.DirectoriesProvider;
 using Lyrixator.Configuration;
 using NLog;
 using nucs.JsonSettings;
+using nucs.JsonSettings.Autosave;
 using PlayerWatching;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -20,7 +21,7 @@ namespace Lyrixator.ViewModels
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly DirectoriesProviderSettings _directoriesSettings;
-        private readonly MultiPlayerWatcher _watcher;
+        private readonly MultiPlayerWatcher _playersWatcher;
         private readonly ITrackInfoProvider _trackInfoProvider;
 
         private string _artist;
@@ -48,13 +49,13 @@ namespace Lyrixator.ViewModels
 
         public LyricsSettings LyricsSettings { get; } = JsonSettings.Load<LyricsSettings>();
 
-        public MainWindowViewModel(DirectoriesProviderSettings directoriesSettings, IEnumerable<IPlayerWatcher> playerWatchers, IEnumerable<ITrackInfoProvider> providers)
+        public MainWindowViewModel(MultiPlayerWatcher playersWatcher, IEnumerable<ITrackInfoProvider> providers)
         {
-            _directoriesSettings = directoriesSettings;
-            var settings = JsonSettings.Load<Settings>();
+            _directoriesSettings = JsonSettings.Load<DirectoriesProviderSettings>().EnableAutosave();
 
-            _watcher = new MultiPlayerWatcher(playerWatchers, settings.CheckInterval);
-            _watcher.TrackChanged += OnWatcherTrackChanged;
+            _playersWatcher = playersWatcher;
+            _playersWatcher.TrackChanged += OnWatcherTrackChanged;
+            _playersWatcher.Initialize();
 
             _trackInfoProvider = new MultiTrackInfoProvider(providers);
 
@@ -102,7 +103,7 @@ namespace Lyrixator.ViewModels
 
         private async void OnWatcherTrackChanged(object sender, Track track)
         {
-            _logger.Debug($"Track changed {_watcher.ActualWatcher?.Name} - {_watcher.PlayerState}");
+            _logger.Debug($"Track changed {_playersWatcher.ActualWatcher?.DisplayName} - {_playersWatcher.PlayerState}");
             await UpdateTrackInfoAsync(track);
         }
 
@@ -114,10 +115,10 @@ namespace Lyrixator.ViewModels
 
         public void Dispose()
         {
-            if (_watcher != null)
+            if (_playersWatcher != null)
             {
-                _watcher.TrackChanged -= OnWatcherTrackChanged;
-                _watcher.Dispose();
+                _playersWatcher.TrackChanged -= OnWatcherTrackChanged;
+                _playersWatcher.Dispose();
             }
         }
     }

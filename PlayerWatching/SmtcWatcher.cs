@@ -8,7 +8,7 @@ using System;
 namespace PlayerWatching
 {
     /// <summary>
-    /// Watcher for System Media Transport Controls window.
+    /// Watcher for the System Media Transport Controls window.
     /// </summary>
     public class SmtcWatcher : IPlayerWatcher
     {
@@ -18,14 +18,16 @@ namespace PlayerWatching
 
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly SmtcLocalization _localization = SmtcLocalization.Localizations.GetCurrentLocalization();
-        private readonly UIA3Automation _automation;
-        private readonly AutomationElement _desktop;
+        
+        private UIA3Automation _automation;
+        private AutomationElement _desktop;
 
-        public string Name => "SystemMediaTransportControls";
+        public const string Name = "System Media Transport Controls";
+        public string DisplayName => Name;
         public Track Track { get; private set; }
         public PlayerState PlayerState { get; private set; }
 
-        public SmtcWatcher()
+        public void Initialize()
         {
             _automation = new UIA3Automation();
             _desktop = _automation.GetDesktop();
