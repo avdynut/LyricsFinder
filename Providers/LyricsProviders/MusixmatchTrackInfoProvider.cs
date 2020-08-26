@@ -6,7 +6,7 @@ namespace LyricsProviders
 {
     public class MusixmatchTrackInfoProvider : ITrackInfoProvider
     {
-        public string Name => "MusixMatch";
+        public string DisplayName => "MusixMatch";
 
         public Task<Track> FindTrackAsync(TrackInfo trackInfo)
         {

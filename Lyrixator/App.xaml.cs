@@ -27,14 +27,14 @@ namespace Lyrixator
             JsonSettings.SerializationSettings.Converters.Add(new StringEnumConverter());
 
             containerRegistry
-                .Register<ITrackInfoProvider, DirectoriesTrackInfoProvider>()
-                .Register<ITrackInfoProvider, GoogleTrackInfoProvider>()
+                .Register<ITrackInfoProvider, DirectoriesTrackInfoProvider>(DirectoriesTrackInfoProvider.Name)
+                .Register<ITrackInfoProvider, GoogleTrackInfoProvider>(GoogleTrackInfoProvider.Name)
                 .Register<IPlayerWatcher, SmtcWatcher>(SmtcWatcher.Name)
                 .Register<IPlayerWatcher, YandexMusicWatcher>(YandexMusicWatcher.Name);
 
             var settings = JsonSettings.Load<Settings>().EnableAutosave();
-            var playerWatchers = new List<IPlayerWatcher>();
 
+            var playerWatchers = new List<IPlayerWatcher>();
             foreach (var watcher in settings.PlayerWatchers)
             {
                 if (watcher.Value && containerRegistry.IsRegistered<IPlayerWatcher>(watcher.Key))
@@ -43,9 +43,19 @@ namespace Lyrixator
                 }
             }
 
+            var lyricsProviders = new List<ITrackInfoProvider>();
+            foreach (var provider in settings.LyricsProviders)
+            {
+                if (provider.Value && containerRegistry.IsRegistered<ITrackInfoProvider>(provider.Key))
+                {
+                    lyricsProviders.Add(Container.Resolve<ITrackInfoProvider>(provider.Key));
+                }
+            }
+
             containerRegistry
                 .RegisterInstance(settings)
-                .RegisterInstance(new MultiPlayerWatcher(playerWatchers, settings.CheckInterval));
+                .RegisterInstance(new MultiPlayerWatcher(playerWatchers, settings.CheckInterval))
+                .RegisterInstance(new MultiTrackInfoProvider(lyricsProviders));
         }
 
         protected override Window CreateShell()

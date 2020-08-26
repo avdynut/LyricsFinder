@@ -11,9 +11,11 @@ namespace LyricsProviders.DirectoriesProvider
     {
         private const string ArtistMask = "%Artist";
         private const string TitleMask = "%Title";
+
         public static string DefaultFileNameMask { get; } = $"{ArtistMask} - {TitleMask}";
 
-        public string Name => "Directories";
+        public const string Name = "Directories";
+        public string DisplayName => Name;
 
         public DirectoriesProviderSettings Settings { get; }
         public List<DirectoryInfo> LyricsFolders { get; } = new List<DirectoryInfo>();

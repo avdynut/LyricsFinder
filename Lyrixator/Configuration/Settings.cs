@@ -1,4 +1,6 @@
-﻿using nucs.JsonSettings;
+﻿using LyricsProviders.DirectoriesProvider;
+using LyricsProviders.GoogleProvider;
+using nucs.JsonSettings;
 using PlayerWatching;
 using System;
 using System.Collections.Generic;
@@ -18,6 +20,12 @@ namespace Lyrixator.Configuration
             {
                 { SmtcWatcher.Name, true },
                 { YandexMusicWatcher.Name, false }
+            };
+
+        public virtual Dictionary<string, bool> LyricsProviders { get; set; } = new Dictionary<string, bool>
+            {
+                { DirectoriesTrackInfoProvider.Name, true },
+                { GoogleTrackInfoProvider.Name, true }
             };
     }
 }

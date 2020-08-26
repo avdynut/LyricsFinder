@@ -11,7 +11,7 @@ namespace LyricsProviders
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        public string Name => "Multi";
+        public string DisplayName => "Multi";
         public IEnumerable<ITrackInfoProvider> LyricsProviders { get; }
 
         public async Task<Track> FindTrackAsync(TrackInfo trackInfo)
@@ -25,7 +25,7 @@ namespace LyricsProviders
 
                 if (lyricsFound)
                 {
-                    _logger.Info($"Lyrics found by {provider.Name} provider");
+                    _logger.Info($"Lyrics found by {provider.DisplayName} provider");
                     return track;
                 }
             }

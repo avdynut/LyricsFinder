@@ -9,7 +9,6 @@ using PlayerWatching;
 using Prism.Commands;
 using Prism.Mvvm;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -49,15 +48,14 @@ namespace Lyrixator.ViewModels
 
         public LyricsSettings LyricsSettings { get; } = JsonSettings.Load<LyricsSettings>();
 
-        public MainWindowViewModel(MultiPlayerWatcher playersWatcher, IEnumerable<ITrackInfoProvider> providers)
+        public MainWindowViewModel(MultiPlayerWatcher playersWatcher, MultiTrackInfoProvider trackInfoProvider)
         {
+            _playersWatcher = playersWatcher;
+            _trackInfoProvider = trackInfoProvider;
             _directoriesSettings = JsonSettings.Load<DirectoriesProviderSettings>().EnableAutosave();
 
-            _playersWatcher = playersWatcher;
             _playersWatcher.TrackChanged += OnWatcherTrackChanged;
             _playersWatcher.Initialize();
-
-            _trackInfoProvider = new MultiTrackInfoProvider(providers);
 
             FindLyricsCommand = new DelegateCommand(async () => await FindLyricsAsync(), CanFindLyrics)
                 .ObservesProperty(() => Artist).ObservesProperty(() => Title);

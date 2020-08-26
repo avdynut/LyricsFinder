@@ -17,7 +17,8 @@ namespace LyricsProviders.GoogleProvider
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly GoogleProviderSettings _settings = JsonSettings.Load<GoogleProviderSettings>();
 
-        public override string Name => "Google";
+        public const string Name = "Google";
+        public override string DisplayName => Name;
 
         public override async Task<Track> FindTrackAsync(TrackInfo trackInfo)
         {
@@ -25,6 +26,7 @@ namespace LyricsProviders.GoogleProvider
             string encodedString = HttpUtility.UrlEncode(query);
             string url = _settings.SearchUrl + encodedString;
 
+            // todo: handle failed internet connection
             using var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(_settings.UserAgent);
             httpClient.DefaultRequestHeaders.AcceptLanguage.ParseAdd(_settings.AcceptLanguages);
