@@ -2,6 +2,7 @@
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -78,9 +79,14 @@ namespace PlayerWatching
 
         private void UpdateMediaInfo()
         {
+            //var stopwatch = new Stopwatch();
+
             foreach (var watcher in PlayerWatchers)
             {
+               // stopwatch.Restart();
                 var result = watcher.UpdateMediaInfo();
+                //stopwatch.Stop();
+                //_logger.Debug($"UpdateMediaInfo in {watcher.DisplayName}: {stopwatch.ElapsedMilliseconds} ms. Result: {result}");
 
                 if (result)
                 {

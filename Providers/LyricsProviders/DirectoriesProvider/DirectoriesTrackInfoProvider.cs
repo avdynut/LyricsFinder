@@ -64,7 +64,10 @@ namespace LyricsProviders.DirectoriesProvider
 
         public static string GetFileName(string pattern, TrackInfo trackInfo)
         {
-            return pattern.Replace(ArtistMask, trackInfo.Artist).Replace(TitleMask, trackInfo.Title);
+            return pattern.Replace(ArtistMask, trackInfo.Artist)
+                          .Replace(TitleMask, trackInfo.Title)
+                          .Replace("/", " ")
+                          .Replace("\\", " ");
         }
     }
 }
