@@ -44,6 +44,13 @@ namespace Lyrixator.ViewModels
             set => SetProperty(ref _lyrics, value);
         }
 
+        private bool _searchInProgress;
+        public bool SearchInProgress
+        {
+            get => _searchInProgress;
+            set => SetProperty(ref _searchInProgress, value);
+        }
+
         public ICommand FindLyricsCommand { get; }
 
         public LyricsSettings LyricsSettings { get; } = JsonSettings.Load<LyricsSettings>();
@@ -58,10 +65,10 @@ namespace Lyrixator.ViewModels
             _playersWatcher.Initialize();
 
             FindLyricsCommand = new DelegateCommand(async () => await FindLyricsAsync(), CanFindLyrics)
-                .ObservesProperty(() => Artist).ObservesProperty(() => Title);
+                .ObservesProperty(() => Artist).ObservesProperty(() => Title).ObservesProperty(() => SearchInProgress);
         }
 
-        private bool CanFindLyrics() => !string.IsNullOrEmpty(Artist) && !string.IsNullOrEmpty(Title);
+        private bool CanFindLyrics() => !string.IsNullOrEmpty(Artist) && !string.IsNullOrEmpty(Title) && !SearchInProgress;
 
         private async Task UpdateTrackInfoAsync(Track track)
         {
@@ -76,7 +83,10 @@ namespace Lyrixator.ViewModels
 
         private async Task FindLyricsAsync(TrackInfo trackInfo)
         {
+            SearchInProgress = true;
             var foundTrack = await _trackInfoProvider.FindTrackAsync(trackInfo);
+            SearchInProgress = false;
+
             Lyrics = foundTrack.Lyrics.Text;
 
             if (Lyrics?.Length > 0)

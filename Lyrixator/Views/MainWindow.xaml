@@ -93,17 +93,17 @@
 
                         <Button Padding="8,4"
                                 Click="OnMinimizeButtonClick"
-                                Style="{DynamicResource MaterialDesignFlatButton}"
-                                Content="{md:PackIcon WindowMinimize}"/>
+                                Content="{md:PackIcon WindowMinimize}"
+                                Style="{DynamicResource MaterialDesignFlatButton}"/>
                         <Button Name="MaximizeButton"
                                 Padding="8,4"
                                 Click="OnMaximizeButtonClick"
-                                Style="{DynamicResource MaterialDesignFlatButton}"
-                                Content="{md:PackIcon WindowMaximize}"/>
+                                Content="{md:PackIcon WindowMaximize}"
+                                Style="{DynamicResource MaterialDesignFlatButton}"/>
                         <Button Padding="8,4"
                                 Click="OnExitClick"
-                                Style="{DynamicResource MaterialDesignFlatButton}"
-                                Content="{md:PackIcon WindowClose}"/>
+                                Content="{md:PackIcon WindowClose}"
+                                Style="{DynamicResource MaterialDesignFlatButton}"/>
                     </StackPanel>
                 </Grid>
 
@@ -117,11 +117,15 @@
                         <TextBox md:HintAssist.Hint="Title" Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"/>
                     </UniformGrid>
                     <Button Grid.Column="1"
-                            VerticalAlignment="Center"
+                            Height="50"
+                            Margin="6,0,0,0"
+                            md:ButtonProgressAssist.IsIndeterminate="True"
+                            md:ButtonProgressAssist.IsIndicatorVisible="{Binding SearchInProgress}"
                             Command="{Binding FindLyricsCommand}"
+                            Content="{md:PackIcon Kind=Search,
+                                                  Size=24}"
                             IsDefault="True"
-                            Style="{DynamicResource MaterialDesignIconButton}"
-                            Content="{md:PackIcon Kind=Search}"/>
+                            Style="{DynamicResource MaterialDesignRaisedLightButton}"/>
                 </Grid>
             </StackPanel>
 
