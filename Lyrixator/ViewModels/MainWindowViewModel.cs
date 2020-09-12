@@ -12,6 +12,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace Lyrixator.ViewModels
@@ -21,7 +22,7 @@ namespace Lyrixator.ViewModels
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly DirectoriesProviderSettings _directoriesSettings;
         private readonly MultiPlayerWatcher _playersWatcher;
-        private readonly ITrackInfoProvider _trackInfoProvider;
+        private readonly MultiTrackInfoProvider _trackInfoProvider;
 
         private string _artist;
         public string Artist
@@ -51,6 +52,20 @@ namespace Lyrixator.ViewModels
             set => SetProperty(ref _searchInProgress, value);
         }
 
+        private Uri _playerImage;
+        public Uri PlayerImage
+        {
+            get => _playerImage;
+            set => SetProperty(ref _playerImage, value);
+        }
+
+        private Uri _providerImage;
+        public Uri ProviderImage
+        {
+            get => _providerImage;
+            set => SetProperty(ref _providerImage, value);
+        }
+
         public ICommand FindLyricsCommand { get; }
 
         public LyricsSettings LyricsSettings { get; } = JsonSettings.Load<LyricsSettings>();
@@ -70,6 +85,8 @@ namespace Lyrixator.ViewModels
 
         private bool CanFindLyrics() => !string.IsNullOrEmpty(Artist) && !string.IsNullOrEmpty(Title) && !SearchInProgress;
 
+        private Uri GetIconUri(string iconName) => new Uri($"{Environment.CurrentDirectory}\\Icons\\{iconName}.png");
+
         private async Task UpdateTrackInfoAsync(Track track)
         {
             _logger.Info("Update track info {track}", track);
@@ -84,6 +101,7 @@ namespace Lyrixator.ViewModels
         private async Task FindLyricsAsync(TrackInfo trackInfo)
         {
             SearchInProgress = true;
+            ProviderImage = null;
             var foundTrack = await _trackInfoProvider.FindTrackAsync(trackInfo);
             SearchInProgress = false;
 
@@ -102,16 +120,22 @@ namespace Lyrixator.ViewModels
                     Directory.CreateDirectory(lyricsDirectory);
                     File.WriteAllText(file, Lyrics);
                 }
+
+                Application.Current.Dispatcher.Invoke(() => ProviderImage = GetIconUri(_trackInfoProvider.CurrentProvider?.DisplayName));
             }
             else
             {
                 _logger.Debug("Lyrics not found");
+                ProviderImage = null;
             }
         }
 
         private async void OnWatcherTrackChanged(object sender, Track track)
         {
             _logger.Debug($"Track changed {_playersWatcher.ActualWatcher?.DisplayName} - {_playersWatcher.PlayerState}");
+
+            Application.Current.Dispatcher.Invoke(() => PlayerImage = GetIconUri(_playersWatcher.ActualWatcher?.DisplayName));
+
             await UpdateTrackInfoAsync(track);
         }
 

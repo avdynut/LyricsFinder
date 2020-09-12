@@ -78,6 +78,16 @@
 
                 <Grid Name="TitleBar" MouseLeftButtonDown="OnTitleBarMouseLeftButtonDown">
                     <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                        <Image Height="16"
+                               Margin="2"
+                               Source="{Binding PlayerImage}"/>
+                        <Image Height="16"
+                               Margin="2"
+                               Source="{Binding ProviderImage}"/>
+                        <Separator Width="2"
+                                   Height="16"
+                                   Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
+
                         <ToggleButton IsChecked="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Topmost}"
                                       Style="{StaticResource MaterialDesignSwitchToggleButton}"
                                       ToolTip="Topmost">

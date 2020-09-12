@@ -14,6 +14,8 @@ namespace LyricsProviders
         public string DisplayName => "Multi";
         public IEnumerable<ITrackInfoProvider> LyricsProviders { get; }
 
+        public ITrackInfoProvider CurrentProvider { get; private set; }
+
         public async Task<Track> FindTrackAsync(TrackInfo trackInfo)
         {
             _logger.Trace("Start searching lyrics");
@@ -26,6 +28,7 @@ namespace LyricsProviders
                 if (lyricsFound)
                 {
                     _logger.Info($"Lyrics found by {provider.DisplayName} provider");
+                    CurrentProvider = provider;
                     return track;
                 }
             }
