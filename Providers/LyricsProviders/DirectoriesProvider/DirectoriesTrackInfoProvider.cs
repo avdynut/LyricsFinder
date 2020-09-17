@@ -9,8 +9,8 @@ namespace LyricsProviders.DirectoriesProvider
 {
     public class DirectoriesTrackInfoProvider : ITrackInfoProvider
     {
-        private const string ArtistMask = "%Artist";
-        private const string TitleMask = "%Title";
+        public const string ArtistMask = "%Artist";
+        public const string TitleMask = "%Title";
 
         public static string DefaultFileNameMask { get; } = $"{ArtistMask} - {TitleMask}";
 

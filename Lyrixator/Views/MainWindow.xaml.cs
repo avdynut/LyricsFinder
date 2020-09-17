@@ -1,8 +1,6 @@
 ﻿using Lyrixator.Configuration;
 using MaterialDesignThemes.Wpf;
 using NLog;
-using nucs.JsonSettings;
-using nucs.JsonSettings.Autosave;
 using System;
 using System.ComponentModel;
 using System.Windows;
@@ -18,10 +16,11 @@ namespace Lyrixator.Views
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly Brush _lyricsPanelBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFAFAFA"));
-        private readonly WindowSettings _settings = JsonSettings.Load<WindowSettings>().EnableAutosave();
+        private readonly WindowSettings _settings;
 
-        public MainWindow()
+        public MainWindow(WindowSettings settings)
         {
+            _settings = settings;
             InitializeComponent();
         }
 

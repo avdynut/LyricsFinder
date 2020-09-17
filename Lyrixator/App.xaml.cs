@@ -54,6 +54,9 @@ namespace Lyrixator
 
             containerRegistry
                 .RegisterInstance(settings)
+                .RegisterInstance(JsonSettings.Load<LyricsSettings>().EnableAutosave())
+                .RegisterInstance(JsonSettings.Load<WindowSettings>().EnableAutosave())
+                .RegisterInstance(JsonSettings.Load<DirectoriesProviderSettings>().EnableAutosave())
                 .RegisterInstance(new MultiPlayerWatcher(playerWatchers, settings.CheckInterval))
                 .RegisterInstance(new MultiTrackInfoProvider(lyricsProviders));
         }
