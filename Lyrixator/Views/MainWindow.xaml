@@ -80,10 +80,12 @@
                     <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                         <Image Height="16"
                                Margin="2"
-                               Source="{Binding PlayerImage}"/>
+                               Source="{Binding PlayerName, Converter={StaticResource NameToIconUriConverter}}"
+                               ToolTip="{Binding PlayerName}"/>
                         <Image Height="16"
                                Margin="2"
-                               Source="{Binding ProviderImage}"/>
+                               Source="{Binding ProviderName, Converter={StaticResource NameToIconUriConverter}}"
+                               ToolTip="{Binding ProviderName}"/>
                         <Separator Width="2"
                                    Height="16"
                                    Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
