@@ -5,6 +5,7 @@ using PlayerWatching;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Lyrixator.Configuration
 {
@@ -16,16 +17,28 @@ namespace Lyrixator.Configuration
 
         public virtual TimeSpan CheckInterval { get; set; } = TimeSpan.FromSeconds(1);
 
-        public virtual Dictionary<string, bool> PlayerWatchers { get; set; } = new Dictionary<string, bool>
+        public virtual List<Element> PlayerWatchers { get; set; } = new List<Element>
             {
-                { SmtcWatcher.Name, true },
-                { YandexMusicWatcher.Name, false }
+                new Element(SmtcWatcher.Name, isEnabled: true),
+                new Element(YandexMusicWatcher.Name, isEnabled: false)
             };
 
-        public virtual Dictionary<string, bool> LyricsProviders { get; set; } = new Dictionary<string, bool>
+        public virtual List<Element> LyricsProviders { get; set; } = new List<Element>
             {
-                { DirectoriesTrackInfoProvider.Name, true },
-                { GoogleTrackInfoProvider.Name, true }
+                new Element(DirectoriesTrackInfoProvider.Name, isEnabled: true),
+                new Element(GoogleTrackInfoProvider.Name, isEnabled: true)
             };
+
+        public Settings()
+        {
+            AfterLoad += OnAfterLoad;
+        }
+
+        private void OnAfterLoad()
+        {
+            // JsonSettings creates double values of the default list elements
+            PlayerWatchers = PlayerWatchers.Distinct().ToList();
+            LyricsProviders = LyricsProviders.Distinct().ToList();
+        }
     }
 }

@@ -37,18 +37,18 @@ namespace Lyrixator
             var playerWatchers = new List<IPlayerWatcher>();
             foreach (var watcher in settings.PlayerWatchers)
             {
-                if (watcher.Value && containerRegistry.IsRegistered<IPlayerWatcher>(watcher.Key))
+                if (watcher.IsEnabled && containerRegistry.IsRegistered<IPlayerWatcher>(watcher.Name))
                 {
-                    playerWatchers.Add(Container.Resolve<IPlayerWatcher>(watcher.Key));
+                    playerWatchers.Add(Container.Resolve<IPlayerWatcher>(watcher.Name));
                 }
             }
 
             var lyricsProviders = new List<ITrackInfoProvider>();
             foreach (var provider in settings.LyricsProviders)
             {
-                if (provider.Value && containerRegistry.IsRegistered<ITrackInfoProvider>(provider.Key))
+                if (provider.IsEnabled && containerRegistry.IsRegistered<ITrackInfoProvider>(provider.Name))
                 {
-                    lyricsProviders.Add(Container.Resolve<ITrackInfoProvider>(provider.Key));
+                    lyricsProviders.Add(Container.Resolve<ITrackInfoProvider>(provider.Name));
                 }
             }
 

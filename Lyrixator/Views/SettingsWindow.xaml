@@ -9,18 +9,32 @@
         d:DataContext="{d:DesignInstance vm:SettingsWindowViewModel}"
         prism:ViewModelLocator.AutoWireViewModel="True"
         mc:Ignorable="d">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <TextBox Grid.Row="0"
-                 md:HintAssist.Hint="Check Interval, s"
-                 Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                 Text="{Binding CheckInterval}"/>
-        <GroupBox Grid.Row="1" Header="Directories provider">
+
+    <Window.Resources>
+        <DataTemplate x:Key="CheckIconItemTemplate">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <CheckBox IsChecked="{Binding IsEnabled}">
+                    <CheckBox.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Width="32"
+                                   Height="32"
+                                   Source="{Binding Name, Converter={StaticResource NameToIconUriConverter}}"/>
+                            <TextBlock Margin="4,0"
+                                       VerticalAlignment="Center"
+                                       Text="{Binding Name}"/>
+                        </StackPanel>
+                    </CheckBox.Content>
+                </CheckBox>
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
+
+    <TabControl Style="{StaticResource MaterialDesignNavigatilRailTabControl}">
+        <TabItem Header="Directories">
             <StackPanel>
                 <TextBox md:HintAssist.Hint="Directory"
                          Style="{StaticResource MaterialDesignFloatingHintTextBox}"
@@ -30,6 +44,20 @@
                          Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                          Text="{Binding FileNamePattern}"/>
             </StackPanel>
-        </GroupBox>
-    </Grid>
+        </TabItem>
+        <TabItem Header="Players">
+            <StackPanel>
+                <ListBox ItemTemplate="{StaticResource CheckIconItemTemplate}" ItemsSource="{Binding Settings.PlayerWatchers}"/>
+                <TextBox Grid.Row="0"
+                         md:HintAssist.Hint="Check Interval, s"
+                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                         Text="{Binding CheckInterval}"/>
+            </StackPanel>
+        </TabItem>
+        <TabItem Header="Providers">
+            <ListBox ItemTemplate="{StaticResource CheckIconItemTemplate}" ItemsSource="{Binding Settings.LyricsProviders}"/>
+        </TabItem>
+        <TabItem Header="Lyrics"/>
+    </TabControl>
+
 </Window>

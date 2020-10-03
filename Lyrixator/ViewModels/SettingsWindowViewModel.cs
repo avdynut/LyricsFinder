@@ -8,16 +8,17 @@ namespace Lyrixator.ViewModels
 {
     public class SettingsWindowViewModel : BindableBase
     {
-        private readonly Settings _settings;
         private readonly LyricsSettings _lyricsSettings;
         private readonly DirectoriesProviderSettings _directoriesSettings;
 
+        public Settings Settings { get; }
+
         public double CheckInterval
         {
-            get => _settings.CheckInterval.TotalSeconds;
+            get => Settings.CheckInterval.TotalSeconds;
             set
             {
-                _settings.CheckInterval = TimeSpan.FromSeconds(value);
+                Settings.CheckInterval = TimeSpan.FromSeconds(value);
                 RaisePropertyChanged();
             }
         }
@@ -47,7 +48,7 @@ namespace Lyrixator.ViewModels
 
         public SettingsWindowViewModel(Settings settings, LyricsSettings lyricsSettings, DirectoriesProviderSettings directoriesSettings)
         {
-            _settings = settings;
+            Settings = settings;
             _lyricsSettings = lyricsSettings;
             _directoriesSettings = directoriesSettings;
         }
