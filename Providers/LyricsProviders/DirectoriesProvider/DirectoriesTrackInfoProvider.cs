@@ -1,5 +1,6 @@
 ﻿using LyricsFinder.Core;
 using LyricsFinder.Core.LyricTypes;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,6 +10,8 @@ namespace LyricsProviders.DirectoriesProvider
 {
     public class DirectoriesTrackInfoProvider : ITrackInfoProvider
     {
+        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
         public const string ArtistMask = "%Artist";
         public const string TitleMask = "%Title";
 
@@ -24,14 +27,7 @@ namespace LyricsProviders.DirectoriesProvider
         {
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
 
-            foreach (var folder in settings.LyricsDirectories)
-            {
-                var directory = new DirectoryInfo(folder);
-                if (directory.Exists)
-                {
-                    LyricsFolders.Add(directory);
-                }
-            }
+            settings.LyricsDirectories.ForEach(x => CheckFolder(x));
         }
 
         public async Task<Track> FindTrackAsync(TrackInfo trackInfo)
@@ -68,6 +64,24 @@ namespace LyricsProviders.DirectoriesProvider
                           .Replace(TitleMask, trackInfo.Title)
                           .Replace("/", " ")
                           .Replace("\\", " ");
+        }
+
+        private void CheckFolder(string folder)
+        {
+            try
+            {
+                var directory = new DirectoryInfo(folder);
+                directory.Create();
+
+                if (directory.Exists)
+                {
+                    LyricsFolders.Add(directory);
+                }
+            }
+            catch (Exception exception)
+            {
+                _logger.Error(exception, $"Incorrect folder for lyrics: {folder}");
+            }
         }
     }
 }

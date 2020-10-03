@@ -23,22 +23,7 @@ namespace LyricsProviders.GoogleProvider
         public override async Task<Track> FindTrackAsync(TrackInfo trackInfo)
         {
             string query = $"{trackInfo.Artist} {trackInfo.Title}";
-            string encodedString = HttpUtility.UrlEncode(query);
-            string url = _settings.SearchUrl + encodedString;
-
-            // todo: handle failed internet connection
-            using var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(_settings.UserAgent);
-            httpClient.DefaultRequestHeaders.AcceptLanguage.ParseAdd(_settings.AcceptLanguages);
-            var html = await httpClient.GetStringAsync(url);
-
-#if DEBUG
-            SaveHtmlFile(encodedString, html);
-#endif
-
-            var doc = (IHTMLDocument2)new HTMLDocument();
-            doc.write(html);
-            var lyricsText = ParseLyrics((HTMLDocument)doc);
+            var lyricsText = await DownloadLyricsAsync(query);
 
             var track = new Track(trackInfo);
 
@@ -55,6 +40,40 @@ namespace LyricsProviders.GoogleProvider
             }
 
             return track;
+        }
+
+        private async Task<string> DownloadLyricsAsync(string query)
+        {
+            string encodedString = HttpUtility.UrlEncode(query);
+            string url = _settings.SearchUrl + encodedString;
+            string lyricsText = null;
+
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(_settings.UserAgent);
+            httpClient.DefaultRequestHeaders.AcceptLanguage.ParseAdd(_settings.AcceptLanguages);
+
+            try
+            {
+                var html = await httpClient.GetStringAsync(url);
+
+#if DEBUG
+                SaveHtmlFile(encodedString, html);
+#endif
+
+                var doc = (IHTMLDocument2)new HTMLDocument();
+                doc.write(html);
+                lyricsText = ParseLyrics((HTMLDocument)doc);
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, "Error while perform HTTP request");
+            }
+            finally
+            {
+                httpClient.Dispose();
+            }
+
+            return lyricsText;
         }
 
         private string ParseLyrics(HTMLDocument doc)
