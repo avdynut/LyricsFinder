@@ -156,5 +156,11 @@ namespace Lyrixator.Views
         {
             Lyrics.IsReadOnly = false;
         }
+
+        private void OnSettingsButtonClick(object sender, RoutedEventArgs e)
+        {
+            var settingsWindow = new SettingsWindow { Owner = this };
+            settingsWindow.ShowDialog();
+        }
     }
 }

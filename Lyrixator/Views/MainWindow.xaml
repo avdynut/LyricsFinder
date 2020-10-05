@@ -86,6 +86,7 @@
                                Margin="2"
                                Source="{Binding ProviderName, Converter={StaticResource NameToIconUriConverter}}"
                                ToolTip="{Binding ProviderName}"/>
+
                         <Separator Width="2"
                                    Height="16"
                                    Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
@@ -102,6 +103,16 @@
                                 <md:PackIcon Kind="Pin"/>
                             </md:ToggleButtonAssist.OnContent>
                         </ToggleButton>
+
+                        <Button Height="24"
+                                Click="OnSettingsButtonClick"
+                                Style="{StaticResource MaterialDesignIconButton}">
+                            <md:PackIcon Kind="Settings"/>
+                        </Button>
+
+                        <Separator Width="2"
+                                   Height="16"
+                                   Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
 
                         <Button Padding="8,4"
                                 Click="OnMinimizeButtonClick"

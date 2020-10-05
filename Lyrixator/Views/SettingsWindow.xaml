@@ -8,8 +8,12 @@
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:prism="http://prismlibrary.com/"
         xmlns:vm="clr-namespace:Lyrixator.ViewModels"
+        Width="400"
+        Height="300"
         d:DataContext="{d:DesignInstance vm:SettingsWindowViewModel}"
         prism:ViewModelLocator.AutoWireViewModel="True"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
         mc:Ignorable="d">
 
     <Window.Resources>
