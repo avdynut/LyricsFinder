@@ -4,6 +4,7 @@ using nucs.JsonSettings;
 using PlayerWatching;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 
@@ -29,9 +30,9 @@ namespace Lyrixator.Configuration
 
         public virtual TimeSpan CheckInterval { get; set; } = TimeSpan.FromSeconds(3);
 
-        public virtual List<Element> PlayerWatchers { get; set; } = new List<Element>();
+        public virtual ObservableCollection<Element> PlayerWatchers { get; set; } = new ObservableCollection<Element>();
 
-        public virtual List<Element> LyricsProviders { get; set; } = new List<Element>();
+        public virtual ObservableCollection<Element> LyricsProviders { get; set; } = new ObservableCollection<Element>();
 
         public Settings()
         {
@@ -40,8 +41,8 @@ namespace Lyrixator.Configuration
 
         private void OnAfterLoad()
         {
-            PlayerWatchers = PlayerWatchers.Union(_defaultWatchers).ToList();
-            LyricsProviders = LyricsProviders.Union(_defaultProviders).ToList();
+            PlayerWatchers = new ObservableCollection<Element>(PlayerWatchers.Union(_defaultWatchers));
+            LyricsProviders = new ObservableCollection<Element>(LyricsProviders.Union(_defaultProviders));
         }
     }
 }
