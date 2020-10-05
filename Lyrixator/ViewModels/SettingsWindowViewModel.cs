@@ -1,8 +1,10 @@
 ﻿using LyricsProviders.DirectoriesProvider;
 using Lyrixator.Configuration;
+using Prism.Commands;
 using Prism.Mvvm;
 using System;
 using System.Linq;
+using System.Windows.Input;
 
 namespace Lyrixator.ViewModels
 {
@@ -46,11 +48,15 @@ namespace Lyrixator.ViewModels
             }
         }
 
+        public ICommand SaveSettingsCommand { get; }
+
         public SettingsWindowViewModel(Settings settings, LyricsSettings lyricsSettings, DirectoriesProviderSettings directoriesSettings)
         {
             Settings = settings;
             _lyricsSettings = lyricsSettings;
             _directoriesSettings = directoriesSettings;
+
+            SaveSettingsCommand = new DelegateCommand(Settings.Save);
         }
     }
 }
