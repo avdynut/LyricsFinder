@@ -6,6 +6,7 @@
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:prism="http://prismlibrary.com/"
         xmlns:tb="http://www.hardcodet.net/taskbar"
+        xmlns:views="clr-namespace:Lyrixator.Views"
         xmlns:vm="clr-namespace:Lyrixator.ViewModels"
         Title="Lyrixator"
         d:DataContext="{d:DesignInstance vm:MainWindowViewModel}"
@@ -159,7 +160,7 @@
                          Background="Transparent"
                          BorderThickness="0"
                          FontFamily="{Binding LyricsSettings.FontFamily}"
-                         FontSize="{Binding ElementName=FontSizeSlider, Path=Value}"
+                         FontSize="{Binding LyricsSettings.FontSize}"
                          FontStyle="{Binding LyricsSettings.FontStyle}"
                          FontWeight="{Binding LyricsSettings.FontWeight}"
                          IsReadOnly="True"
@@ -182,14 +183,7 @@
             <Grid Name="BottomPanel"
                   Grid.Row="2"
                   MinHeight="10">
-                <Slider Name="FontSizeSlider"
-                        IsMoveToPointEnabled="True"
-                        Style="{DynamicResource MaterialDesignDiscreteSlider}"
-                        ToolTip="Font Size"
-                        Visibility="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver, Converter={StaticResource BooleanToVisibilityConverter}}"
-                        Value="{Binding LyricsSettings.FontSize}"
-                        Minimum="7"
-                        Maximum="200"/>
+                <views:LyricsSettingsView DataContext="{Binding LyricsSettings}" Visibility="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             </Grid>
         </Grid>
     </Grid>

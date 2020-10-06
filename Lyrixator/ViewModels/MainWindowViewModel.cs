@@ -1,7 +1,6 @@
 ﻿using LyricsFinder.Core;
 using LyricsProviders;
 using LyricsProviders.DirectoriesProvider;
-using Lyrixator.Configuration;
 using NLog;
 using PlayerWatching;
 using Prism.Commands;
@@ -65,13 +64,13 @@ namespace Lyrixator.ViewModels
 
         public ICommand FindLyricsCommand { get; }
 
-        public LyricsSettings LyricsSettings { get; }
+        public LyricsSettingsViewModel LyricsSettings { get; }
 
         public MainWindowViewModel(
             MultiPlayerWatcher playersWatcher,
             MultiTrackInfoProvider trackInfoProvider,
             DirectoriesProviderSettings directoriesSettings,
-            LyricsSettings lyricsSettings)
+            LyricsSettingsViewModel lyricsSettings)
         {
             _playersWatcher = playersWatcher;
             _trackInfoProvider = trackInfoProvider;

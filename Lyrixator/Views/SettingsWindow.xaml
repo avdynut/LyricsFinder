@@ -46,17 +46,7 @@
     </i:Interaction.Triggers>
 
     <TabControl Style="{StaticResource MaterialDesignNavigatilRailTabControl}">
-        <TabItem Header="Directories">
-            <StackPanel>
-                <TextBox md:HintAssist.Hint="Directory"
-                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                         Text="{Binding LyricsDirectory, UpdateSourceTrigger=PropertyChanged, Delay=200}"
-                         ToolTip="Directory to save lyrics files"/>
-                <TextBox md:HintAssist.Hint="File Name Pattern"
-                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                         Text="{Binding FileNamePattern, UpdateSourceTrigger=PropertyChanged, Delay=200}"/>
-            </StackPanel>
-        </TabItem>
+
         <TabItem Header="Players">
             <StackPanel>
                 <ListBox dd:DragDrop.IsDragSource="True"
@@ -69,13 +59,26 @@
                          Text="{Binding CheckInterval, UpdateSourceTrigger=PropertyChanged, Delay=200}"/>
             </StackPanel>
         </TabItem>
+
         <TabItem Header="Providers">
             <ListBox dd:DragDrop.IsDragSource="True"
                      dd:DragDrop.IsDropTarget="True"
                      ItemTemplate="{StaticResource CheckIconItemTemplate}"
                      ItemsSource="{Binding Settings.LyricsProviders}"/>
         </TabItem>
-        <TabItem Header="Lyrics"/>
+
+        <TabItem Header="Directories">
+            <StackPanel>
+                <TextBox md:HintAssist.Hint="Directory"
+                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                         Text="{Binding LyricsDirectory, UpdateSourceTrigger=PropertyChanged, Delay=200}"
+                         ToolTip="Directory to save lyrics files"/>
+                <TextBox md:HintAssist.Hint="File Name Pattern"
+                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                         Text="{Binding FileNamePattern, UpdateSourceTrigger=PropertyChanged, Delay=200}"/>
+            </StackPanel>
+        </TabItem>
+
     </TabControl>
 
 </Window>
