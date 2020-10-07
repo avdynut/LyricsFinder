@@ -19,7 +19,7 @@
                 Minimum="7"
                 Maximum="200"/>
 
-        <UniformGrid>
+        <WrapPanel>
             <ListBox ItemsSource="{Binding TextAlignments}"
                      SelectedValue="{Binding TextAlignment}"
                      SelectedValuePath="Key"
@@ -31,6 +31,10 @@
                 </ListBox.ItemTemplate>
             </ListBox>
 
+            <Separator Width="2"
+                       Height="16"
+                       Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
+
             <ListBox SelectionMode="Extended" Style="{StaticResource MaterialDesignToolToggleFlatListBox}">
                 <ListBoxItem IsSelected="{Binding IsBold}">
                     <md:PackIcon Kind="FormatBold"/>
@@ -39,7 +43,13 @@
                     <md:PackIcon Kind="FormatItalic"/>
                 </ListBoxItem>
             </ListBox>
-        </UniformGrid>
+
+            <Separator Width="2"
+                       Height="16"
+                       Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
+
+            <ComboBox ItemsSource="{Binding Source={x:Static Fonts.SystemFontFamilies}}" SelectedItem="{Binding FontFamily}"/>
+        </WrapPanel>
 
     </StackPanel>
 
