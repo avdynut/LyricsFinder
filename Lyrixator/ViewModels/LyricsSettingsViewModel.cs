@@ -1,5 +1,7 @@
 ﻿using Lyrixator.Configuration;
+using MaterialDesignThemes.Wpf;
 using Prism.Mvvm;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
 
@@ -49,12 +51,12 @@ namespace Lyrixator.ViewModels
             }
         }
 
-        public HorizontalAlignment HorizontalAlignment
+        public TextAlignment TextAlignment
         {
-            get => _lyricsSettings.HorizontalAlignment;
+            get => _lyricsSettings.TextAlignment;
             set
             {
-                _lyricsSettings.HorizontalAlignment = value;
+                _lyricsSettings.TextAlignment = value;
                 RaisePropertyChanged();
             }
         }
@@ -98,6 +100,14 @@ namespace Lyrixator.ViewModels
                 RaisePropertyChanged();
             }
         }
+
+        public Dictionary<TextAlignment, PackIconKind> TextAlignments { get; } = new Dictionary<TextAlignment, PackIconKind>
+        {
+            { TextAlignment.Left, PackIconKind.FormatAlignLeft },
+            { TextAlignment.Center, PackIconKind.FormatAlignCenter },
+            { TextAlignment.Right, PackIconKind.FormatAlignRight },
+            //{ TextAlignment.Justify, PackIconKind.FormatAlignJustify }
+        };
 
         public LyricsSettingsViewModel(LyricsSettings lyricsSettings)
         {

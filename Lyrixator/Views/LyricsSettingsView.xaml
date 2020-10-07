@@ -11,12 +11,24 @@
              mc:Ignorable="d">
 
     <StackPanel>
-        <Slider IsMoveToPointEnabled="True"
+        <Slider Height="60"
+                IsMoveToPointEnabled="True"
                 Style="{DynamicResource MaterialDesignDiscreteSlider}"
                 ToolTip="Font Size"
                 Value="{Binding FontSize}"
                 Minimum="7"
                 Maximum="200"/>
+
+        <ListBox ItemsSource="{Binding TextAlignments}"
+                 SelectedValue="{Binding TextAlignment}"
+                 SelectedValuePath="Key"
+                 Style="{StaticResource MaterialDesignToolToggleListBox}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <md:PackIcon Kind="{Binding Value}"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </StackPanel>
 
 </UserControl>

@@ -155,7 +155,6 @@
 
             <Grid Name="LyricsPanel" Grid.Row="1">
                 <TextBox Name="Lyrics"
-                         HorizontalContentAlignment="{Binding LyricsSettings.HorizontalAlignment}"
                          AcceptsReturn="True"
                          Background="Transparent"
                          BorderThickness="0"
@@ -167,6 +166,7 @@
                          MouseDoubleClick="OnLyricsMouseDoubleClick"
                          Style="{x:Null}"
                          Text="{Binding Lyrics}"
+                         TextAlignment="{Binding LyricsSettings.TextAlignment}"
                          TextWrapping="Wrap"
                          VerticalScrollBarVisibility="Auto">
                     <TextBox.Foreground>
