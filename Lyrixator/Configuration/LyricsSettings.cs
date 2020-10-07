@@ -18,7 +18,7 @@ namespace Lyrixator.Configuration
         public virtual Color TextColor { get; set; } = (Color)ColorConverter.ConvertFromString("#FFD6EDFF");
         public virtual Color ShadowColor { get; set; } = Colors.Black;
 
-        public virtual double BlurRadius { get; set; } = 15;
         public virtual double ShadowDepth { get; set; }
+        public virtual double BlurRadius { get; set; } = 15;
     }
 }

@@ -51,6 +51,17 @@
             <ComboBox ItemsSource="{Binding Source={x:Static Fonts.SystemFontFamilies}}" SelectedItem="{Binding FontFamily}"/>
         </WrapPanel>
 
+        <WrapPanel>
+            <TextBox MinWidth="100"
+                     md:HintAssist.Hint="Blur Radius"
+                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                     Text="{Binding BlurRadius, UpdateSourceTrigger=PropertyChanged, Delay=200}"/>
+            <TextBox MinWidth="100"
+                     md:HintAssist.Hint="Shadow Depth"
+                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                     Text="{Binding ShadowDepth, UpdateSourceTrigger=PropertyChanged, Delay=200}"/>
+        </WrapPanel>
+
     </StackPanel>
 
 </UserControl>

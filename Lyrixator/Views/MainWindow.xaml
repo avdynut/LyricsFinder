@@ -180,11 +180,9 @@
                 </TextBox>
             </Grid>
 
-            <Grid Name="BottomPanel"
-                  Grid.Row="2"
-                  MinHeight="10">
-                <views:LyricsSettingsView DataContext="{Binding LyricsSettings}" Visibility="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-            </Grid>
+            <Expander Name="TextSettings" Grid.Row="2">
+                <views:LyricsSettingsView DataContext="{Binding LyricsSettings}"/>
+            </Expander>
         </Grid>
     </Grid>
 

@@ -29,7 +29,7 @@ namespace Lyrixator.Views
             base.OnInitialized(e);
 
             RestoreWindowParameters();
-            LyricsPanel.Background = BottomPanel.Background = _lyricsPanelBrush;
+            LyricsPanel.Background = TextSettings.Background = _lyricsPanelBrush;
         }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
@@ -57,7 +57,7 @@ namespace Lyrixator.Views
         {
             base.OnActivated(e);
 
-            LyricsPanel.Background.Opacity = BottomPanel.Background.Opacity = 1;
+            LyricsPanel.Background.Opacity = TextSettings.Background.Opacity = 1;
         }
 
         protected override void OnDeactivated(EventArgs e)
@@ -65,7 +65,8 @@ namespace Lyrixator.Views
             base.OnDeactivated(e);
 
             Lyrics.IsReadOnly = true;
-            LyricsPanel.Background.Opacity = BottomPanel.Background.Opacity = 0;
+            LyricsPanel.Background.Opacity = TextSettings.Background.Opacity = 0;
+            TextSettings.IsExpanded = false;
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
