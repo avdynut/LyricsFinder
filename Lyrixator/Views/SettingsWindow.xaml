@@ -23,7 +23,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <CheckBox IsChecked="{Binding IsEnabled}">
+                <CheckBox md:CheckBoxAssist.CheckBoxSize="30" IsChecked="{Binding IsEnabled}">
                     <CheckBox.Content>
                         <StackPanel Orientation="Horizontal">
                             <Image Width="32"

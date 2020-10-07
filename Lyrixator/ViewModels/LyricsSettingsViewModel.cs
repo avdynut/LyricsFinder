@@ -21,32 +21,34 @@ namespace Lyrixator.ViewModels
             }
         }
 
+        public bool IsItalic
+        {
+            get => _lyricsSettings.IsItalic;
+            set
+            {
+                _lyricsSettings.IsItalic = value;
+                RaisePropertyChanged();
+                RaisePropertyChanged(nameof(FontStyle));
+            }
+        }
+
+        public bool IsBold
+        {
+            get => _lyricsSettings.IsBold;
+            set
+            {
+                _lyricsSettings.IsBold = value;
+                RaisePropertyChanged();
+                RaisePropertyChanged(nameof(FontWeight));
+            }
+        }
+
         public FontFamily FontFamily
         {
             get => _lyricsSettings.FontFamily;
             set
             {
                 _lyricsSettings.FontFamily = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        public FontStyle FontStyle
-        {
-            get => _lyricsSettings.FontStyle;
-            set
-            {
-                _lyricsSettings.FontStyle = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        public FontWeight FontWeight
-        {
-            get => _lyricsSettings.FontWeight;
-            set
-            {
-                _lyricsSettings.FontWeight = value;
                 RaisePropertyChanged();
             }
         }
@@ -100,6 +102,9 @@ namespace Lyrixator.ViewModels
                 RaisePropertyChanged();
             }
         }
+
+        public FontStyle FontStyle => IsItalic ? FontStyles.Italic : FontStyles.Normal;
+        public FontWeight FontWeight => IsBold ? FontWeights.Bold : FontWeights.Normal;
 
         public Dictionary<TextAlignment, PackIconKind> TextAlignments { get; } = new Dictionary<TextAlignment, PackIconKind>
         {

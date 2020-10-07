@@ -19,16 +19,28 @@
                 Minimum="7"
                 Maximum="200"/>
 
-        <ListBox ItemsSource="{Binding TextAlignments}"
-                 SelectedValue="{Binding TextAlignment}"
-                 SelectedValuePath="Key"
-                 Style="{StaticResource MaterialDesignToolToggleListBox}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <md:PackIcon Kind="{Binding Value}"/>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+        <UniformGrid>
+            <ListBox ItemsSource="{Binding TextAlignments}"
+                     SelectedValue="{Binding TextAlignment}"
+                     SelectedValuePath="Key"
+                     Style="{StaticResource MaterialDesignToolToggleListBox}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <md:PackIcon Kind="{Binding Value}"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <ListBox SelectionMode="Extended" Style="{StaticResource MaterialDesignToolToggleFlatListBox}">
+                <ListBoxItem IsSelected="{Binding IsBold}">
+                    <md:PackIcon Kind="FormatBold"/>
+                </ListBoxItem>
+                <ListBoxItem IsSelected="{Binding IsItalic}">
+                    <md:PackIcon Kind="FormatItalic"/>
+                </ListBoxItem>
+            </ListBox>
+        </UniformGrid>
+
     </StackPanel>
 
 </UserControl>

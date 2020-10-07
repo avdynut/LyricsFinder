@@ -10,9 +10,9 @@ namespace Lyrixator.Configuration
         public override string FileName { get; set; } = Path.Combine(Settings.ConfigurationDirectory, "lyrics.json");
 
         public virtual double FontSize { get; set; } = 20;
+        public virtual bool IsItalic { get; set; }
+        public virtual bool IsBold { get; set; }
         public virtual FontFamily FontFamily { get; set; } = new FontFamily("Segoe UI");
-        public virtual FontStyle FontStyle { get; set; } = FontStyles.Normal;
-        public virtual FontWeight FontWeight { get; set; } = FontWeights.Normal;
         public virtual TextAlignment TextAlignment { get; set; } = TextAlignment.Center;
 
         public virtual Color TextColor { get; set; } = (Color)ColorConverter.ConvertFromString("#FFD6EDFF");
