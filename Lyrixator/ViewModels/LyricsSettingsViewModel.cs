@@ -83,22 +83,22 @@ namespace Lyrixator.ViewModels
             }
         }
 
-        public double BlurRadius
-        {
-            get => _lyricsSettings.BlurRadius;
-            set
-            {
-                _lyricsSettings.BlurRadius = value;
-                RaisePropertyChanged();
-            }
-        }
-
         public double ShadowDepth
         {
             get => _lyricsSettings.ShadowDepth;
             set
             {
                 _lyricsSettings.ShadowDepth = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public double BlurRadius
+        {
+            get => _lyricsSettings.BlurRadius;
+            set
+            {
+                _lyricsSettings.BlurRadius = value;
                 RaisePropertyChanged();
             }
         }

@@ -62,6 +62,36 @@
                      Text="{Binding ShadowDepth, UpdateSourceTrigger=PropertyChanged, Delay=200}"/>
         </WrapPanel>
 
+        <WrapPanel>
+            <StackPanel Orientation="Horizontal">
+                <Rectangle Width="20"
+                           Height="20"
+                           VerticalAlignment="Bottom">
+                    <Rectangle.Fill>
+                        <SolidColorBrush Color="{Binding TextColor}"/>
+                    </Rectangle.Fill>
+                </Rectangle>
+                <TextBox MinWidth="100"
+                         md:HintAssist.Hint="Text Color"
+                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                         Text="{Binding TextColor, UpdateSourceTrigger=PropertyChanged, Delay=200}"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal">
+                <Rectangle Width="20"
+                           Height="20"
+                           VerticalAlignment="Bottom">
+                    <Rectangle.Fill>
+                        <SolidColorBrush Color="{Binding ShadowColor}"/>
+                    </Rectangle.Fill>
+                </Rectangle>
+                <TextBox MinWidth="100"
+                         md:HintAssist.Hint="Text Color"
+                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                         Text="{Binding ShadowColor, UpdateSourceTrigger=PropertyChanged, Delay=200}"/>
+            </StackPanel>
+        </WrapPanel>
+
     </StackPanel>
 
 </UserControl>
