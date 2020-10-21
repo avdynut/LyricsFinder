@@ -46,6 +46,53 @@
     </i:Interaction.Triggers>
 
     <TabControl Style="{StaticResource MaterialDesignNavigatilRailTabControl}">
+        <TabControl.ItemContainerStyle>
+            <Style BasedOn="{StaticResource MaterialDesignNavigationRailTabItem}" TargetType="TabItem">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="TabItem">
+                            <Grid x:Name="Root">
+                                <md:ColorZone x:Name="tabitemcz"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Stretch"
+                                              md:ColorZoneAssist.Background="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(md:ColorZoneAssist.Background)}"
+                                              md:ColorZoneAssist.Foreground="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(md:ColorZoneAssist.Foreground)}"
+                                              Background="{x:Null}"
+                                              Focusable="False"
+                                              Mode="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(md:ColorZoneAssist.Mode)}">
+                                    <md:Ripple x:Name="contentPresenter"
+                                               Padding="{TemplateBinding Padding}"
+                                               HorizontalContentAlignment="Center"
+                                               VerticalContentAlignment="Center"
+                                               ClipToBounds="True"
+                                               Content="{TemplateBinding Header}"
+                                               ContentStringFormat="{TemplateBinding HeaderStringFormat}"
+                                               ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                               ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}"
+                                               Focusable="False"
+                                               Opacity=".82"
+                                               RecognizesAccessKey="True"
+                                               SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                               TextBlock.FontSize="15"
+                                               TextBlock.FontWeight="Medium"
+                                               TextOptions.TextFormattingMode="Ideal"
+                                               TextOptions.TextRenderingMode="Auto"/>
+                                </md:ColorZone>
+                                <Border x:Name="SelectionHighlightBorder"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="0"
+                                        RenderTransformOrigin="0.5,0.5"
+                                        Visibility="Hidden">
+                                    <Rectangle x:Name="PART_BackgroundSelection"
+                                               Fill="{TemplateBinding Background}"
+                                               Opacity="0.12"/>
+                                </Border>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </TabControl.ItemContainerStyle>
 
         <TabItem Header="Players">
             <StackPanel>

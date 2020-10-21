@@ -58,6 +58,7 @@ namespace Lyrixator.Views
             base.OnActivated(e);
 
             LyricsPanel.Background.Opacity = TextSettings.Background.Opacity = 1;
+            TextSettings.Visibility = Visibility.Visible;
         }
 
         protected override void OnDeactivated(EventArgs e)
@@ -67,6 +68,7 @@ namespace Lyrixator.Views
             Lyrics.IsReadOnly = true;
             LyricsPanel.Background.Opacity = TextSettings.Background.Opacity = 0;
             TextSettings.IsExpanded = false;
+            TextSettings.Visibility = Visibility.Collapsed;
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)

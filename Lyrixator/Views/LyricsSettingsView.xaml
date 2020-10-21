@@ -19,7 +19,7 @@
                 Minimum="7"
                 Maximum="200"/>
 
-        <WrapPanel>
+        <ToolBar Style="{DynamicResource MaterialDesignToolBar}">
             <ListBox ItemsSource="{Binding TextAlignments}"
                      SelectedValue="{Binding TextAlignment}"
                      SelectedValuePath="Key"
@@ -31,9 +31,7 @@
                 </ListBox.ItemTemplate>
             </ListBox>
 
-            <Separator Width="2"
-                       Height="16"
-                       Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
+            <Separator/>
 
             <ListBox SelectionMode="Extended" Style="{StaticResource MaterialDesignToolToggleFlatListBox}">
                 <ListBoxItem IsSelected="{Binding IsBold}">
@@ -44,25 +42,24 @@
                 </ListBoxItem>
             </ListBox>
 
-            <Separator Width="2"
-                       Height="16"
-                       Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
+            <Separator/>
 
             <ComboBox ItemsSource="{Binding Source={x:Static Fonts.SystemFontFamilies}}" SelectedItem="{Binding FontFamily}"/>
-        </WrapPanel>
+        </ToolBar>
 
-        <WrapPanel>
+        <WrapPanel Margin="10,0">
             <TextBox MinWidth="100"
                      md:HintAssist.Hint="Blur Radius"
                      Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                      Text="{Binding BlurRadius, UpdateSourceTrigger=PropertyChanged, Delay=200}"/>
             <TextBox MinWidth="100"
+                     Margin="10,0,0,0"
                      md:HintAssist.Hint="Shadow Depth"
                      Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                      Text="{Binding ShadowDepth, UpdateSourceTrigger=PropertyChanged, Delay=200}"/>
         </WrapPanel>
 
-        <WrapPanel>
+        <WrapPanel Margin="10,0,10,10">
             <StackPanel Orientation="Horizontal">
                 <Rectangle Width="20"
                            Height="20"
@@ -77,7 +74,7 @@
                          Text="{Binding TextColor, UpdateSourceTrigger=PropertyChanged, Delay=200}"/>
             </StackPanel>
 
-            <StackPanel Orientation="Horizontal">
+            <StackPanel Margin="10,0,0,0" Orientation="Horizontal">
                 <Rectangle Width="20"
                            Height="20"
                            VerticalAlignment="Bottom">
