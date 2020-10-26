@@ -20,26 +20,7 @@ namespace Lyrixator.ViewModels
         private readonly MultiPlayerWatcher _playersWatcher;
         private readonly MultiTrackInfoProvider _trackInfoProvider;
 
-        private string _artist;
-        public string Artist
-        {
-            get => _artist;
-            set => SetProperty(ref _artist, value);
-        }
-
-        private string _title;
-        public string Title
-        {
-            get => _title;
-            set => SetProperty(ref _title, value);
-        }
-
-        private string _lyrics;
-        public string Lyrics
-        {
-            get => _lyrics;
-            set => SetProperty(ref _lyrics, value);
-        }
+        public TrackViewModel Track { get; } = new TrackViewModel(new Track());
 
         private bool _searchInProgress;
         public bool SearchInProgress
@@ -81,18 +62,18 @@ namespace Lyrixator.ViewModels
             _playersWatcher.Initialize();
 
             FindLyricsCommand = new DelegateCommand(async () => await FindLyricsAsync(), CanFindLyrics)
-                .ObservesProperty(() => Artist).ObservesProperty(() => Title).ObservesProperty(() => SearchInProgress);
+                .ObservesProperty(() => Track.Artist).ObservesProperty(() => Track.Title).ObservesProperty(() => SearchInProgress);
         }
 
-        private bool CanFindLyrics() => !string.IsNullOrEmpty(Artist) && !string.IsNullOrEmpty(Title) && !SearchInProgress;
+        private bool CanFindLyrics() => !string.IsNullOrEmpty(Track.Artist) && !string.IsNullOrEmpty(Track.Title) && !SearchInProgress;
 
         private async Task UpdateTrackInfoAsync(Track track)
         {
             _logger.Info("Update track info {track}", track);
 
-            Title = track.Title;
-            Artist = track.Artist;
-            Lyrics = track.Lyrics?.Text;
+            Track.Artist = track.Artist;
+            Track.Title = track.Title;
+            Track.Lyrics = track.Lyrics;
 
             await FindLyricsAsync(track.ToTrackInfo());
         }
@@ -104,9 +85,8 @@ namespace Lyrixator.ViewModels
             var foundTrack = await _trackInfoProvider.FindTrackAsync(trackInfo);
             SearchInProgress = false;
 
-            Lyrics = foundTrack.Lyrics.Text;
-
-            if (Lyrics?.Length > 0)
+            Track.Lyrics = foundTrack.Lyrics;
+            if (Track.Lyrics.Text?.Length > 0)
             {
                 _logger.Debug($"Found lyrics for {foundTrack}");
 
@@ -117,7 +97,7 @@ namespace Lyrixator.ViewModels
                 if (!File.Exists(file))
                 {
                     Directory.CreateDirectory(lyricsDirectory);
-                    File.WriteAllText(file, Lyrics);
+                    File.WriteAllText(file, Track.Lyrics.Text);
                 }
 
                 ProviderName = _trackInfoProvider.CurrentProvider?.DisplayName;
@@ -139,7 +119,7 @@ namespace Lyrixator.ViewModels
 
         private async Task FindLyricsAsync()
         {
-            var trackInfo = new TrackInfo { Artist = Artist, Title = Title };
+            var trackInfo = new TrackInfo { Artist = Track.Artist, Title = Track.Title };
             await FindLyricsAsync(trackInfo);
         }
 

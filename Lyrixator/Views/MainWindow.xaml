@@ -137,8 +137,8 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <UniformGrid Grid.Column="0" Rows="2">
-                        <TextBox md:HintAssist.Hint="Artist" Text="{Binding Artist, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBox md:HintAssist.Hint="Title" Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox md:HintAssist.Hint="Artist" Text="{Binding Track.Artist, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox md:HintAssist.Hint="Title" Text="{Binding Track.Title, UpdateSourceTrigger=PropertyChanged}"/>
                     </UniformGrid>
                     <Button Grid.Column="1"
                             Height="50"
@@ -165,7 +165,7 @@
                          IsReadOnly="True"
                          MouseDoubleClick="OnLyricsMouseDoubleClick"
                          Style="{x:Null}"
-                         Text="{Binding Lyrics}"
+                         Text="{Binding Track.Lyrics.Text}"
                          TextAlignment="{Binding LyricsSettings.TextAlignment}"
                          TextWrapping="Wrap"
                          VerticalScrollBarVisibility="Auto">
