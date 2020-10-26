@@ -23,7 +23,10 @@ namespace LyricsProviders.GoogleProvider
         public override async Task<Track> FindTrackAsync(TrackInfo trackInfo)
         {
             string query = $"{trackInfo.Artist} {trackInfo.Title}";
-            var lyricsText = await DownloadLyricsAsync(query);
+            string encodedString = HttpUtility.UrlEncode(query);
+            string url = _settings.SearchUrl + encodedString;
+
+            var lyricsText = await DownloadLyricsAsync(url, encodedString);
 
             var track = new Track(trackInfo);
 
@@ -34,7 +37,7 @@ namespace LyricsProviders.GoogleProvider
             }
             else
             {
-                track.Lyrics = new UnsyncedLyric(lyricsText);
+                track.Lyrics = new UnsyncedLyric(lyricsText) { Source = new Uri(url) };
                 // todo: parse artist and title
                 _logger.Trace("Found lyrics");
             }
@@ -42,10 +45,8 @@ namespace LyricsProviders.GoogleProvider
             return track;
         }
 
-        private async Task<string> DownloadLyricsAsync(string query)
+        private async Task<string> DownloadLyricsAsync(string url, string htmlFilename)
         {
-            string encodedString = HttpUtility.UrlEncode(query);
-            string url = _settings.SearchUrl + encodedString;
             string lyricsText = null;
 
             var httpClient = new HttpClient();
@@ -57,7 +58,7 @@ namespace LyricsProviders.GoogleProvider
                 var html = await httpClient.GetStringAsync(url);
 
 #if DEBUG
-                SaveHtmlFile(encodedString, html);
+                SaveHtmlFile(htmlFilename, html);
 #endif
 
                 var doc = (IHTMLDocument2)new HTMLDocument();
@@ -104,13 +105,13 @@ namespace LyricsProviders.GoogleProvider
             return null;
         }
 
-        private void SaveHtmlFile(string query, string html)
+        private void SaveHtmlFile(string filename, string html)
         {
             try
             {
                 var googleFolder = "google-results";
                 Directory.CreateDirectory(googleFolder);
-                File.WriteAllText(Path.Combine(googleFolder, $"{query}.html"), html);
+                File.WriteAllText(Path.Combine(googleFolder, $"{filename}.html"), html);
             }
             catch (Exception ex)
             {

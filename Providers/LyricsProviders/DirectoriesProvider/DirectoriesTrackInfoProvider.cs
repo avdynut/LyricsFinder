@@ -48,7 +48,7 @@ namespace LyricsProviders.DirectoriesProvider
                     var lyrics = await File.ReadAllTextAsync(file.FullName);
                     if (lyrics.Length > 0)
                     {
-                        track.Lyrics = new UnsyncedLyric(lyrics);
+                        track.Lyrics = new UnsyncedLyric(lyrics) { Source = new Uri(file.FullName) };
                         return track;
                     }
                 }

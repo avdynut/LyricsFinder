@@ -6,6 +6,7 @@ using PlayerWatching;
 using Prism.Commands;
 using Prism.Mvvm;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -44,6 +45,7 @@ namespace Lyrixator.ViewModels
         }
 
         public ICommand FindLyricsCommand { get; }
+        public ICommand OpenLyricsCommand { get; }
 
         public LyricsSettingsViewModel LyricsSettings { get; }
 
@@ -63,6 +65,9 @@ namespace Lyrixator.ViewModels
 
             FindLyricsCommand = new DelegateCommand(async () => await FindLyricsAsync(), CanFindLyrics)
                 .ObservesProperty(() => Track.Artist).ObservesProperty(() => Track.Title).ObservesProperty(() => SearchInProgress);
+
+            OpenLyricsCommand = new DelegateCommand(OpenLyrics, () => Track.Lyrics?.Source != null)
+                .ObservesProperty(() => Track.Lyrics);
         }
 
         private bool CanFindLyrics() => !string.IsNullOrEmpty(Track.Artist) && !string.IsNullOrEmpty(Track.Title) && !SearchInProgress;
@@ -121,6 +126,22 @@ namespace Lyrixator.ViewModels
         {
             var trackInfo = new TrackInfo { Artist = Track.Artist, Title = Track.Title };
             await FindLyricsAsync(trackInfo);
+        }
+
+        private void OpenLyrics()
+        {
+            var uri = Track.Lyrics.Source;
+            var path = uri.IsFile ? uri.LocalPath : uri.AbsoluteUri;
+            var startInfo = new ProcessStartInfo(path) { UseShellExecute = true };
+
+            try
+            {
+                Process.Start(startInfo);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, $"Cannot open lyrics {path}");
+            }
         }
 
         public void Dispose()

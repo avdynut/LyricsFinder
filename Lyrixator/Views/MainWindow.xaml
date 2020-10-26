@@ -83,10 +83,13 @@
                                Margin="2"
                                Source="{Binding PlayerName, Converter={StaticResource NameToIconUriConverter}}"
                                ToolTip="{Binding PlayerName}"/>
-                        <Image Height="16"
-                               Margin="2"
-                               Source="{Binding ProviderName, Converter={StaticResource NameToIconUriConverter}}"
-                               ToolTip="{Binding ProviderName}"/>
+                        <Button Height="24"
+                                Command="{Binding OpenLyricsCommand}"
+                                Style="{StaticResource MaterialDesignIconButton}">
+                            <Image Height="16"
+                                   Source="{Binding ProviderName, Converter={StaticResource NameToIconUriConverter}}"
+                                   ToolTip="{Binding ProviderName}"/>
+                        </Button>
 
                         <Separator Width="2"
                                    Height="16"
