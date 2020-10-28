@@ -46,6 +46,33 @@
     </i:Interaction.Triggers>
 
     <TabControl Padding="10">
+        <TabControl.ItemContainerStyle>
+            <Style TargetType="TabItem">
+                <Setter Property="Padding" Value="10"/>
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="TabItem">
+                            <Border Name="TabItem"
+                                    Padding="{TemplateBinding Padding}"
+                                    Background="{DynamicResource MaterialDesignChipBackground}"
+                                    CornerRadius="5,5,0,0">
+                                <TextBlock x:Name="Header" Text="{TemplateBinding Header}"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter TargetName="TabItem" Property="Background" Value="{DynamicResource MaterialDesignSelection}"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="TabItem" Property="Background" Value="{DynamicResource MaterialDesignFlatButtonRipple}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </TabControl.ItemContainerStyle>
+
         <TabItem Header="Players">
             <StackPanel>
                 <ListBox dd:DragDrop.IsDragSource="True"
