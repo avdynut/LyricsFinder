@@ -9,17 +9,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LyricsProviders", "Provider
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LyricsProviders.Tests", "Providers\LyricsProviders.Tests\LyricsProviders.Tests.csproj", "{1442C1A4-363D-4587-9A4E-9C66C80BC651}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerWatching", "PlayerWatching\PlayerWatching.csproj", "{955D6460-22EA-4953-8809-65773D3BA173}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LyricsFinder.Core", "LyricsFinder.Core\LyricsFinder.Core.csproj", "{E611FD0D-EBD3-4A79-A913-4BE25736291D}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerWatching.Tests", "PlayerWatching.Tests\PlayerWatching.Tests.csproj", "{D811000D-7E56-4A16-B179-82C7DF7F28C7}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerWatching.Demo", "PlayerWatching.Demo\PlayerWatching.Demo.csproj", "{AC52652B-314F-4050-BBC1-644D937F4EA1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lyrixator", "Lyrixator\Lyrixator.csproj", "{57BE1897-7CBE-431D-B1F1-B63BC21B274B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LyricsProviders.Demo", "Providers\LyricsProviders.Demo\LyricsProviders.Demo.csproj", "{2157FB8A-9BAE-4CCA-89CD-13C20B75EB4E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LyricsProviders.Demo", "Providers\LyricsProviders.Demo\LyricsProviders.Demo.csproj", "{2157FB8A-9BAE-4CCA-89CD-13C20B75EB4E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Watchers", "Watchers", "{EF562745-89D5-4A08-94B4-E54C500B0918}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerWatching", "Watchers\PlayerWatching\PlayerWatching.csproj", "{61FEA747-51A2-4281-A39B-2B3881947849}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerWatching.Demo", "Watchers\PlayerWatching.Demo\PlayerWatching.Demo.csproj", "{803A7B07-22F7-4348-96F4-CE1BE1F48187}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerWatching.Tests", "Watchers\PlayerWatching.Tests\PlayerWatching.Tests.csproj", "{8A4765E8-5C32-446E-BB39-3C39DF227EAF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,22 +37,10 @@ Global
 		{1442C1A4-363D-4587-9A4E-9C66C80BC651}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1442C1A4-363D-4587-9A4E-9C66C80BC651}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1442C1A4-363D-4587-9A4E-9C66C80BC651}.Release|Any CPU.Build.0 = Release|Any CPU
-		{955D6460-22EA-4953-8809-65773D3BA173}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{955D6460-22EA-4953-8809-65773D3BA173}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{955D6460-22EA-4953-8809-65773D3BA173}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{955D6460-22EA-4953-8809-65773D3BA173}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E611FD0D-EBD3-4A79-A913-4BE25736291D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E611FD0D-EBD3-4A79-A913-4BE25736291D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E611FD0D-EBD3-4A79-A913-4BE25736291D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E611FD0D-EBD3-4A79-A913-4BE25736291D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D811000D-7E56-4A16-B179-82C7DF7F28C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D811000D-7E56-4A16-B179-82C7DF7F28C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D811000D-7E56-4A16-B179-82C7DF7F28C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D811000D-7E56-4A16-B179-82C7DF7F28C7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AC52652B-314F-4050-BBC1-644D937F4EA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AC52652B-314F-4050-BBC1-644D937F4EA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AC52652B-314F-4050-BBC1-644D937F4EA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AC52652B-314F-4050-BBC1-644D937F4EA1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{57BE1897-7CBE-431D-B1F1-B63BC21B274B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{57BE1897-7CBE-431D-B1F1-B63BC21B274B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57BE1897-7CBE-431D-B1F1-B63BC21B274B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -59,6 +49,18 @@ Global
 		{2157FB8A-9BAE-4CCA-89CD-13C20B75EB4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2157FB8A-9BAE-4CCA-89CD-13C20B75EB4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2157FB8A-9BAE-4CCA-89CD-13C20B75EB4E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61FEA747-51A2-4281-A39B-2B3881947849}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61FEA747-51A2-4281-A39B-2B3881947849}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61FEA747-51A2-4281-A39B-2B3881947849}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61FEA747-51A2-4281-A39B-2B3881947849}.Release|Any CPU.Build.0 = Release|Any CPU
+		{803A7B07-22F7-4348-96F4-CE1BE1F48187}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{803A7B07-22F7-4348-96F4-CE1BE1F48187}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{803A7B07-22F7-4348-96F4-CE1BE1F48187}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{803A7B07-22F7-4348-96F4-CE1BE1F48187}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A4765E8-5C32-446E-BB39-3C39DF227EAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A4765E8-5C32-446E-BB39-3C39DF227EAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A4765E8-5C32-446E-BB39-3C39DF227EAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A4765E8-5C32-446E-BB39-3C39DF227EAF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -67,6 +69,9 @@ Global
 		{87C02570-011D-4A2B-95CE-E6FB49156A58} = {54B19386-5F64-490C-9EF5-D7845EBB0016}
 		{1442C1A4-363D-4587-9A4E-9C66C80BC651} = {54B19386-5F64-490C-9EF5-D7845EBB0016}
 		{2157FB8A-9BAE-4CCA-89CD-13C20B75EB4E} = {54B19386-5F64-490C-9EF5-D7845EBB0016}
+		{61FEA747-51A2-4281-A39B-2B3881947849} = {EF562745-89D5-4A08-94B4-E54C500B0918}
+		{803A7B07-22F7-4348-96F4-CE1BE1F48187} = {EF562745-89D5-4A08-94B4-E54C500B0918}
+		{8A4765E8-5C32-446E-BB39-3C39DF227EAF} = {EF562745-89D5-4A08-94B4-E54C500B0918}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B43A71A0-9AE6-406F-B91E-B7B2554D2002}

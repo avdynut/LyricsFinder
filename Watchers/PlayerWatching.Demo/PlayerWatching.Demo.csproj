@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\LyricsFinder.Core\LyricsFinder.Core.csproj" />
     <ProjectReference Include="..\PlayerWatching\PlayerWatching.csproj" />
   </ItemGroup>
 

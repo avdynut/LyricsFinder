@@ -25,7 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\LyricsFinder.Core\LyricsFinder.Core.csproj" />
-    <ProjectReference Include="..\PlayerWatching\PlayerWatching.csproj" />
+    <ProjectReference Include="..\Watchers\PlayerWatching\PlayerWatching.csproj" />
     <ProjectReference Include="..\Providers\LyricsProviders\LyricsProviders.csproj" />
   </ItemGroup>
 
