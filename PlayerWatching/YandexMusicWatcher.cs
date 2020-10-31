@@ -26,7 +26,7 @@ namespace PlayerWatching
 
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly YandexMusicLocalization _localization = YandexMusicLocalization.Localizations.GetCurrentLocalization();
-        
+
         private UIA3Automation _automation;
         private AutomationElement _desktop;
 
@@ -85,8 +85,9 @@ namespace PlayerWatching
                         track.Artist = window.FindFirstChild(ArtistButtonAutomationId)?.Name;
                     }
 
+                    // todo: set player state
+
                     result = track != Track && !track.IsTrackEmpty;
-                    Track = track;
                 }
                 catch (Exception ex)
                 {
@@ -94,6 +95,7 @@ namespace PlayerWatching
                 }
             }
 
+            Track = track;
             return result;
         }
 

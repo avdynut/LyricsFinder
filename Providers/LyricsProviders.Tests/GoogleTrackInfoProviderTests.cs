@@ -37,7 +37,7 @@ namespace LyricsProviders.Tests
         private static IEnumerable<object[]> GetTestLyrics() => new[]
         {
             new object[] { TestTrack.SkilletHeroTrack },
-            new object[] { TestTrack.AriaIceShardTrack }
+            new object[] { TestTrack.AriaImFreeTrack }
         };
     }
 }

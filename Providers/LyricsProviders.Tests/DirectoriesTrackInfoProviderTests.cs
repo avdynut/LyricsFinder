@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace LyricsProviders.Tests
@@ -21,7 +22,7 @@ namespace LyricsProviders.Tests
             var provider = new DirectoriesTrackInfoProvider(settings);
 
             Assert.IsNotNull(provider.LyricsFolders);
-            Assert.AreEqual(0, provider.LyricsFolders.Count, "Folders are not exist");
+            CollectionAssert.AreEqual(settings.LyricsDirectories, provider.LyricsFolders.Select(x => x.Name).ToList(), "Folders has to be created");
         }
 
         [TestMethod]
