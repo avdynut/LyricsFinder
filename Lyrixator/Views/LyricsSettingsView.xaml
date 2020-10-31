@@ -1,11 +1,11 @@
-﻿<UserControl x:Class="Lyrixator.Views.LyricsSettingsView"
+﻿<UserControl x:Class="Lyrixound.Views.LyricsSettingsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:prism="http://prismlibrary.com/"
-             xmlns:vm="clr-namespace:Lyrixator.ViewModels"
+             xmlns:vm="clr-namespace:Lyrixound.ViewModels"
              d:DataContext="{d:DesignInstance vm:LyricsSettingsViewModel}"
              prism:ViewModelLocator.AutoWireViewModel="True"
              mc:Ignorable="d">

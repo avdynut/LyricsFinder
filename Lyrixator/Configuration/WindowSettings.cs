@@ -2,7 +2,7 @@
 using System.IO;
 using System.Windows;
 
-namespace Lyrixator.Configuration
+namespace Lyrixound.Configuration
 {
     public class WindowSettings : JsonSettings
     {

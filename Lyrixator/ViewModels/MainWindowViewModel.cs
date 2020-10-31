@@ -12,7 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace Lyrixator.ViewModels
+namespace Lyrixound.ViewModels
 {
     public class MainWindowViewModel : BindableBase, IDisposable
     {

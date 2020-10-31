@@ -1,12 +1,12 @@
 ﻿using LyricsProviders.DirectoriesProvider;
-using Lyrixator.Configuration;
+using Lyrixound.Configuration;
 using Prism.Commands;
 using Prism.Mvvm;
 using System;
 using System.Linq;
 using System.Windows.Input;
 
-namespace Lyrixator.ViewModels
+namespace Lyrixound.ViewModels
 {
     public class SettingsWindowViewModel : BindableBase
     {

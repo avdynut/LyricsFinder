@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Lyrixator.Configuration
+namespace Lyrixound.Configuration
 {
     /// <summary>
     /// Element with name that can be in enabled/disabled state.

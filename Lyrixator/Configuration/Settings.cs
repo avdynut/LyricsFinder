@@ -8,7 +8,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 
-namespace Lyrixator.Configuration
+namespace Lyrixound.Configuration
 {
     public class Settings : JsonSettings
     {

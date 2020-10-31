@@ -1,4 +1,4 @@
-﻿using Lyrixator.Configuration;
+﻿using Lyrixound.Configuration;
 using MaterialDesignThemes.Wpf;
 using NLog;
 using System;
@@ -7,7 +7,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace Lyrixator.Views
+namespace Lyrixound.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

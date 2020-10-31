@@ -2,7 +2,7 @@
 using LyricsFinder.Core.LyricTypes;
 using Prism.Mvvm;
 
-namespace Lyrixator.ViewModels
+namespace Lyrixound.ViewModels
 {
     public class TrackViewModel : BindableBase
     {

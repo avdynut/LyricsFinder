@@ -1,7 +1,7 @@
 ﻿using LyricsProviders;
 using LyricsProviders.DirectoriesProvider;
 using LyricsProviders.GoogleProvider;
-using Lyrixator.Configuration;
+using Lyrixound.Configuration;
 using Newtonsoft.Json.Converters;
 using NLog;
 using nucs.JsonSettings;
@@ -13,7 +13,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Threading;
 
-namespace Lyrixator
+namespace Lyrixound
 {
     /// <summary>
     /// Interaction logic for App.xaml

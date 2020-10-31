@@ -3,7 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Windows.Data;
 
-namespace Lyrixator.Converters
+namespace Lyrixound.Converters
 {
     /// <summary>
     /// Provides path to icon according to name.

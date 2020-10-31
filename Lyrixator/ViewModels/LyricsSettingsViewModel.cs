@@ -1,11 +1,11 @@
-﻿using Lyrixator.Configuration;
+﻿using Lyrixound.Configuration;
 using MaterialDesignThemes.Wpf;
 using Prism.Mvvm;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
 
-namespace Lyrixator.ViewModels
+namespace Lyrixound.ViewModels
 {
     public class LyricsSettingsViewModel : BindableBase
     {

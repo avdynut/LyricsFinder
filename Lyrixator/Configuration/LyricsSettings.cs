@@ -3,7 +3,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Media;
 
-namespace Lyrixator.Configuration
+namespace Lyrixound.Configuration
 {
     public class LyricsSettings : JsonSettings
     {

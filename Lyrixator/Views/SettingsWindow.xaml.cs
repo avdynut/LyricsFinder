@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace Lyrixator.Views
+namespace Lyrixound.Views
 {
     /// <summary>
     /// Interaction logic for SettingsWindow.xaml
