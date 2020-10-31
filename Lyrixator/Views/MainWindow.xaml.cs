@@ -66,7 +66,7 @@ namespace Lyrixator.Views
             base.OnDeactivated(e);
 
             Lyrics.IsReadOnly = true;
-            LyricsPanel.Background.Opacity = TextSettings.Background.Opacity = 0;
+            LyricsPanel.Background.Opacity = TextSettings.Background.Opacity = 0.2;
             TextSettings.IsExpanded = false;
             TextSettings.Visibility = Visibility.Collapsed;
         }
