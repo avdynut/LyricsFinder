@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LyricsProviders.Tests", "Pr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LyricsFinder.Core", "LyricsFinder.Core\LyricsFinder.Core.csproj", "{E611FD0D-EBD3-4A79-A913-4BE25736291D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lyrixound", "Lyrixator\Lyrixound.csproj", "{57BE1897-7CBE-431D-B1F1-B63BC21B274B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lyrixound", "Lyrixound\Lyrixound.csproj", "{57BE1897-7CBE-431D-B1F1-B63BC21B274B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LyricsProviders.Demo", "Providers\LyricsProviders.Demo\LyricsProviders.Demo.csproj", "{2157FB8A-9BAE-4CCA-89CD-13C20B75EB4E}"
 EndProject

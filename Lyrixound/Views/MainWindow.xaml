@@ -41,7 +41,7 @@
                         TrayLeftMouseUp="OnTaskbarIconTrayLeftMouseUp">
             <tb:TaskbarIcon.ContextMenu>
                 <ContextMenu>
-                    <Separator/>
+                    <!--<Separator/>-->
                     <MenuItem Click="OnExitClick" Header="Exit"/>
                 </ContextMenu>
             </tb:TaskbarIcon.ContextMenu>
