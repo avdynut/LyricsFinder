@@ -23,17 +23,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerWatching.Demo", "Watc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerWatching.Tests", "Watchers\PlayerWatching.Tests\PlayerWatching.Tests.csproj", "{8A4765E8-5C32-446E-BB39-3C39DF227EAF}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{7039F330-250B-468B-8EDF-2D54F544781C}"
-	ProjectSection(SolutionItems) = preProject
-		docs\Description_ru.md = docs\Description_ru.md
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "images", "images", "{0D7D103A-4D6E-429C-A1E4-8365E9D0A6B5}"
-	ProjectSection(SolutionItems) = preProject
-		docs\images\main.png = docs\images\main.png
-		docs\images\settings_players.png = docs\images\settings_players.png
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,7 +72,6 @@ Global
 		{61FEA747-51A2-4281-A39B-2B3881947849} = {EF562745-89D5-4A08-94B4-E54C500B0918}
 		{803A7B07-22F7-4348-96F4-CE1BE1F48187} = {EF562745-89D5-4A08-94B4-E54C500B0918}
 		{8A4765E8-5C32-446E-BB39-3C39DF227EAF} = {EF562745-89D5-4A08-94B4-E54C500B0918}
-		{0D7D103A-4D6E-429C-A1E4-8365E9D0A6B5} = {7039F330-250B-468B-8EDF-2D54F544781C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B43A71A0-9AE6-406F-B91E-B7B2554D2002}
