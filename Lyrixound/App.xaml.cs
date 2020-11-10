@@ -34,13 +34,25 @@ namespace Lyrixound
 
             JsonSettings.SerializationSettings.Converters.Add(new StringEnumConverter());
 
+            var settings = LoadSettings<Settings>("app.json");
+
+            var directoriesSettings = LoadSettings<DirectoriesProviderSettings>("directories_provider.json");
+            if (directoriesSettings.LyricsDirectories.Count == 0)
+            {
+                directoriesSettings.LyricsDirectories.Add(Path.Combine(DataFolder, "lyrics"));
+                directoriesSettings.Save();
+            }
+
             containerRegistry
+                .RegisterInstance(settings)
+                .RegisterInstance(directoriesSettings)
+                .RegisterInstance(LoadSettings<LyricsSettings>("lyrics.json"))
+                .RegisterInstance(LoadSettings<WindowSettings>("window.json"))
+                .RegisterInstance(LoadSettings<GoogleProviderSettings>("google_provider.json"))
                 .Register<ITrackInfoProvider, DirectoriesTrackInfoProvider>(DirectoriesTrackInfoProvider.Name)
                 .Register<ITrackInfoProvider, GoogleTrackInfoProvider>(GoogleTrackInfoProvider.Name)
                 .Register<IPlayerWatcher, SmtcWatcher>(SmtcWatcher.Name)
                 .Register<IPlayerWatcher, YandexMusicWatcher>(YandexMusicWatcher.Name);
-
-            var settings = LoadSettings<Settings>("app.json");
 
             var playerWatchers = new List<IPlayerWatcher>();
             foreach (var watcher in settings.PlayerWatchers)
@@ -61,11 +73,6 @@ namespace Lyrixound
             }
 
             containerRegistry
-                .RegisterInstance(settings)
-                .RegisterInstance(LoadSettings<LyricsSettings>("lyrics.json"))
-                .RegisterInstance(LoadSettings<WindowSettings>("window.json"))
-                .RegisterInstance(LoadSettings<DirectoriesProviderSettings>("directories_provider.json"))
-                .RegisterInstance(LoadSettings<GoogleProviderSettings>("google_provider.json"))
                 .RegisterInstance(new MultiPlayerWatcher(playerWatchers, settings.CheckInterval))
                 .RegisterInstance(new MultiTrackInfoProvider(lyricsProviders));
         }

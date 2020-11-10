@@ -16,7 +16,9 @@ namespace Lyrixound.Converters
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return new Uri(Path.Combine(Environment.CurrentDirectory, IconsDirectory, $"{value}.{Extension}"));
+            return string.IsNullOrEmpty(value?.ToString())
+                ? null
+                : new Uri(Path.Combine(Environment.CurrentDirectory, IconsDirectory, $"{value}.{Extension}"));
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

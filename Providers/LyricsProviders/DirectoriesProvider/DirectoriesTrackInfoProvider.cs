@@ -27,7 +27,7 @@ namespace LyricsProviders.DirectoriesProvider
         {
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
 
-            settings.LyricsDirectories.ForEach(x => CheckFolder(x));
+            Settings.LyricsDirectories.ForEach(x => CheckFolder(x));
         }
 
         public async Task<Track> FindTrackAsync(TrackInfo trackInfo)
