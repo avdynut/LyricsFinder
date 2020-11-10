@@ -1,12 +1,11 @@
 ﻿using nucs.JsonSettings;
-using System.IO;
 using System.Windows;
 
 namespace Lyrixound.Configuration
 {
     public class WindowSettings : JsonSettings
     {
-        public override string FileName { get; set; } = Path.Combine(Settings.ConfigurationDirectory, "window.json");
+        public override string FileName { get; set; }
 
         public virtual bool DisplayInTaskbar { get; set; }
 

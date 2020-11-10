@@ -9,7 +9,10 @@ using nucs.JsonSettings.Autosave;
 using PlayerWatching;
 using Prism.Ioc;
 using Prism.Ninject;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -22,8 +25,13 @@ namespace Lyrixound
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
+        public static string DataFolder { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Assembly.GetExecutingAssembly().GetName().Name);
+
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
+            Directory.CreateDirectory(DataFolder);
+            _logger.Info($"Load settings from {DataFolder}");
+
             JsonSettings.SerializationSettings.Converters.Add(new StringEnumConverter());
 
             containerRegistry
@@ -32,7 +40,7 @@ namespace Lyrixound
                 .Register<IPlayerWatcher, SmtcWatcher>(SmtcWatcher.Name)
                 .Register<IPlayerWatcher, YandexMusicWatcher>(YandexMusicWatcher.Name);
 
-            var settings = JsonSettings.Load<Settings>().EnableAutosave();
+            var settings = LoadSettings<Settings>("app.json");
 
             var playerWatchers = new List<IPlayerWatcher>();
             foreach (var watcher in settings.PlayerWatchers)
@@ -54,9 +62,10 @@ namespace Lyrixound
 
             containerRegistry
                 .RegisterInstance(settings)
-                .RegisterInstance(JsonSettings.Load<LyricsSettings>().EnableAutosave())
-                .RegisterInstance(JsonSettings.Load<WindowSettings>().EnableAutosave())
-                .RegisterInstance(JsonSettings.Load<DirectoriesProviderSettings>().EnableAutosave())
+                .RegisterInstance(LoadSettings<LyricsSettings>("lyrics.json"))
+                .RegisterInstance(LoadSettings<WindowSettings>("window.json"))
+                .RegisterInstance(LoadSettings<DirectoriesProviderSettings>("directories_provider.json"))
+                .RegisterInstance(LoadSettings<GoogleProviderSettings>("google_provider.json"))
                 .RegisterInstance(new MultiPlayerWatcher(playerWatchers, settings.CheckInterval))
                 .RegisterInstance(new MultiTrackInfoProvider(lyricsProviders));
         }
@@ -64,6 +73,12 @@ namespace Lyrixound
         protected override Window CreateShell()
         {
             return Container.Resolve<Views.MainWindow>();
+        }
+
+        private T LoadSettings<T>(string filename) where T : JsonSettings
+        {
+            var filePath = Path.Combine(DataFolder, "settings", filename);
+            return JsonSettings.Load<T>(filePath).EnableAutosave();
         }
 
         private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)

@@ -1,13 +1,12 @@
 ﻿using nucs.JsonSettings;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace LyricsProviders.DirectoriesProvider
 {
     public class DirectoriesProviderSettings : JsonSettings
     {
-        public override string FileName { get; set; } = Path.Combine("settings", "directories_provider.json");
+        public override string FileName { get; set; }
 
         public virtual List<string> LyricsDirectories { get; set; } = new List<string> { "lyrics" };
 

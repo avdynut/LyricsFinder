@@ -2,7 +2,6 @@
 using LyricsFinder.Core.LyricTypes;
 using MSHTML;
 using NLog;
-using nucs.JsonSettings;
 using System;
 using System.IO;
 using System.Linq;
@@ -15,10 +14,15 @@ namespace LyricsProviders.GoogleProvider
     public class GoogleTrackInfoProvider : WebTrackInfoProvider
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-        private readonly GoogleProviderSettings _settings = JsonSettings.Load<GoogleProviderSettings>();
+        private readonly GoogleProviderSettings _settings;
 
         public const string Name = "Google";
         public override string DisplayName => Name;
+
+        public GoogleTrackInfoProvider(GoogleProviderSettings settings)
+        {
+            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        }
 
         public override async Task<Track> FindTrackAsync(TrackInfo trackInfo)
         {

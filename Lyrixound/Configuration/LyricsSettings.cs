@@ -1,5 +1,4 @@
 ﻿using nucs.JsonSettings;
-using System.IO;
 using System.Windows;
 using System.Windows.Media;
 
@@ -7,7 +6,7 @@ namespace Lyrixound.Configuration
 {
     public class LyricsSettings : JsonSettings
     {
-        public override string FileName { get; set; } = Path.Combine(Settings.ConfigurationDirectory, "lyrics.json");
+        public override string FileName { get; set; }
 
         public virtual double FontSize { get; set; } = 25;
         public virtual bool IsItalic { get; set; }

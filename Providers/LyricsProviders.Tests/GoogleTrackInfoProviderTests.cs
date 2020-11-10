@@ -13,7 +13,7 @@ namespace LyricsProviders.Tests
         [TestMethod]
         public async Task GoogleLyricsProviderNotFoundLyricsTest()
         {
-            var provider = new GoogleTrackInfoProvider();
+            var provider = new GoogleTrackInfoProvider(new GoogleProviderSettings());
             var trackInfo = new TrackInfo { Artist = "not song", Title = "query" };
             var track = await provider.FindTrackAsync(trackInfo);
 
@@ -26,7 +26,7 @@ namespace LyricsProviders.Tests
         [DynamicData(nameof(GetTestLyrics), DynamicDataSourceType.Method)]
         public async Task GoogleTrackInfoProviderFindLyricsTest(TestTrack testTrack)
         {
-            var provider = new GoogleTrackInfoProvider();
+            var provider = new GoogleTrackInfoProvider(new GoogleProviderSettings());
             var track = await provider.FindTrackAsync(testTrack.TrackInfo);
 
             Assert.IsNotNull(track.Lyrics);

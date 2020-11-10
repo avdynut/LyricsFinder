@@ -5,7 +5,6 @@ using PlayerWatching;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 
 namespace Lyrixound.Configuration
@@ -24,9 +23,7 @@ namespace Lyrixound.Configuration
                 new Element(GoogleTrackInfoProvider.Name, isEnabled: true)
             };
 
-        public const string ConfigurationDirectory = "settings";
-
-        public override string FileName { get; set; } = Path.Combine(ConfigurationDirectory, "app.json");
+        public override string FileName { get; set; }
 
         public virtual TimeSpan CheckInterval { get; set; } = TimeSpan.FromSeconds(3);
 
