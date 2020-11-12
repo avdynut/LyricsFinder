@@ -24,14 +24,23 @@ namespace Lyrixound
     public partial class App : PrismApplication
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        private readonly AssemblyName _assemblyName = Assembly.GetExecutingAssembly().GetName();
+        private readonly string _dataFolder;
 
-        public static string DataFolder { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Assembly.GetExecutingAssembly().GetName().Name);
+        public App()
+        {
+#if PORTABLE
+            _dataFolder = Environment.CurrentDirectory;
+#else
+            _dataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _assemblyName.Name);
+            Directory.CreateDirectory(_dataFolder);
+#endif
+
+            _logger.Info($"Start {_assemblyName.Name} {_assemblyName.Version}. Data folder={_dataFolder}");
+        }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
-            Directory.CreateDirectory(DataFolder);
-            _logger.Info($"Load settings from {DataFolder}");
-
             JsonSettings.SerializationSettings.Converters.Add(new StringEnumConverter());
 
             var settings = LoadSettings<Settings>("app.json");
@@ -39,7 +48,7 @@ namespace Lyrixound
             var directoriesSettings = LoadSettings<DirectoriesProviderSettings>("directories_provider.json");
             if (directoriesSettings.LyricsDirectories.Count == 0)
             {
-                directoriesSettings.LyricsDirectories.Add(Path.Combine(DataFolder, "lyrics"));
+                directoriesSettings.LyricsDirectories.Add(Path.Combine(_dataFolder, "lyrics"));
                 directoriesSettings.Save();
             }
 
@@ -84,7 +93,7 @@ namespace Lyrixound
 
         private T LoadSettings<T>(string filename) where T : JsonSettings
         {
-            var filePath = Path.Combine(DataFolder, "settings", filename);
+            var filePath = Path.Combine(_dataFolder, "settings", filename);
             return JsonSettings.Load<T>(filePath).EnableAutosave();
         }
 
