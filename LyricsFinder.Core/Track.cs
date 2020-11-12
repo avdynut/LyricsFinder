@@ -1,13 +1,13 @@
 ﻿using LyricsFinder.Core.LyricTypes;
 using System;
 using System.Collections.Generic;
-using System.Windows.Media;
+//using System.Windows.Media;
 
 namespace LyricsFinder.Core
 {
     public class Track : TrackInfo, IEquatable<Track>
     {
-        public ImageSource AlbumArt { get; set; }
+        //public ImageSource AlbumArt { get; set; }
         public TimeSpan Duration { get; set; }
         public Uri Source { get; set; }
         public IEnumerable<string> Genres { get; set; }
