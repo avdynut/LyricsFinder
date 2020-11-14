@@ -32,7 +32,7 @@ namespace Lyrixound
 #if PORTABLE
             _dataFolder = Environment.CurrentDirectory;
 #else
-            _dataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _assemblyName.Name);
+            _dataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), _assemblyName.Name);
             Directory.CreateDirectory(_dataFolder);
 #endif
 
