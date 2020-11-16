@@ -4,7 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
-    <ApplicationIcon>music-note.ico</ApplicationIcon>
+    <ApplicationIcon>lyrics.ico</ApplicationIcon>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <Authors>Andrey Arekhva</Authors>
     <Description>Simple application to find and display lyrics for currently playing song.</Description>
@@ -35,6 +35,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="lyrics.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="gong-wpf-dragdrop" Version="2.3.2" />
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="1.0.8" />
     <PackageReference Include="MaterialDesignThemes" Version="3.2.0" />
@@ -51,7 +55,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="music-note.ico" />
+    <Resource Include="lyrics.ico" />
   </ItemGroup>
 
   <ItemGroup>

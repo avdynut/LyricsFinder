@@ -36,7 +36,7 @@
 
     <Grid>
         <tb:TaskbarIcon Name="TrayIcon"
-                        IconSource="/music-note.ico"
+                        IconSource="/lyrics.ico"
                         MenuActivation="RightClick"
                         TrayLeftMouseUp="OnTaskbarIconTrayLeftMouseUp">
             <tb:TaskbarIcon.ContextMenu>
