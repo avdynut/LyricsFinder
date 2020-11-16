@@ -113,9 +113,11 @@ namespace LyricsProviders.GoogleProvider
         {
             try
             {
-                var googleFolder = "google-results";
+                var googleFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "google-results");
                 Directory.CreateDirectory(googleFolder);
-                File.WriteAllText(Path.Combine(googleFolder, $"{filename}.html"), html);
+                filename = Path.Combine(googleFolder, $"{filename}.html");
+                File.WriteAllText(filename, html);
+                _logger.Debug($"Saved {filename}");
             }
             catch (Exception ex)
             {

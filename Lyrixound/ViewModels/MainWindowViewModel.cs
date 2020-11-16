@@ -103,6 +103,7 @@ namespace Lyrixound.ViewModels
                 {
                     Directory.CreateDirectory(lyricsDirectory);
                     File.WriteAllText(file, Track.Lyrics.Text);
+                    _logger.Info($"Saved {file}");
                 }
 
                 ProviderName = _trackInfoProvider.CurrentProvider?.DisplayName;

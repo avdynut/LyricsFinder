@@ -24,19 +24,19 @@ namespace Lyrixound
     public partial class App : PrismApplication
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-        private readonly AssemblyName _assemblyName = Assembly.GetExecutingAssembly().GetName();
         private readonly string _dataFolder;
 
         public App()
         {
+            var assemblyName = Assembly.GetExecutingAssembly().GetName();
+
 #if PORTABLE
-            _dataFolder = Environment.CurrentDirectory;
+            _dataFolder = AppDomain.CurrentDomain.BaseDirectory;
 #else
-            _dataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), _assemblyName.Name);
+            _dataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), assemblyName.Name);
             Directory.CreateDirectory(_dataFolder);
 #endif
-
-            _logger.Info($"Start {_assemblyName.Name} {_assemblyName.Version}. Data folder={_dataFolder}");
+            _logger.Info($"Start {assemblyName.Name} {assemblyName.Version}. Data folder={_dataFolder}");
         }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
@@ -44,11 +44,11 @@ namespace Lyrixound
             JsonSettings.SerializationSettings.Converters.Add(new StringEnumConverter());
 
             var settings = LoadSettings<Settings>("app.json");
-
             var directoriesSettings = LoadSettings<DirectoriesProviderSettings>("directories_provider.json");
             if (directoriesSettings.LyricsDirectories.Count == 0)
             {
-                directoriesSettings.LyricsDirectories.Add(Path.Combine(_dataFolder, "lyrics"));
+                var lyricsFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "lyrics");
+                directoriesSettings.LyricsDirectories.Add(lyricsFolder);
                 directoriesSettings.Save();
             }
 
