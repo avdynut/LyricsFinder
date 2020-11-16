@@ -10,6 +10,7 @@
     <Description>Simple application to find and display lyrics for currently playing song.</Description>
     <Configurations>Debug;Release;ReleasePortable</Configurations>
     <Platforms>AnyCPU;x64</Platforms>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
