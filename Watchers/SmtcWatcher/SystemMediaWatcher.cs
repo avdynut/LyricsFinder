@@ -16,17 +16,6 @@ namespace SmtcWatcher
         private GlobalSystemMediaTransportControlsSessionManager _sessionManager;
         private GlobalSystemMediaTransportControlsSession _currentSession;
 
-        public SystemMediaWatcher()
-        {
-            //    var sessions = smtcSessionManager.GetSessions();
-            //    foreach (var session in sessions)
-            //    {
-            //        var info = session.GetPlaybackInfo();
-            //        var time = session.GetTimelineProperties();
-            //        var d = await session.TryGetMediaPropertiesAsync();
-            //    }
-        }
-
         public async Task InitializeAsync()
         {
             _logger.Debug("Initialize session manager");
@@ -34,7 +23,7 @@ namespace SmtcWatcher
             _sessionManager = await GlobalSystemMediaTransportControlsSessionManager.RequestAsync();
 
             GetSessions();
-            GetCurrentSession();
+            await GetCurrentSessionAsync();
 
             _sessionManager.SessionsChanged += OnSessionsChanged;
             _sessionManager.CurrentSessionChanged += OnCurrentSessionChanged;
@@ -46,15 +35,60 @@ namespace SmtcWatcher
             _logger.Debug($"Sessions: {string.Join(", ", sessions.Select(x => x.SourceAppUserModelId))}");
         }
 
-        private void GetCurrentSession()
+        private async Task GetCurrentSessionAsync()
         {
             _currentSession = _sessionManager.GetCurrentSession();
             _logger.Debug($"Current session: {_currentSession?.SourceAppUserModelId}");
 
             if (_currentSession != null)
             {
-                //_currentSession.
+                await GetMediaPropertiesAsync();
+                GetPlaybackInfo();
+                GetTimeline();
+
+                _currentSession.MediaPropertiesChanged += OnCurrentSessionMediaPropertiesChanged;
+                _currentSession.PlaybackInfoChanged += OnCurrentSessionPlaybackInfoChanged;
+                _currentSession.TimelinePropertiesChanged += OnCurrentSessionTimelinePropertiesChanged;
             }
+        }
+
+        private async Task GetMediaPropertiesAsync()
+        {
+            if (await _currentSession?.TryGetMediaPropertiesAsync() is GlobalSystemMediaTransportControlsSessionMediaProperties mp)
+            {
+                _logger.Debug($"Artist: {mp.Artist}, Title: {mp.Title}, Album: {mp.AlbumTitle}, Genres: {string.Join(";", mp.Genres)}, Type: {mp.PlaybackType}, Thumbnail: {mp.Thumbnail}");
+            }
+        }
+
+        private void GetPlaybackInfo()
+        {
+            if (_currentSession?.GetPlaybackInfo() is GlobalSystemMediaTransportControlsSessionPlaybackInfo playback)
+            {
+                _logger.Debug($"PlaybackType: {playback.PlaybackType}, PlaybackStatus: {playback.PlaybackStatus}, Rate: {playback.PlaybackRate}");
+            }
+        }
+
+        private void GetTimeline()
+        {
+            if (_currentSession?.GetTimelineProperties() is GlobalSystemMediaTransportControlsSessionTimelineProperties timeline)
+            {
+                _logger.Debug($"Position: {timeline.Position}, StartTime: {timeline.StartTime}, EndTime: {timeline.EndTime}, LastUpdatedTime: {timeline.LastUpdatedTime}");
+            }
+        }
+
+        private async void OnCurrentSessionMediaPropertiesChanged(GlobalSystemMediaTransportControlsSession sender, MediaPropertiesChangedEventArgs args)
+        {
+            await GetMediaPropertiesAsync();
+        }
+
+        private void OnCurrentSessionPlaybackInfoChanged(GlobalSystemMediaTransportControlsSession sender, PlaybackInfoChangedEventArgs args)
+        {
+            GetPlaybackInfo();
+        }
+
+        private void OnCurrentSessionTimelinePropertiesChanged(GlobalSystemMediaTransportControlsSession sender, TimelinePropertiesChangedEventArgs args)
+        {
+            GetTimeline();
         }
 
         private void OnSessionsChanged(GlobalSystemMediaTransportControlsSessionManager sender, SessionsChangedEventArgs args)
@@ -62,9 +96,9 @@ namespace SmtcWatcher
             GetSessions();
         }
 
-        private void OnCurrentSessionChanged(GlobalSystemMediaTransportControlsSessionManager sender, CurrentSessionChangedEventArgs args)
+        private async void OnCurrentSessionChanged(GlobalSystemMediaTransportControlsSessionManager sender, CurrentSessionChangedEventArgs args)
         {
-            GetCurrentSession();
+            await GetCurrentSessionAsync();
         }
 
         public void Dispose()
