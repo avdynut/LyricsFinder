@@ -2,9 +2,9 @@
 using LyricsProviders;
 using LyricsProviders.DirectoriesProvider;
 using NLog;
-using PlayerWatching;
 using Prism.Commands;
 using Prism.Mvvm;
+using SmtcWatcher;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -18,7 +18,7 @@ namespace Lyrixound.ViewModels
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly DirectoriesProviderSettings _directoriesSettings;
-        private readonly MultiPlayerWatcher _playersWatcher;
+        private readonly MusicWatcher _musicWatcher;
         private readonly MultiTrackInfoProvider _trackInfoProvider;
 
         public TrackViewModel Track { get; } = new TrackViewModel(new Track());
@@ -50,18 +50,17 @@ namespace Lyrixound.ViewModels
         public LyricsSettingsViewModel LyricsSettings { get; }
 
         public MainWindowViewModel(
-            MultiPlayerWatcher playersWatcher,
+            CyclicalSmtcWatcher musicWatcher,
             MultiTrackInfoProvider trackInfoProvider,
             DirectoriesProviderSettings directoriesSettings,
             LyricsSettingsViewModel lyricsSettings)
         {
-            _playersWatcher = playersWatcher;
+            _musicWatcher = musicWatcher;
             _trackInfoProvider = trackInfoProvider;
             _directoriesSettings = directoriesSettings;
             LyricsSettings = lyricsSettings;
 
-            _playersWatcher.TrackChanged += OnWatcherTrackChanged;
-            _playersWatcher.Initialize();
+            _musicWatcher.TrackChanged += OnWatcherTrackChanged;
 
             FindLyricsCommand = new DelegateCommand(async () => await FindLyricsAsync(), CanFindLyrics)
                 .ObservesProperty(() => Track.Artist).ObservesProperty(() => Track.Title).ObservesProperty(() => SearchInProgress);
@@ -117,9 +116,9 @@ namespace Lyrixound.ViewModels
 
         private async void OnWatcherTrackChanged(object sender, Track track)
         {
-            _logger.Debug($"Track changed {_playersWatcher.ActualWatcher?.DisplayName} - {_playersWatcher.PlayerState}");
+            _logger.Debug($"Track changed {_musicWatcher.PlayerId} - {_musicWatcher.PlayerState}");
 
-            PlayerName = _playersWatcher.ActualWatcher?.DisplayName;
+            PlayerName = _musicWatcher.PlayerId;
             await UpdateTrackInfoAsync(track);
         }
 
@@ -147,10 +146,10 @@ namespace Lyrixound.ViewModels
 
         public void Dispose()
         {
-            if (_playersWatcher != null)
+            if (_musicWatcher != null)
             {
-                _playersWatcher.TrackChanged -= OnWatcherTrackChanged;
-                _playersWatcher.Dispose();
+                _musicWatcher.TrackChanged -= OnWatcherTrackChanged;
+                _musicWatcher.Dispose();
             }
         }
     }

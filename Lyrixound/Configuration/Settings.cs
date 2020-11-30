@@ -1,7 +1,6 @@
 ﻿using LyricsProviders.DirectoriesProvider;
 using LyricsProviders.GoogleProvider;
 using nucs.JsonSettings;
-using PlayerWatching;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,12 +10,6 @@ namespace Lyrixound.Configuration
 {
     public class Settings : JsonSettings
     {
-        private readonly List<Element> _defaultWatchers = new List<Element>
-            {
-                new Element(SmtcWatcher.Name, isEnabled: true),
-                new Element(YandexMusicWatcher.Name, isEnabled: false)
-            };
-
         private readonly List<Element> _defaultProviders = new List<Element>
             {
                 new Element(DirectoriesTrackInfoProvider.Name, isEnabled: true),
@@ -27,8 +20,6 @@ namespace Lyrixound.Configuration
 
         public virtual TimeSpan CheckInterval { get; set; } = TimeSpan.FromSeconds(3);
 
-        public virtual ObservableCollection<Element> PlayerWatchers { get; set; } = new ObservableCollection<Element>();
-
         public virtual ObservableCollection<Element> LyricsProviders { get; set; } = new ObservableCollection<Element>();
 
         public Settings()
@@ -38,7 +29,6 @@ namespace Lyrixound.Configuration
 
         private void OnAfterLoad()
         {
-            PlayerWatchers = new ObservableCollection<Element>(PlayerWatchers.Union(_defaultWatchers));
             LyricsProviders = new ObservableCollection<Element>(LyricsProviders.Union(_defaultProviders));
         }
     }

@@ -6,9 +6,9 @@ using Newtonsoft.Json.Converters;
 using NLog;
 using nucs.JsonSettings;
 using nucs.JsonSettings.Autosave;
-using PlayerWatching;
 using Prism.Ioc;
 using Prism.Ninject;
+using SmtcWatcher;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -59,18 +59,7 @@ namespace Lyrixound
                 .RegisterInstance(LoadSettings<WindowSettings>("window.json"))
                 .RegisterInstance(LoadSettings<GoogleProviderSettings>("google_provider.json"))
                 .Register<ITrackInfoProvider, DirectoriesTrackInfoProvider>(DirectoriesTrackInfoProvider.Name)
-                .Register<ITrackInfoProvider, GoogleTrackInfoProvider>(GoogleTrackInfoProvider.Name)
-                .Register<IPlayerWatcher, SmtcWatcher>(SmtcWatcher.Name)
-                .Register<IPlayerWatcher, YandexMusicWatcher>(YandexMusicWatcher.Name);
-
-            var playerWatchers = new List<IPlayerWatcher>();
-            foreach (var watcher in settings.PlayerWatchers)
-            {
-                if (watcher.IsEnabled && containerRegistry.IsRegistered<IPlayerWatcher>(watcher.Name))
-                {
-                    playerWatchers.Add(Container.Resolve<IPlayerWatcher>(watcher.Name));
-                }
-            }
+                .Register<ITrackInfoProvider, GoogleTrackInfoProvider>(GoogleTrackInfoProvider.Name);
 
             var lyricsProviders = new List<ITrackInfoProvider>();
             foreach (var provider in settings.LyricsProviders)
@@ -82,7 +71,8 @@ namespace Lyrixound
             }
 
             containerRegistry
-                .RegisterInstance(new MultiPlayerWatcher(playerWatchers, settings.CheckInterval))
+                //.Register<MusicWatcher, SystemMediaWatcher>()
+                .RegisterInstance(new CyclicalSmtcWatcher(settings.CheckInterval))
                 .RegisterInstance(new MultiTrackInfoProvider(lyricsProviders));
         }
 
