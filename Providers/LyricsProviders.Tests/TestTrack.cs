@@ -14,7 +14,6 @@ namespace LyricsProviders.Tests
             {
                 Artist = "skillet",
                 Title = "hero",
-                Year = 2009,
                 Album = "Hero"
             },
             Lyrics = new UnsyncedLyric(@"I'm just a step away
@@ -106,7 +105,6 @@ A hero's gonna save me just in time")
             {
                 Artist = "ария",
                 Title = "осколок льда",
-                Year = 2002,
                 Album = "Химера"
             },
             Lyrics = new UnsyncedLyric(@"Осколок льда
@@ -149,7 +147,6 @@ A hero's gonna save me just in time")
             {
                 Artist = "ария",
                 Title = "я свободен",
-                Year = 2003,
                 Album = "Путь наверх"
             },
             Lyrics = new UnsyncedLyric(@"Надо мною тишина,

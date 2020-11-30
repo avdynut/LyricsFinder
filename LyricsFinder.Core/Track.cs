@@ -1,17 +1,14 @@
 ﻿using LyricsFinder.Core.LyricTypes;
 using System;
 using System.Collections.Generic;
-//using System.Windows.Media;
 
 namespace LyricsFinder.Core
 {
     public class Track : TrackInfo, IEquatable<Track>
     {
-        //public ImageSource AlbumArt { get; set; }
-        public TimeSpan Duration { get; set; }
-        public Uri Source { get; set; }
-        public IEnumerable<string> Genres { get; set; }
         public ILyric Lyrics { get; set; }
+        public IEnumerable<string> Genres { get; set; }
+        public object Thumbnail { get; set; }
 
         public bool IsTrackEmpty => this == new Track();
 
@@ -24,7 +21,6 @@ namespace LyricsFinder.Core
             Artist = trackInfo.Artist;
             Title = trackInfo.Title;
             Album = trackInfo.Album;
-            Year = trackInfo.Year;
         }
 
         public override bool Equals(object obj)
@@ -57,7 +53,7 @@ namespace LyricsFinder.Core
 
         public TrackInfo ToTrackInfo()
         {
-            return new TrackInfo { Title = Title, Artist = Artist, Album = Album, Year = Year };
+            return new TrackInfo { Title = Title, Artist = Artist, Album = Album };
         }
     }
 }

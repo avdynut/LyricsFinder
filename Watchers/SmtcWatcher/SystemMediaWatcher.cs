@@ -1,4 +1,5 @@
-﻿using NLog;
+﻿using LyricsFinder.Core;
+using NLog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ namespace SmtcWatcher
     /// <summary>
     /// Fetches media info from system media transport controls.
     /// </summary>
-    public class SystemMediaWatcher : IDisposable
+    public class SystemMediaWatcher : MusicWatcher
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
@@ -38,7 +39,8 @@ namespace SmtcWatcher
         private async Task GetCurrentSessionAsync()
         {
             _currentSession = _sessionManager.GetCurrentSession();
-            _logger.Debug($"Current session: {_currentSession?.SourceAppUserModelId}");
+            PlayerId = _currentSession?.SourceAppUserModelId;
+            _logger.Debug($"Current player: {PlayerId}");
 
             if (_currentSession != null)
             {
@@ -56,6 +58,14 @@ namespace SmtcWatcher
         {
             if (await _currentSession?.TryGetMediaPropertiesAsync() is GlobalSystemMediaTransportControlsSessionMediaProperties mp)
             {
+                Track = new Track
+                {
+                    Artist = mp.Artist,
+                    Title = mp.Title,
+                    Album = mp.AlbumTitle,
+                    Genres = mp.Genres,
+                    Thumbnail = mp.Thumbnail
+                };
                 _logger.Debug($"Artist: {mp.Artist}, Title: {mp.Title}, Album: {mp.AlbumTitle}, Genres: {string.Join(";", mp.Genres)}, Type: {mp.PlaybackType}, Thumbnail: {mp.Thumbnail}");
             }
         }
@@ -64,14 +74,25 @@ namespace SmtcWatcher
         {
             if (_currentSession?.GetPlaybackInfo() is GlobalSystemMediaTransportControlsSessionPlaybackInfo playback)
             {
+                PlayerState = GetPlayerState(playback.PlaybackStatus);
                 _logger.Debug($"PlaybackType: {playback.PlaybackType}, PlaybackStatus: {playback.PlaybackStatus}, Rate: {playback.PlaybackRate}");
             }
         }
+
+        internal static PlayerState GetPlayerState(GlobalSystemMediaTransportControlsSessionPlaybackStatus playbackStatus) =>
+            playbackStatus switch
+            {
+                GlobalSystemMediaTransportControlsSessionPlaybackStatus.Stopped => PlayerState.Stopped,
+                GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing => PlayerState.Playing,
+                GlobalSystemMediaTransportControlsSessionPlaybackStatus.Paused => PlayerState.Paused,
+                _ => PlayerState.Unknown
+            };
 
         private void GetTimeline()
         {
             if (_currentSession?.GetTimelineProperties() is GlobalSystemMediaTransportControlsSessionTimelineProperties timeline)
             {
+                TrackProgress = timeline.Position;
                 _logger.Debug($"Position: {timeline.Position}, StartTime: {timeline.StartTime}, EndTime: {timeline.EndTime}, LastUpdatedTime: {timeline.LastUpdatedTime}");
             }
         }
@@ -101,7 +122,7 @@ namespace SmtcWatcher
             await GetCurrentSessionAsync();
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             _sessionManager.SessionsChanged -= OnSessionsChanged;
             _sessionManager.CurrentSessionChanged -= OnCurrentSessionChanged;
