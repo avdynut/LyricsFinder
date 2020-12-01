@@ -10,7 +10,6 @@ namespace Lyrixound.ViewModels
 {
     public class SettingsWindowViewModel : BindableBase
     {
-        private readonly LyricsSettings _lyricsSettings;
         private readonly DirectoriesProviderSettings _directoriesSettings;
 
         public Settings Settings { get; }
@@ -50,10 +49,9 @@ namespace Lyrixound.ViewModels
 
         public ICommand SaveSettingsCommand { get; }
 
-        public SettingsWindowViewModel(Settings settings, LyricsSettings lyricsSettings, DirectoriesProviderSettings directoriesSettings)
+        public SettingsWindowViewModel(Settings settings, DirectoriesProviderSettings directoriesSettings)
         {
             Settings = settings;
-            _lyricsSettings = lyricsSettings;
             _directoriesSettings = directoriesSettings;
 
             SaveSettingsCommand = new DelegateCommand(Settings.Save);

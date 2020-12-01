@@ -73,12 +73,15 @@
             </Style>
         </TabControl.ItemContainerStyle>
 
-        <TabItem Header="Players">
+        <TabItem Header="Main">
             <StackPanel>
-                <ListBox dd:DragDrop.IsDragSource="True"
-                         dd:DragDrop.IsDropTarget="True"
-                         ItemTemplate="{StaticResource CheckIconItemTemplate}"
-                         ItemsSource="{Binding Settings.PlayerWatchers}"/>
+                <TextBox md:HintAssist.Hint="Directory"
+                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                         Text="{Binding LyricsDirectory, UpdateSourceTrigger=PropertyChanged, Delay=200}"
+                         ToolTip="Directory to save lyrics files"/>
+                <TextBox md:HintAssist.Hint="File Name Pattern"
+                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                         Text="{Binding FileNamePattern, UpdateSourceTrigger=PropertyChanged, Delay=200}"/>
                 <TextBox Grid.Row="0"
                          md:HintAssist.Hint="Check Interval, s"
                          Style="{StaticResource MaterialDesignFloatingHintTextBox}"
@@ -91,18 +94,6 @@
                      dd:DragDrop.IsDropTarget="True"
                      ItemTemplate="{StaticResource CheckIconItemTemplate}"
                      ItemsSource="{Binding Settings.LyricsProviders}"/>
-        </TabItem>
-
-        <TabItem Header="Directories">
-            <StackPanel>
-                <TextBox md:HintAssist.Hint="Directory"
-                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                         Text="{Binding LyricsDirectory, UpdateSourceTrigger=PropertyChanged, Delay=200}"
-                         ToolTip="Directory to save lyrics files"/>
-                <TextBox md:HintAssist.Hint="File Name Pattern"
-                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                         Text="{Binding FileNamePattern, UpdateSourceTrigger=PropertyChanged, Delay=200}"/>
-            </StackPanel>
         </TabItem>
 
     </TabControl>
