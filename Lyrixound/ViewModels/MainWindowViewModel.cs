@@ -69,7 +69,7 @@ namespace Lyrixound.ViewModels
                 .ObservesProperty(() => Track.Lyrics);
         }
 
-        private bool CanFindLyrics() => !string.IsNullOrEmpty(Track.Artist) && !string.IsNullOrEmpty(Track.Title) && !SearchInProgress;
+        private bool CanFindLyrics() => !string.IsNullOrEmpty(Track.Title) && !SearchInProgress;
 
         private async Task UpdateTrackInfoAsync(Track track)
         {

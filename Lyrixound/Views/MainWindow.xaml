@@ -79,10 +79,10 @@
 
                 <Grid Name="TitleBar" MouseLeftButtonDown="OnTitleBarMouseLeftButtonDown">
                     <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-                        <Image Height="16"
+                        <!--<Image Height="16"
                                Margin="2"
                                Source="{Binding PlayerName, Converter={StaticResource NameToIconUriConverter}}"
-                               ToolTip="{Binding PlayerName}"/>
+                               ToolTip="{Binding PlayerName}"/>-->
                         <Button Height="24"
                                 Command="{Binding OpenLyricsCommand}"
                                 Style="{StaticResource MaterialDesignIconButton}">
@@ -140,8 +140,8 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <UniformGrid Grid.Column="0" Rows="2">
-                        <TextBox md:HintAssist.Hint="Artist" Text="{Binding Track.Artist, UpdateSourceTrigger=PropertyChanged}"/>
                         <TextBox md:HintAssist.Hint="Title" Text="{Binding Track.Title, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox md:HintAssist.Hint="Artist" Text="{Binding Track.Artist, UpdateSourceTrigger=PropertyChanged}"/>
                     </UniformGrid>
                     <Button Grid.Column="1"
                             Height="50"
