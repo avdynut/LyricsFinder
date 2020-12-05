@@ -6,11 +6,13 @@
     <UseWPF>true</UseWPF>
     <ApplicationIcon>lyrics.ico</ApplicationIcon>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <Authors>Andrey Arekhva</Authors>
-    <Description>Simple application to find and display lyrics for currently playing song.</Description>
+    <Authors>Andrei Arekhva</Authors>
+    <Description>Automatically find lyrics for current playing song.</Description>
     <Configurations>Debug;Release;ReleasePortable</Configurations>
     <Platforms>AnyCPU;x64</Platforms>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Version>1.1.0</Version>
+    <PackageProjectUrl>https://lyrixound.blogspot.com/</PackageProjectUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
