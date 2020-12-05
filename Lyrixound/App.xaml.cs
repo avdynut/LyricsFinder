@@ -26,17 +26,19 @@ namespace Lyrixound
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly string _dataFolder;
 
+        private static readonly AssemblyName assemblyName = Assembly.GetExecutingAssembly().GetName();
+
+        public static string AppName => $"{assemblyName.Name} v{assemblyName.Version.ToString(3)}";
+
         public App()
         {
-            var assemblyName = Assembly.GetExecutingAssembly().GetName();
-
 #if PORTABLE
             _dataFolder = AppDomain.CurrentDomain.BaseDirectory;
 #else
             _dataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), assemblyName.Name);
             Directory.CreateDirectory(_dataFolder);
 #endif
-            _logger.Info($"Start {assemblyName.Name} {assemblyName.Version}. Data folder={_dataFolder}");
+            _logger.Info($"Start {AppName}. Data folder={_dataFolder}");
         }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
