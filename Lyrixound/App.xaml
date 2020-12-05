@@ -2,9 +2,11 @@
                         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                         xmlns:converters="clr-namespace:Lyrixound.Converters"
+                        xmlns:local="clr-namespace:Lyrixound"
                         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                         xmlns:prism="http://prismlibrary.com/"
                         DispatcherUnhandledException="OnDispatcherUnhandledException">
+
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -18,4 +20,13 @@
                                                IconsDirectory="Icons"/>
         </ResourceDictionary>
     </Application.Resources>
+
+    <JumpList.JumpList>
+        <JumpList>
+            <JumpTask Title="Help"
+                      ApplicationPath="{x:Static local:App.HelpUrl}"
+                      Description="Open Lyrixound Website"
+                      IconResourceIndex="-1"/>
+        </JumpList>
+    </JumpList.JumpList>
 </prism:PrismApplication>

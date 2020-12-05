@@ -28,7 +28,8 @@ namespace Lyrixound
 
         private static readonly AssemblyName assemblyName = Assembly.GetExecutingAssembly().GetName();
 
-        public static string AppName => $"{assemblyName.Name} v{assemblyName.Version.ToString(3)}";
+        public static string AppName { get; } = $"{assemblyName.Name} v{assemblyName.Version.ToString(3)}";
+        public static string HelpUrl { get; } = "https://lyrixound.blogspot.com/";
 
         public App()
         {

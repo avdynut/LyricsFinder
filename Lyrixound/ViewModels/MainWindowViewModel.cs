@@ -151,7 +151,7 @@ namespace Lyrixound.ViewModels
         {
             try
             {
-                var startInfo = new ProcessStartInfo("https://lyrixound.blogspot.com/") { UseShellExecute = true };
+                var startInfo = new ProcessStartInfo(App.HelpUrl) { UseShellExecute = true };
                 Process.Start(startInfo);
             }
             catch (Exception ex)
