@@ -38,10 +38,13 @@
         <tb:TaskbarIcon Name="TrayIcon"
                         IconSource="/lyrics.ico"
                         MenuActivation="RightClick"
+                        ToolTipText="Lyrixound v1.1"
                         TrayLeftMouseUp="OnTaskbarIconTrayLeftMouseUp">
             <tb:TaskbarIcon.ContextMenu>
                 <ContextMenu>
-                    <!--<Separator/>-->
+                    <MenuItem Click="OnSettingsButtonClick" Header="Settings"/>
+                    <MenuItem Command="{Binding OpenWebsiteCommand}" Header="Help"/>
+                    <Separator/>
                     <MenuItem Click="OnExitClick" Header="Exit"/>
                 </ContextMenu>
             </tb:TaskbarIcon.ContextMenu>
@@ -78,7 +81,21 @@
                 </StackPanel.Style>
 
                 <Grid Name="TitleBar" MouseLeftButtonDown="OnTitleBarMouseLeftButtonDown">
-                    <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0"
+                            Height="24"
+                            Command="{Binding OpenWebsiteCommand}"
+                            Style="{StaticResource MaterialDesignIconButton}">
+                        <Image Height="16"
+                               Source="/lyrics.ico"
+                               ToolTip="Open Lyrixound website"/>
+                    </Button>
+                    <StackPanel Grid.Column="1"
+                                HorizontalAlignment="Right"
+                                Orientation="Horizontal">
                         <!--<Image Height="16"
                                Margin="2"
                                Source="{Binding PlayerName, Converter={StaticResource NameToIconUriConverter}}"

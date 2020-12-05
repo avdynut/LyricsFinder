@@ -46,6 +46,7 @@ namespace Lyrixound.ViewModels
 
         public ICommand FindLyricsCommand { get; }
         public ICommand OpenLyricsCommand { get; }
+        public ICommand OpenWebsiteCommand { get; }
 
         public LyricsSettingsViewModel LyricsSettings { get; }
 
@@ -67,6 +68,8 @@ namespace Lyrixound.ViewModels
 
             OpenLyricsCommand = new DelegateCommand(OpenLyrics, () => Track.Lyrics?.Source != null)
                 .ObservesProperty(() => Track.Lyrics);
+
+            OpenWebsiteCommand = new DelegateCommand(OpenWebsite);
         }
 
         private bool CanFindLyrics() => !string.IsNullOrEmpty(Track.Title) && !SearchInProgress;
@@ -141,6 +144,19 @@ namespace Lyrixound.ViewModels
             catch (Exception ex)
             {
                 _logger.Error(ex, $"Cannot open lyrics {path}");
+            }
+        }
+
+        private void OpenWebsite()
+        {
+            try
+            {
+                var startInfo = new ProcessStartInfo("https://lyrixound.blogspot.com/") { UseShellExecute = true };
+                Process.Start(startInfo);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, $"Cannot open website");
             }
         }
 
