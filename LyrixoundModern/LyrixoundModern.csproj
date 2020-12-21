@@ -197,6 +197,16 @@
       <Version>6.2.11</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LyricsFinder.Core\LyricsFinder.Core.csproj">
+      <Project>{e611fd0d-ebd3-4a79-a913-4be25736291d}</Project>
+      <Name>LyricsFinder.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Providers\LyricsProviders\LyricsProviders.csproj">
+      <Project>{87c02570-011d-4a2b-95ce-e6fb49156a58}</Project>
+      <Name>LyricsProviders</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

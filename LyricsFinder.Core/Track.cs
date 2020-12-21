@@ -38,7 +38,11 @@ namespace LyricsFinder.Core
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Artist, Title, Album);
+            int hashCode = -1161117189;
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Artist);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Title);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Album);
+            return hashCode;
         }
 
         public static bool operator ==(Track left, Track right)

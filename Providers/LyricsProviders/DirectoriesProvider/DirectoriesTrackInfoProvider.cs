@@ -30,32 +30,27 @@ namespace LyricsProviders.DirectoriesProvider
             Settings.LyricsDirectories.ForEach(x => CheckFolder(x));
         }
 
-        public async Task<Track> FindTrackAsync(TrackInfo trackInfo)
+        public Task<Track> FindTrackAsync(TrackInfo trackInfo)
         {
             var track = new Track(trackInfo);
 
             foreach (var directory in LyricsFolders)
             {
-                var enumerationOptions = new EnumerationOptions
-                {
-                    MatchCasing = MatchCasing.CaseInsensitive,
-                    RecurseSubdirectories = true
-                };
-
+                // todo: add MatchCasing.CaseInsensitive
                 var pattern = GetFileName(Settings.LyricsFileNamePattern, trackInfo);
-                foreach (var file in directory.EnumerateFiles(pattern + "*", enumerationOptions))
+                foreach (var file in directory.EnumerateFiles(pattern + "*", SearchOption.AllDirectories))
                 {
-                    var lyrics = await File.ReadAllTextAsync(file.FullName);
+                    var lyrics = File.ReadAllText(file.FullName);
                     if (lyrics.Length > 0)
                     {
                         track.Lyrics = new UnsyncedLyric(lyrics) { Source = new Uri(file.FullName) };
-                        return track;
+                        return Task.FromResult(track);
                     }
                 }
             }
 
             track.Lyrics = new NoneLyric("Not Found");
-            return track;
+            return Task.FromResult(track);
         }
 
         public static string GetFileName(string pattern, TrackInfo trackInfo)
