@@ -4,7 +4,8 @@
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
-  IgnorableNamespaces="uap mp">
+  xmlns:uap7="http://schemas.microsoft.com/appx/manifest/uap/windows10/7"
+  IgnorableNamespaces="uap mp uap7">
 
   <Identity
     Name="2380AndreiArekhva.Lyrixound"
@@ -48,5 +49,6 @@
   </Applications>
 
   <Capabilities>
+    <uap7:Capability Name="globalMediaControl"/>
   </Capabilities>
 </Package>
