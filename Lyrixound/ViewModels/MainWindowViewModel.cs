@@ -6,11 +6,11 @@ using Prism.Commands;
 using Prism.Mvvm;
 using SmtcWatcher;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Windows.System;
 
 namespace Lyrixound.ViewModels
 {
@@ -66,10 +66,10 @@ namespace Lyrixound.ViewModels
             FindLyricsCommand = new DelegateCommand(async () => await FindLyricsAsync(), CanFindLyrics)
                 .ObservesProperty(() => Track.Artist).ObservesProperty(() => Track.Title).ObservesProperty(() => SearchInProgress);
 
-            OpenLyricsCommand = new DelegateCommand(OpenLyrics, () => Track.Lyrics?.Source != null)
+            OpenLyricsCommand = new DelegateCommand(async () => await OpenLyricsAsync(), () => Track.Lyrics?.Source != null)
                 .ObservesProperty(() => Track.Lyrics);
 
-            OpenWebsiteCommand = new DelegateCommand(OpenWebsite);
+            OpenWebsiteCommand = new DelegateCommand(async () => await OpenWebsiteAsync());
         }
 
         private bool CanFindLyrics() => !string.IsNullOrEmpty(Track.Title) && !SearchInProgress;
@@ -131,28 +131,23 @@ namespace Lyrixound.ViewModels
             await FindLyricsAsync(trackInfo);
         }
 
-        private void OpenLyrics()
+        private async Task OpenLyricsAsync()
         {
-            var uri = Track.Lyrics.Source;
-            var path = uri.IsFile ? uri.LocalPath : uri.AbsoluteUri;
-            var startInfo = new ProcessStartInfo(path) { UseShellExecute = true };
-
             try
             {
-                Process.Start(startInfo);
+                await Launcher.LaunchUriAsync(Track.Lyrics.Source);
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, $"Cannot open lyrics {path}");
+                _logger.Error(ex, $"Cannot open lyrics {Track.Lyrics.Source}");
             }
         }
 
-        private void OpenWebsite()
+        private async Task OpenWebsiteAsync()
         {
             try
             {
-                var startInfo = new ProcessStartInfo(App.HelpUrl) { UseShellExecute = true };
-                Process.Start(startInfo);
+                await Launcher.LaunchUriAsync(new Uri(App.HelpUrl));
             }
             catch (Exception ex)
             {
