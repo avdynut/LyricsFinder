@@ -37,7 +37,6 @@ namespace SmtcWatcher
                 _currentSession = _sessionManager.GetCurrentSession();
 
                 PlayerId = _currentSession?.SourceAppUserModelId;
-                _logger.Debug($"Current player: {PlayerId}");
 
                 if (_currentSession != null)
                 {

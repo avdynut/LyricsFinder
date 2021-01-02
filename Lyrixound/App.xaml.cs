@@ -23,23 +23,24 @@ namespace Lyrixound
     /// </summary>
     public partial class App : PrismApplication
     {
+        public const string HelpUrl = "https://lyrixound.blogspot.com/";
+
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly string _dataFolder;
 
-        private static readonly AssemblyName assemblyName = Assembly.GetExecutingAssembly().GetName();
-
-        public static string AppName { get; } = $"{assemblyName.Name} v{assemblyName.Version.ToString(3)}";
-        public static string HelpUrl { get; } = "https://lyrixound.blogspot.com/";
+        private static readonly AssemblyName _assemblyName = Assembly.GetExecutingAssembly().GetName();
+        public static string AppName { get; } = _assemblyName.Name;
+        public static string AppNameWithVersion { get; } = $"{AppName} v{_assemblyName.Version.ToString(3)}";
 
         public App()
         {
 #if PORTABLE
             _dataFolder = AppDomain.CurrentDomain.BaseDirectory;
 #else
-            _dataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), assemblyName.Name);
+            _dataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), AppName);
             Directory.CreateDirectory(_dataFolder);
 #endif
-            _logger.Info($"Start {AppName}. Data folder={_dataFolder}");
+            _logger.Info($"Start {AppNameWithVersion}. Data folder={_dataFolder}");
         }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)

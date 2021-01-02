@@ -9,7 +9,7 @@
         xmlns:tb="http://www.hardcodet.net/taskbar"
         xmlns:views="clr-namespace:Lyrixound.Views"
         xmlns:vm="clr-namespace:Lyrixound.ViewModels"
-        Title="Lyrixound"
+        Title="{x:Static local:App.AppName}"
         d:DataContext="{d:DesignInstance vm:MainWindowViewModel}"
         prism:ViewModelLocator.AutoWireViewModel="True"
         AllowsTransparency="True"
@@ -50,7 +50,7 @@
             </tb:TaskbarIcon.ContextMenu>
             <tb:TaskbarIcon.TrayToolTip>
                 <Border Background="{DynamicResource MaterialDesignLightBackground}">
-                    <Label Content="{x:Static local:App.AppName}"/>
+                    <Label Content="{x:Static local:App.AppNameWithVersion}"/>
                 </Border>
             </tb:TaskbarIcon.TrayToolTip>
         </tb:TaskbarIcon>

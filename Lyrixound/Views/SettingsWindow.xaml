@@ -9,7 +9,7 @@
         xmlns:prism="http://prismlibrary.com/"
         xmlns:vm="clr-namespace:Lyrixound.ViewModels"
         Width="400"
-        Height="250"
+        Height="260"
         d:DataContext="{d:DesignInstance vm:SettingsWindowViewModel}"
         prism:ViewModelLocator.AutoWireViewModel="True"
         ResizeMode="NoResize"
@@ -40,6 +40,9 @@
     </Window.Resources>
 
     <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding CheckRunAtStartupCommand}"/>
+        </i:EventTrigger>
         <i:EventTrigger EventName="Closing">
             <i:InvokeCommandAction Command="{Binding SaveSettingsCommand}"/>
         </i:EventTrigger>
@@ -86,6 +89,10 @@
                          md:HintAssist.Hint="Check Interval, s"
                          Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                          Text="{Binding CheckInterval, UpdateSourceTrigger=PropertyChanged, Delay=200}"/>
+                <CheckBox Margin="0,10"
+                          Command="{Binding ChangeRunAtStartupCommand}"
+                          Content="Run at startup"
+                          IsChecked="{Binding RunAtStartup}"/>
             </StackPanel>
         </TabItem>
 

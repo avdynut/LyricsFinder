@@ -20,6 +20,8 @@ namespace Lyrixound.Configuration
 
         public virtual TimeSpan CheckInterval { get; set; } = TimeSpan.FromSeconds(3);
 
+        public virtual bool RunAtStartup { get; set; }
+
         public virtual ObservableCollection<Element> LyricsProviders { get; set; } = new ObservableCollection<Element>();
 
         public Settings()
