@@ -66,7 +66,7 @@ namespace Lyrixound.Views
             base.OnDeactivated(e);
 
             Lyrics.IsReadOnly = true;
-            LyricsPanel.Background.Opacity = TextSettings.Background.Opacity = 0.2;
+            LyricsPanel.Background.Opacity = TextSettings.Background.Opacity = _settings.FloatingBackgroundOpacity;
             TextSettings.IsExpanded = false;
             TextSettings.Visibility = Visibility.Collapsed;
         }
