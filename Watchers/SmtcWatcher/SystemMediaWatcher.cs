@@ -8,7 +8,7 @@ using Windows.Media.Control;
 namespace SmtcWatcher
 {
     /// <summary>
-    /// Fetches media info from system media transport controls.
+    /// Fetches media info from system media transport controls. It is available on Windows 10 from 17763 version.
     /// </summary>
     public class SystemMediaWatcher : MusicWatcher
     {
