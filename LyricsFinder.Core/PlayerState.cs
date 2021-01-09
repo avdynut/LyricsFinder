@@ -1,4 +1,4 @@
-﻿namespace SmtcWatcher
+﻿namespace LyricsFinder.Core
 {
     public enum PlayerState
     {

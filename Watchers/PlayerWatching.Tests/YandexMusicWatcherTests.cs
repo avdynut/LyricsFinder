@@ -1,3 +1,4 @@
+using LyricsFinder.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
