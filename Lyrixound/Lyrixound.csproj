@@ -43,7 +43,7 @@
 
   <ItemGroup>
     <PackageReference Include="gong-wpf-dragdrop" Version="2.3.2" />
-    <PackageReference Include="Hardcodet.NotifyIcon.Wpf.NetCore" Version="1.0.14" />
+    <PackageReference Include="Hardcodet.NotifyIcon.Wpf.NetCore" Version="1.0.17" />
     <PackageReference Include="MaterialDesignThemes" Version="3.2.0" />
     <PackageReference Include="NLog" Version="4.7.6" />
     <PackageReference Include="nucs.JsonSettings" Version="1.0.7" />
@@ -54,7 +54,7 @@
   <ItemGroup>
     <ProjectReference Include="..\LyricsFinder.Core\LyricsFinder.Core.csproj" />
     <ProjectReference Include="..\Providers\LyricsProviders\LyricsProviders.csproj" />
-    <ProjectReference Include="..\Watchers\SmtcWatcher\SmtcWatcher.csproj" />
+    <ProjectReference Include="..\Watchers\Win10Watcher\Win10Watcher.csproj" />
   </ItemGroup>
 
   <ItemGroup>

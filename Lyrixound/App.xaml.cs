@@ -8,13 +8,13 @@ using nucs.JsonSettings;
 using nucs.JsonSettings.Autosave;
 using Prism.Ioc;
 using Prism.Ninject;
-using SmtcWatcher;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Threading;
+using Win10Watcher;
 
 namespace Lyrixound
 {
@@ -76,7 +76,8 @@ namespace Lyrixound
 
             containerRegistry
                 //.Register<MusicWatcher, SystemMediaWatcher>()
-                .RegisterInstance(new CyclicalSmtcWatcher(settings.CheckInterval))
+                //.RegisterInstance(new CyclicalSmtcWatcher(settings.CheckInterval))
+                .RegisterInstance(new NpsmWatcher(settings.CheckInterval))
                 .RegisterInstance(new MultiTrackInfoProvider(lyricsProviders));
         }
 
