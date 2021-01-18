@@ -4,12 +4,12 @@ using LyricsProviders.DirectoriesProvider;
 using NLog;
 using Prism.Commands;
 using Prism.Mvvm;
+using SmtcWatcher;
 using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Win10Watcher;
 using Windows.System;
 
 namespace Lyrixound.ViewModels
@@ -18,7 +18,7 @@ namespace Lyrixound.ViewModels
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly DirectoriesProviderSettings _directoriesSettings;
-        private readonly NpsmWatcher _musicWatcher;
+        private readonly CyclicalSmtcWatcher _musicWatcher;
         private readonly MultiTrackInfoProvider _trackInfoProvider;
 
         public TrackViewModel Track { get; } = new TrackViewModel(new Track());
@@ -51,7 +51,7 @@ namespace Lyrixound.ViewModels
         public LyricsSettingsViewModel LyricsSettings { get; }
 
         public MainWindowViewModel(
-            NpsmWatcher musicWatcher,
+            CyclicalSmtcWatcher musicWatcher,
             MultiTrackInfoProvider trackInfoProvider,
             DirectoriesProviderSettings directoriesSettings,
             LyricsSettingsViewModel lyricsSettings)
@@ -119,9 +119,9 @@ namespace Lyrixound.ViewModels
 
         private async void OnWatcherTrackChanged(object sender, Track track)
         {
-            _logger.Debug($"Track changed {_musicWatcher.PlayerInfo.SourceAppId} - {_musicWatcher.PlayerState}");
+            _logger.Debug($"Track changed {_musicWatcher.PlayerId} - {_musicWatcher.PlayerState}");
 
-            PlayerName = _musicWatcher.PlayerInfo.SourceAppId;
+            PlayerName = _musicWatcher.PlayerId;
             await UpdateTrackInfoAsync(track);
         }
 

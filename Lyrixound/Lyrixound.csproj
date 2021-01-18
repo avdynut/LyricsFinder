@@ -40,7 +40,7 @@
   <ItemGroup>
     <ProjectReference Include="..\LyricsFinder.Core\LyricsFinder.Core.csproj" />
     <ProjectReference Include="..\Providers\LyricsProviders\LyricsProviders.csproj" />
-    <ProjectReference Include="..\Watchers\Win10Watcher\Win10Watcher.csproj" />
+    <ProjectReference Include="..\Watchers\SmtcWatcher\SmtcWatcher.csproj" />
   </ItemGroup>
 
   <ItemGroup>
