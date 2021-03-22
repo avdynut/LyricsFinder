@@ -29,9 +29,9 @@
 
   <ItemGroup>
     <PackageReference Include="gong-wpf-dragdrop" Version="2.3.2" />
-    <PackageReference Include="Hardcodet.NotifyIcon.Wpf.NetCore" Version="1.0.17" />
-    <PackageReference Include="MaterialDesignThemes" Version="3.2.0" />
-    <PackageReference Include="NLog" Version="4.7.6" />
+    <PackageReference Include="Hardcodet.NotifyIcon.Wpf.NetCore" Version="1.0.18" />
+    <PackageReference Include="MaterialDesignThemes" Version="4.0.0" />
+    <PackageReference Include="NLog" Version="4.7.8" />
     <PackageReference Include="nucs.JsonSettings" Version="1.0.7" />
     <PackageReference Include="nucs.JsonSettings.Autosave" Version="1.0.0" />
     <PackageReference Include="Prism.Ninject" Version="7.2.0.1422" />
