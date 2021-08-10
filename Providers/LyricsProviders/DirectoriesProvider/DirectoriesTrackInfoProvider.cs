@@ -60,10 +60,11 @@ namespace LyricsProviders.DirectoriesProvider
 
         public static string GetFileName(string pattern, TrackInfo trackInfo)
         {
-            return pattern.Replace(ArtistMask, trackInfo.Artist)
-                          .Replace(TitleMask, trackInfo.Title)
-                          .Replace("/", " ")
-                          .Replace("\\", " ");
+            var filename = pattern.Replace(ArtistMask, trackInfo.Artist)
+                          .Replace(TitleMask, trackInfo.Title);
+
+            // remove illegal chars
+            return string.Concat(filename.Split(Path.GetInvalidFileNameChars()));
         }
 
         private void CheckFolder(string folder)
