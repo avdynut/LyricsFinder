@@ -1,4 +1,7 @@
-﻿using System.Windows.Controls;
+﻿using Lyrixound.Configuration;
+using Lyrixound.Services;
+using Lyrixound.ViewModels;
+using System.Windows.Controls;
 
 namespace Lyrixound.Views
 {
@@ -10,6 +13,9 @@ namespace Lyrixound.Views
         public LyricsSettingsView()
         {
             InitializeComponent();
+
+            var lyricsSettings = SettingsService.LoadSettings<LyricsSettings>("lyrics.json");
+            DataContext = new LyricsSettingsViewModel(lyricsSettings);
         }
     }
 }

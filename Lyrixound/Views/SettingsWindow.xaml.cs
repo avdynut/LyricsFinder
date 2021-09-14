@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using Lyrixound.Services;
+using Lyrixound.ViewModels;
+using System.Windows;
 
 namespace Lyrixound.Views
 {
@@ -10,6 +12,8 @@ namespace Lyrixound.Views
         public SettingsWindow()
         {
             InitializeComponent();
+
+            DataContext = new SettingsWindowViewModel(SettingsService.Settings, SettingsService.DirectoriesSettings);
         }
     }
 }

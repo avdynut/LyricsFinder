@@ -1,7 +1,14 @@
-﻿using Lyrixound.Configuration;
+﻿using LyricsProviders;
+using LyricsProviders.DirectoriesProvider;
+using LyricsProviders.GoogleProvider;
+using Lyrixound.Configuration;
+using Lyrixound.Services;
+using Lyrixound.ViewModels;
 using MaterialDesignThemes.Wpf;
 using NLog;
+using SmtcWatcher;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
@@ -16,12 +23,32 @@ namespace Lyrixound.Views
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly Brush _lyricsPanelBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFAFAFA"));
-        private readonly WindowSettings _settings;
+        private readonly WindowSettings _settings = SettingsService.LoadSettings<WindowSettings>("window.json");
 
-        public MainWindow(WindowSettings settings)
+        public MainWindow()
         {
-            _settings = settings;
             InitializeComponent();
+
+            var lyricsSettings = new LyricsSettingsViewModel(SettingsService.LoadSettings<LyricsSettings>("lyrics.json"));
+            var googleProviderSettings = SettingsService.LoadSettings<GoogleProviderSettings>("google_provider.json");
+
+            var allProviders = new Dictionary<string, ITrackInfoProvider>();
+            allProviders[DirectoriesTrackInfoProvider.Name] = new DirectoriesTrackInfoProvider(SettingsService.DirectoriesSettings);
+            allProviders[GoogleTrackInfoProvider.Name] = new GoogleTrackInfoProvider(googleProviderSettings);
+
+            var lyricsProviders = new List<ITrackInfoProvider>();
+            foreach (var provider in SettingsService.Settings.LyricsProviders)
+            {
+                if (provider.IsEnabled && allProviders.ContainsKey(provider.Name))
+                {
+                    lyricsProviders.Add(allProviders[provider.Name]);
+                }
+            }
+
+            var musicWatcher = new CyclicalSmtcWatcher(SettingsService.Settings.CheckInterval);
+            var trackInfoProvider = new MultiTrackInfoProvider(lyricsProviders);
+
+            DataContext = new MainWindowViewModel(musicWatcher, trackInfoProvider, SettingsService.DirectoriesSettings, lyricsSettings);
         }
 
         protected override void OnInitialized(EventArgs e)

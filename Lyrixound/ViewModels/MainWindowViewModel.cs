@@ -1,24 +1,25 @@
 ﻿using LyricsFinder.Core;
 using LyricsProviders;
 using LyricsProviders.DirectoriesProvider;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using NLog;
-using Prism.Commands;
-using Prism.Mvvm;
 using SmtcWatcher;
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Input;
+using System.Windows;
 using Windows.System;
 
 namespace Lyrixound.ViewModels
 {
-    public class MainWindowViewModel : BindableBase, IDisposable
+    public class MainWindowViewModel : ObservableObject, IDisposable
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly DirectoriesProviderSettings _directoriesSettings;
-        private readonly CyclicalSmtcWatcher _musicWatcher;
+        private readonly MusicWatcher _musicWatcher;
         private readonly MultiTrackInfoProvider _trackInfoProvider;
 
         public TrackViewModel Track { get; } = new TrackViewModel(new Track());
@@ -27,7 +28,13 @@ namespace Lyrixound.ViewModels
         public bool SearchInProgress
         {
             get => _searchInProgress;
-            set => SetProperty(ref _searchInProgress, value);
+            set
+            {
+                if (SetProperty(ref _searchInProgress, value))
+                {
+                    Application.Current.Dispatcher.Invoke(FindLyricsCommand.NotifyCanExecuteChanged);
+                }
+            }
         }
 
         private string _playerImage;
@@ -44,14 +51,14 @@ namespace Lyrixound.ViewModels
             set => SetProperty(ref _providerImage, value);
         }
 
-        public ICommand FindLyricsCommand { get; }
-        public ICommand OpenLyricsCommand { get; }
-        public ICommand OpenWebsiteCommand { get; }
+        public IRelayCommand FindLyricsCommand { get; }
+        public IRelayCommand OpenLyricsCommand { get; }
+        public IRelayCommand OpenWebsiteCommand { get; }
 
         public LyricsSettingsViewModel LyricsSettings { get; }
 
         public MainWindowViewModel(
-            CyclicalSmtcWatcher musicWatcher,
+            MusicWatcher musicWatcher,
             MultiTrackInfoProvider trackInfoProvider,
             DirectoriesProviderSettings directoriesSettings,
             LyricsSettingsViewModel lyricsSettings)
@@ -62,14 +69,11 @@ namespace Lyrixound.ViewModels
             LyricsSettings = lyricsSettings;
 
             _musicWatcher.TrackChanged += OnWatcherTrackChanged;
+            Track.PropertyChanged += Track_PropertyChanged;
 
-            FindLyricsCommand = new DelegateCommand(async () => await FindLyricsAsync(), CanFindLyrics)
-                .ObservesProperty(() => Track.Artist).ObservesProperty(() => Track.Title).ObservesProperty(() => SearchInProgress);
-
-            OpenLyricsCommand = new DelegateCommand(async () => await OpenLyricsAsync(), () => Track.Lyrics?.Source != null)
-                .ObservesProperty(() => Track.Lyrics);
-
-            OpenWebsiteCommand = new DelegateCommand(async () => await OpenWebsiteAsync());
+            FindLyricsCommand = new AsyncRelayCommand(FindLyricsAsync, CanFindLyrics);
+            OpenLyricsCommand = new AsyncRelayCommand(OpenLyricsAsync, () => Track.Lyrics?.Source != null);
+            OpenWebsiteCommand = new AsyncRelayCommand(OpenWebsiteAsync);
         }
 
         private bool CanFindLyrics() => !string.IsNullOrEmpty(Track.Title) && !SearchInProgress;
@@ -155,6 +159,19 @@ namespace Lyrixound.ViewModels
             }
         }
 
+        private void Track_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(Track.Lyrics):
+                    Application.Current.Dispatcher.Invoke(OpenLyricsCommand.NotifyCanExecuteChanged);
+                    break;
+                case nameof(Track.Title):
+                    Application.Current.Dispatcher.Invoke(FindLyricsCommand.NotifyCanExecuteChanged);
+                    break;
+            }
+        }
+
         public void Dispose()
         {
             if (_musicWatcher != null)
@@ -162,6 +179,8 @@ namespace Lyrixound.ViewModels
                 _musicWatcher.TrackChanged -= OnWatcherTrackChanged;
                 _musicWatcher.Dispose();
             }
+
+            Track.PropertyChanged -= Track_PropertyChanged;
         }
     }
 }

@@ -1,24 +1,20 @@
 ﻿using Lyrixound.Configuration;
 using MaterialDesignThemes.Wpf;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
 
 namespace Lyrixound.ViewModels
 {
-    public class LyricsSettingsViewModel : BindableBase
+    public class LyricsSettingsViewModel : ObservableObject
     {
         private readonly LyricsSettings _lyricsSettings;
 
         public double FontSize
         {
             get => _lyricsSettings.FontSize;
-            set
-            {
-                _lyricsSettings.FontSize = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(FontSize, value, _lyricsSettings, (s, v) => s.FontSize = v);
         }
 
         public bool IsItalic
@@ -26,9 +22,10 @@ namespace Lyrixound.ViewModels
             get => _lyricsSettings.IsItalic;
             set
             {
-                _lyricsSettings.IsItalic = value;
-                RaisePropertyChanged();
-                RaisePropertyChanged(nameof(FontStyle));
+                if (SetProperty(IsItalic, value, _lyricsSettings, (s, v) => s.IsItalic = v))
+                {
+                    OnPropertyChanged(nameof(FontStyle));
+                }
             }
         }
 
@@ -37,70 +34,47 @@ namespace Lyrixound.ViewModels
             get => _lyricsSettings.IsBold;
             set
             {
-                _lyricsSettings.IsBold = value;
-                RaisePropertyChanged();
-                RaisePropertyChanged(nameof(FontWeight));
+                if (SetProperty(IsBold, value, _lyricsSettings, (s, v) => s.IsBold = v))
+                {
+                    OnPropertyChanged(nameof(FontWeight));
+                }
             }
         }
 
         public FontFamily FontFamily
         {
             get => _lyricsSettings.FontFamily;
-            set
-            {
-                _lyricsSettings.FontFamily = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(FontFamily, value, _lyricsSettings, (s, v) => s.FontFamily = v);
         }
 
         public TextAlignment TextAlignment
         {
             get => _lyricsSettings.TextAlignment;
-            set
-            {
-                _lyricsSettings.TextAlignment = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(TextAlignment, value, _lyricsSettings, (s, v) => s.TextAlignment = v);
         }
 
         public Color TextColor
         {
             get => _lyricsSettings.TextColor;
-            set
-            {
-                _lyricsSettings.TextColor = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(TextColor, value, _lyricsSettings, (s, v) => s.TextColor = v);
         }
 
         public Color ShadowColor
         {
             get => _lyricsSettings.ShadowColor;
-            set
-            {
-                _lyricsSettings.ShadowColor = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ShadowColor, value, _lyricsSettings, (s, v) => s.ShadowColor = v);
         }
 
         public double ShadowDepth
         {
             get => _lyricsSettings.ShadowDepth;
-            set
-            {
-                _lyricsSettings.ShadowDepth = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ShadowDepth, value, _lyricsSettings, (s, v) => s.ShadowDepth = v);
         }
 
         public double BlurRadius
         {
             get => _lyricsSettings.BlurRadius;
-            set
-            {
-                _lyricsSettings.BlurRadius = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(BlurRadius, value, _lyricsSettings, (s, v) => s.BlurRadius = v);
         }
 
         public FontStyle FontStyle => IsItalic ? FontStyles.Italic : FontStyles.Normal;

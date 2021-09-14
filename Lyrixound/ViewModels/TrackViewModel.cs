@@ -1,41 +1,29 @@
 ﻿using LyricsFinder.Core;
 using LyricsFinder.Core.LyricTypes;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace Lyrixound.ViewModels
 {
-    public class TrackViewModel : BindableBase
+    public class TrackViewModel : ObservableObject
     {
         private readonly Track _track;
 
         public string Artist
         {
             get => _track.Artist;
-            set
-            {
-                _track.Artist = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(Artist, value, _track, (t, v) => t.Artist = v);
         }
 
         public string Title
         {
             get => _track.Title;
-            set
-            {
-                _track.Title = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(Title, value, _track, (t, v) => t.Title = v);
         }
 
         public ILyric Lyrics
         {
             get => _track.Lyrics;
-            set
-            {
-                _track.Lyrics = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(Lyrics, value, _track, (t, v) => t.Lyrics = v);
         }
 
         public TrackViewModel(Track track)
