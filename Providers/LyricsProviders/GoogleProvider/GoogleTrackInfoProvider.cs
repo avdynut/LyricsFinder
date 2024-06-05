@@ -4,8 +4,8 @@ using MSHTML;
 using NLog;
 using System;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -26,7 +26,7 @@ namespace LyricsProviders.GoogleProvider
 
         public override async Task<Track> FindTrackAsync(TrackInfo trackInfo)
         {
-            string query = $"{trackInfo.Artist} {trackInfo.Title}";
+            string query = $"{trackInfo.Artist} {trackInfo.Title} lyrics";
             string encodedString = HttpUtility.UrlEncode(query);
             string url = _settings.SearchUrl + encodedString;
 
@@ -83,24 +83,23 @@ namespace LyricsProviders.GoogleProvider
 
         private string ParseLyrics(HTMLDocument doc)
         {
+            var sb = new StringBuilder();
+
             try
             {
-                var elementsEnumerator = doc.getElementsByClassName(_settings.LyricsDivClassName).GetEnumerator();
-                elementsEnumerator.MoveNext();
-                var divLyricsBlock = (IHTMLElement)elementsEnumerator.Current;
+                foreach (IHTMLElement verse in doc.getElementsByClassName(_settings.LyricsVersesClassName))
+                {
+                    foreach (IHTMLElement e in verse.children as IHTMLElementCollection)
+                    {
+                        if (e.tagName.Equals("span", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            sb.AppendLine(e.innerText);
+                        }
+                    }
+                    sb.AppendLine();
+                }
 
-                var blocksEnumerator = (divLyricsBlock.children as IHTMLElementCollection).GetEnumerator();
-                blocksEnumerator.MoveNext();
-                var firstBlockChildren = (((IHTMLElement)blocksEnumerator.Current).children as IHTMLElementCollection).Cast<IHTMLElement>();
-
-                var verses = (firstBlockChildren.ElementAt(4).children as IHTMLElementCollection).Cast<IHTMLElement>();
-
-                var textVerses = verses.Select(x => x.innerText);
-
-                string twoNewLines = Environment.NewLine + Environment.NewLine;
-                var lyrics = string.Join(twoNewLines, textVerses);
-
-                return lyrics;
+                return sb.ToString();
             }
             catch (Exception ex)
             {
