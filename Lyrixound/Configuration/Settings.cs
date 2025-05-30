@@ -1,4 +1,5 @@
-﻿using LyricsProviders.DirectoriesProvider;
+﻿using LyricsProviders;
+using LyricsProviders.DirectoriesProvider;
 using LyricsProviders.GoogleProvider;
 using nucs.JsonSettings;
 using System;
@@ -10,11 +11,12 @@ namespace Lyrixound.Configuration
 {
     public class Settings : JsonSettings
     {
-        private readonly List<Element> _defaultProviders = new List<Element>
-            {
-                new Element(DirectoriesTrackInfoProvider.Name, isEnabled: true),
-                new Element(GoogleTrackInfoProvider.Name, isEnabled: true)
-            };
+        private readonly List<Element> _defaultProviders =
+        [
+            new Element(DirectoriesTrackInfoProvider.Name, isEnabled: true),
+            new Element(LyricsOvhTrackInfoProvider.Name, isEnabled: true),
+            new Element(GoogleTrackInfoProvider.Name, isEnabled: true)
+        ];
 
         public override string FileName { get; set; }
 

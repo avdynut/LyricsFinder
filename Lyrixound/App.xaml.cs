@@ -63,6 +63,7 @@ namespace Lyrixound
                 .RegisterInstance(LoadSettings<WindowSettings>("window.json"))
                 .RegisterInstance(LoadSettings<GoogleProviderSettings>("google_provider.json"))
                 .Register<ITrackInfoProvider, DirectoriesTrackInfoProvider>(DirectoriesTrackInfoProvider.Name)
+                .Register<ITrackInfoProvider, LyricsOvhTrackInfoProvider>(LyricsOvhTrackInfoProvider.Name)
                 .Register<ITrackInfoProvider, GoogleTrackInfoProvider>(GoogleTrackInfoProvider.Name);
 
             var lyricsProviders = new List<ITrackInfoProvider>();
