@@ -1,6 +1,6 @@
-﻿using LyricsProviders;
-using LyricsProviders.DirectoriesProvider;
+﻿using LyricsProviders.DirectoriesProvider;
 using LyricsProviders.GoogleProvider;
+using LyricsProviders.LyricsOvh;
 using nucs.JsonSettings;
 using System;
 using System.Collections.Generic;

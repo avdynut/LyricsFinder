@@ -1,6 +1,7 @@
 ﻿using LyricsProviders;
 using LyricsProviders.DirectoriesProvider;
 using LyricsProviders.GoogleProvider;
+using LyricsProviders.LyricsOvh;
 using Lyrixound.Configuration;
 using Newtonsoft.Json.Converters;
 using NLog;
