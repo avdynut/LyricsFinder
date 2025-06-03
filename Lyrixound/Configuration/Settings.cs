@@ -1,6 +1,7 @@
 ﻿using LyricsProviders.DirectoriesProvider;
 using LyricsProviders.GoogleProvider;
 using LyricsProviders.LyricsOvh;
+using LyricsProviders.MusixMatch;
 using nucs.JsonSettings;
 using System;
 using System.Collections.Generic;
@@ -14,8 +15,9 @@ namespace Lyrixound.Configuration
         private readonly List<Element> _defaultProviders =
         [
             new Element(DirectoriesTrackInfoProvider.Name, isEnabled: true),
+            new Element(MusixmatchTrackInfoProvider.Name, isEnabled: true),
             new Element(LyricsOvhTrackInfoProvider.Name, isEnabled: true),
-            new Element(GoogleTrackInfoProvider.Name, isEnabled: true)
+            new Element(GoogleTrackInfoProvider.Name, isEnabled: false)
         ];
 
         public override string FileName { get; set; }
