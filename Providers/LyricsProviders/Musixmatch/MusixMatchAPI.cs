@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 namespace LyricsProviders.MusixMatch;
 
 // https://github.com/Strvm/musicxmatch-api/blob/main/src/musicxmatch_api/main.py 83144cda7a81d3f072014058b18d019f343b8de6
+// https://docs.musixmatch.com/lyrics-api/
 public static class MusixmatchAPI
 {
     private static readonly HttpClient _client = new() { Timeout = TimeSpan.FromSeconds(5) };
@@ -69,8 +70,8 @@ public static class MusixmatchAPI
         {
             var hash = hmac.ComputeHash(messageBytes);
             var signature = Convert.ToBase64String(hash);
-            var r = WebUtility.UrlEncode(signature).Replace("%2F", "/");
-            return $"&signature={r}&signature_protocol=sha256";
+             var r = WebUtility.UrlEncode(signature).Replace("%2F", "/");
+             return $"&signature={r}&signature_protocol=sha256";
         }
     }
 
@@ -102,7 +103,7 @@ public static class MusixmatchAPI
     {
         if (trackId == null && trackIsrc == null)
             throw new ArgumentException("Either trackId or trackIsrc must be provided.");
-        string param = trackId != null ? $"track_id={trackId}" : $"track_isrc={trackIsrc}";
+        string param = trackId != null ? $"commontrack_id={trackId}" : $"track_isrc={trackIsrc}";
         string url = $"track.lyrics.get?app_id=web-desktop-app-v1.0&format=json&{param}";
         return await MakeRequestAsync(url);
     }
@@ -179,7 +180,7 @@ public static class MusixmatchAPI
 
     public static async Task<JsonDocument> MatchLyrics(string artist, string title)
     {
-        string url = $"matcher.lyrics.get?app_id=web-desktop-app-v1.0&format=json&q_track={title}&q_artist={artist}";
+        string url = $"matcher.lyrics.get?app_id=web-desktop-app-v1.0&format=json&q_track={WebUtility.UrlEncode(title)}&q_artist={WebUtility.UrlEncode(artist)}";
         return await MakeRequestAsync(url);
     }
 }
