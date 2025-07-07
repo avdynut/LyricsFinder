@@ -1,6 +1,7 @@
 ﻿using LyricsProviders;
 using LyricsProviders.DirectoriesProvider;
 using LyricsProviders.GoogleProvider;
+using LyricsProviders.LrcLib;
 using LyricsProviders.LyricsOvh;
 using LyricsProviders.MusixMatch;
 using Lyrixound.Configuration;
@@ -65,6 +66,7 @@ namespace Lyrixound
                 .RegisterInstance(LoadSettings<WindowSettings>("window.json"))
                 .RegisterInstance(LoadSettings<GoogleProviderSettings>("google_provider.json"))
                 .Register<ITrackInfoProvider, DirectoriesTrackInfoProvider>(DirectoriesTrackInfoProvider.Name)
+                .Register<ITrackInfoProvider, LrcLibTrackInfoProvider>(LrcLibTrackInfoProvider.Name)
                 .Register<ITrackInfoProvider, MusixmatchTrackInfoProvider>(MusixmatchTrackInfoProvider.Name)
                 .Register<ITrackInfoProvider, LyricsOvhTrackInfoProvider>(LyricsOvhTrackInfoProvider.Name)
                 .Register<ITrackInfoProvider, GoogleTrackInfoProvider>(GoogleTrackInfoProvider.Name);
