@@ -10,7 +10,7 @@
   <Identity
     Name="2380AndreiArekhva.Lyrixound"
     Publisher="CN=8E493767-E316-48C5-AC18-7886A3C8DF62"
-    Version="1.2.2.0" />
+    Version="1.2.3.0" />
 
   <Properties>
     <DisplayName>Lyrixound</DisplayName>
