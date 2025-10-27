@@ -89,7 +89,35 @@ namespace Lyrixound
 
         protected override Window CreateShell()
         {
-            return Container.Resolve<Views.MainWindow>();
+            var mainWindow = Container.Resolve<Views.MainWindow>();
+            
+            // Show rating reminder on every third launch
+            var settings = Container.Resolve<Settings>();
+            ShowRatingReminderIfNeeded(settings, mainWindow);
+            
+            return mainWindow;
+        }
+
+        private void ShowRatingReminderIfNeeded(Settings settings, Window owner)
+        {
+            // Increment launch count
+            settings.LaunchCount++;
+            settings.Save();
+
+            // Check if we should show the reminder
+            // Show every 3rd launch, but not if user said "don't show again"
+            if (!settings.DontShowRatingReminder && settings.LaunchCount % 3 == 0)
+            {
+                // Show the rating reminder after the main window is loaded
+                owner.Loaded += (s, e) =>
+                {
+                    var ratingWindow = new Views.RatingReminderWindow(settings)
+                    {
+                        Owner = owner
+                    };
+                    ratingWindow.ShowDialog();
+                };
+            }
         }
 
         private T LoadSettings<T>(string filename) where T : JsonSettings

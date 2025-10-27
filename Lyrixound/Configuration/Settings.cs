@@ -28,6 +28,10 @@ namespace Lyrixound.Configuration
 
         public virtual bool RunAtStartup { get; set; }
 
+        public virtual int LaunchCount { get; set; } = 0;
+
+        public virtual bool DontShowRatingReminder { get; set; } = false;
+
         public virtual ObservableCollection<Element> LyricsProviders { get; set; } = new ObservableCollection<Element>();
 
         public Settings()
