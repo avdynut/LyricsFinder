@@ -19,5 +19,7 @@ namespace Lyrixound.Configuration
 
         public virtual double ShadowDepth { get; set; } = 1;
         public virtual double BlurRadius { get; set; } = 5;
+
+        public virtual double TimeOffsetMilliseconds { get; set; } = 500;
     }
 }

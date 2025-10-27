@@ -18,6 +18,8 @@
             <converters:NameToIconUriConverter x:Key="NameToIconUriConverter"
                                                Extension="png"
                                                IconsDirectory="Icons"/>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 

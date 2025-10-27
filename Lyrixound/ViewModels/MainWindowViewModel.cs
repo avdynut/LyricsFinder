@@ -1,4 +1,5 @@
 ﻿using LyricsFinder.Core;
+using LyricsFinder.Core.LyricTypes;
 using LyricsProviders;
 using LyricsProviders.DirectoriesProvider;
 using NLog;
@@ -10,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Windows.System;
 
 namespace Lyrixound.ViewModels
@@ -20,8 +22,11 @@ namespace Lyrixound.ViewModels
         private readonly DirectoriesProviderSettings _directoriesSettings;
         private readonly CyclicalSmtcWatcher _musicWatcher;
         private readonly MultiTrackInfoProvider _trackInfoProvider;
+        private readonly DispatcherTimer _progressTimer;
+        private TimeSpan _lastKnownPosition;
+        private DateTime _lastPositionUpdateTime;
 
-        public TrackViewModel Track { get; } = new TrackViewModel(new Track());
+        public TrackViewModel Track { get; }
 
         private bool _searchInProgress;
         public bool SearchInProgress
@@ -60,8 +65,15 @@ namespace Lyrixound.ViewModels
             _trackInfoProvider = trackInfoProvider;
             _directoriesSettings = directoriesSettings;
             LyricsSettings = lyricsSettings;
+            Track = new TrackViewModel(new Track(), lyricsSettings);
 
             _musicWatcher.TrackChanged += OnWatcherTrackChanged;
+            _musicWatcher.TrackProgressChanged += OnTrackProgressChanged;
+            _musicWatcher.PlayerStateChanged += OnPlayerStateChanged;
+
+            // Timer to interpolate position between SMTC updates
+            _progressTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
+            _progressTimer.Tick += OnProgressTimerTick;
 
             FindLyricsCommand = new DelegateCommand(async () => await FindLyricsAsync(), CanFindLyrics)
                 .ObservesProperty(() => Track.Artist).ObservesProperty(() => Track.Title).ObservesProperty(() => SearchInProgress);
@@ -99,7 +111,19 @@ namespace Lyrixound.ViewModels
 
                 var fileName = DirectoriesTrackInfoProvider.GetFileName(_directoriesSettings.LyricsFileNamePattern, foundTrack);
                 var lyricsDirectory = _directoriesSettings.LyricsDirectories.First();
-                var file = Path.Combine(lyricsDirectory, fileName + ".txt");
+
+                // Determine file extension based on lyric type
+                string fileExtension;
+                if (Track.Lyrics is SyncedLyric syncedLyric && syncedLyric.Type == SyncedLyricType.Lrc)
+                {
+                    fileExtension = ".lrc";
+                }
+                else
+                {
+                    fileExtension = ".txt";
+                }
+
+                var file = Path.Combine(lyricsDirectory, fileName + fileExtension);
 
                 if (!File.Exists(file))
                 {
@@ -123,6 +147,40 @@ namespace Lyrixound.ViewModels
 
             PlayerName = _musicWatcher.PlayerId;
             await UpdateTrackInfoAsync(track);
+        }
+
+        private void OnTrackProgressChanged(object sender, TimeSpan progress)
+        {
+            // Store the last known position from SMTC
+            _lastKnownPosition = progress;
+            _lastPositionUpdateTime = DateTime.Now;
+            Track.CurrentPosition = progress;
+            //_logger.Info($"Track progress: {progress}");
+        }
+
+        private void OnPlayerStateChanged(object sender, PlayerState state)
+        {
+            // Start/stop the interpolation timer based on player state
+            if (state == PlayerState.Playing)
+            {
+                _progressTimer.Start();
+            }
+            else
+            {
+                _progressTimer.Stop();
+            }
+        }
+
+        private void OnProgressTimerTick(object sender, EventArgs e)
+        {
+            // Interpolate position when playing
+            if (_musicWatcher.PlayerState == PlayerState.Playing && Track.HasSyncedLyrics)
+            {
+                var elapsed = DateTime.Now - _lastPositionUpdateTime;
+                var interpolatedPosition = _lastKnownPosition + elapsed;
+                Track.CurrentPosition = interpolatedPosition;
+                //_logger.Info($"Track progress: {interpolatedPosition}");
+            }
         }
 
         private async Task FindLyricsAsync()
@@ -157,9 +215,13 @@ namespace Lyrixound.ViewModels
 
         public void Dispose()
         {
+            _progressTimer?.Stop();
+
             if (_musicWatcher != null)
             {
                 _musicWatcher.TrackChanged -= OnWatcherTrackChanged;
+                _musicWatcher.TrackProgressChanged -= OnTrackProgressChanged;
+                _musicWatcher.PlayerStateChanged -= OnPlayerStateChanged;
                 _musicWatcher.Dispose();
             }
         }

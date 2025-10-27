@@ -69,22 +69,22 @@ public class LrcLibTrackInfoProvider : ITrackInfoProvider
             return new NoneLyric("Track is instrumental");
         }
 
-        // Prefer plain lyrics
-        if (result.TryGetProperty("plainLyrics", out var plainLyricsProperty) &&
-            plainLyricsProperty.ValueKind != JsonValueKind.Null &&
-            !string.IsNullOrEmpty(plainLyricsProperty.GetString()))
-        {
-            var plainLyrics = plainLyricsProperty.GetString();
-            return new UnsyncedLyric(plainLyrics);
-        }
-
-        // Fall back to synced lyrics over plain lyrics
+        // Prefer synced lyrics over plain lyrics
         if (result.TryGetProperty("syncedLyrics", out var syncedLyricsProperty) &&
             syncedLyricsProperty.ValueKind != JsonValueKind.Null &&
             !string.IsNullOrEmpty(syncedLyricsProperty.GetString()))
         {
             var syncedLyrics = syncedLyricsProperty.GetString();
             return new SyncedLyric(syncedLyrics, SyncedLyricType.Lrc);
+        }
+
+        // Fall back to plain lyrics if synced lyrics are not available
+        if (result.TryGetProperty("plainLyrics", out var plainLyricsProperty) &&
+            plainLyricsProperty.ValueKind != JsonValueKind.Null &&
+            !string.IsNullOrEmpty(plainLyricsProperty.GetString()))
+        {
+            var plainLyrics = plainLyricsProperty.GetString();
+            return new UnsyncedLyric(plainLyrics);
         }
 
         return null;

@@ -4,6 +4,7 @@ using NLog;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace LyricsProviders.DirectoriesProvider
@@ -43,13 +44,50 @@ namespace LyricsProviders.DirectoriesProvider
                 };
 
                 var pattern = GetFileName(Settings.LyricsFileNamePattern, trackInfo);
-                foreach (var file in directory.EnumerateFiles(pattern + "*", enumerationOptions))
+
+                // Prioritize .lrc files (synced lyrics) over other formats
+                var allFiles = directory.EnumerateFiles(pattern + "*", enumerationOptions).ToList();
+                var lrcFiles = allFiles.Where(f => f.Extension.Equals(".lrc", StringComparison.OrdinalIgnoreCase)).ToList();
+                var otherFiles = allFiles.Where(f => !f.Extension.Equals(".lrc", StringComparison.OrdinalIgnoreCase)).ToList();
+
+                // First, try to find .lrc files
+                foreach (var file in lrcFiles)
                 {
                     var lyrics = await File.ReadAllTextAsync(file.FullName);
                     if (lyrics.Length > 0)
                     {
-                        track.Lyrics = new UnsyncedLyric(lyrics) { Source = new Uri(file.FullName) };
-                        return track;
+                        // Check if it's actually in LRC format with timestamps
+                        if (LrcParser.IsLrcFormat(lyrics))
+                        {
+                            track.Lyrics = new SyncedLyric(lyrics, SyncedLyricType.Lrc) { Source = new Uri(file.FullName) };
+                            return track;
+                        }
+                        else
+                        {
+                            // .lrc file without timestamps, treat as unsynced
+                            track.Lyrics = new UnsyncedLyric(lyrics) { Source = new Uri(file.FullName) };
+                            return track;
+                        }
+                    }
+                }
+
+                // Then, try other files
+                foreach (var file in otherFiles)
+                {
+                    var lyrics = await File.ReadAllTextAsync(file.FullName);
+                    if (lyrics.Length > 0)
+                    {
+                        // Check if the content is in LRC format (even if not .lrc extension)
+                        if (LrcParser.IsLrcFormat(lyrics))
+                        {
+                            track.Lyrics = new SyncedLyric(lyrics, SyncedLyricType.Lrc) { Source = new Uri(file.FullName) };
+                            return track;
+                        }
+                        else
+                        {
+                            track.Lyrics = new UnsyncedLyric(lyrics) { Source = new Uri(file.FullName) };
+                            return track;
+                        }
                     }
                 }
             }

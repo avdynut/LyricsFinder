@@ -174,6 +174,81 @@
             </StackPanel>
 
             <Grid Name="LyricsPanel" Grid.Row="1">
+                <!-- Synced Lyrics Display -->
+                <ListBox Name="SyncedLyricsList"
+                         ItemsSource="{Binding Track.LyricLines}"
+                         SelectedItem="{Binding Track.CurrentLine, Mode=OneWay}"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         ScrollViewer.CanContentScroll="True"
+                         VirtualizingPanel.ScrollUnit="Pixel"
+                         Visibility="{Binding Track.HasSyncedLyrics, Converter={StaticResource BooleanToVisibilityConverter}}"
+                         SelectionMode="Single"
+                         Focusable="False"
+                         SizeChanged="OnSyncedLyricsListSizeChanged"
+                         SelectionChanged="OnSyncedLyricsSelectionChanged">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="Margin" Value="0"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                                            <ContentPresenter/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Name="LyricLine"
+                                       Text="{Binding Text}"
+                                       FontFamily="{Binding DataContext.LyricsSettings.FontFamily, RelativeSource={RelativeSource AncestorType=Window}}"
+                                       FontSize="{Binding DataContext.LyricsSettings.FontSize, RelativeSource={RelativeSource AncestorType=Window}}"
+                                       FontStyle="{Binding DataContext.LyricsSettings.FontStyle, RelativeSource={RelativeSource AncestorType=Window}}"
+                                       FontWeight="{Binding DataContext.LyricsSettings.FontWeight, RelativeSource={RelativeSource AncestorType=Window}}"
+                                       TextAlignment="{Binding DataContext.LyricsSettings.TextAlignment, RelativeSource={RelativeSource AncestorType=Window}}"
+                                       TextWrapping="Wrap"
+                                       Padding="10,8"
+                                       Margin="0">
+                                <TextBlock.Foreground>
+                                    <SolidColorBrush Color="{Binding DataContext.LyricsSettings.TextColor, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                </TextBlock.Foreground>
+                                <TextBlock.Effect>
+                                    <DropShadowEffect BlurRadius="{Binding DataContext.LyricsSettings.BlurRadius, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                      ShadowDepth="{Binding DataContext.LyricsSettings.ShadowDepth, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                      Color="{Binding DataContext.LyricsSettings.ShadowColor, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                </TextBlock.Effect>
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
+                                                <Setter Property="FontWeight" Value="Bold"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <!-- Unsynced Lyrics Display (Original) -->
                 <TextBox Name="Lyrics"
                          AcceptsReturn="True"
                          Background="Transparent"
@@ -188,7 +263,8 @@
                          Text="{Binding Track.Lyrics.Text}"
                          TextAlignment="{Binding LyricsSettings.TextAlignment}"
                          TextWrapping="Wrap"
-                         VerticalScrollBarVisibility="Auto">
+                         VerticalScrollBarVisibility="Auto"
+                         Visibility="{Binding Track.HasSyncedLyrics, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
                     <TextBox.Foreground>
                         <SolidColorBrush Color="{Binding LyricsSettings.TextColor}"/>
                     </TextBox.Foreground>

@@ -103,6 +103,16 @@ namespace Lyrixound.ViewModels
             }
         }
 
+        public double TimeOffsetMilliseconds
+        {
+            get => _lyricsSettings.TimeOffsetMilliseconds;
+            set
+            {
+                _lyricsSettings.TimeOffsetMilliseconds = value;
+                RaisePropertyChanged();
+            }
+        }
+
         public FontStyle FontStyle => IsItalic ? FontStyles.Italic : FontStyles.Normal;
         public FontWeight FontWeight => IsBold ? FontWeights.Bold : FontWeights.Normal;
 

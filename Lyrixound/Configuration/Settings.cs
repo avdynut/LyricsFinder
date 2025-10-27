@@ -24,7 +24,7 @@ namespace Lyrixound.Configuration
 
         public override string FileName { get; set; }
 
-        public virtual TimeSpan CheckInterval { get; set; } = TimeSpan.FromSeconds(3);
+        public virtual TimeSpan CheckInterval { get; set; } = TimeSpan.FromSeconds(1);
 
         public virtual bool RunAtStartup { get; set; }
 

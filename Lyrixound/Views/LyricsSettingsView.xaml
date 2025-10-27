@@ -19,6 +19,11 @@
                 Minimum="7"
                 Maximum="200"/>
 
+        <TextBox md:HintAssist.Hint="Synced Lyrics Time Offset, ms"
+                 Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                 Text="{Binding TimeOffsetMilliseconds, UpdateSourceTrigger=PropertyChanged, Delay=200}"
+                 ToolTip="Adjust synced lyrics timing. Positive values move lyrics forward, negative values move them backward."/>
+
         <ToolBar Style="{DynamicResource MaterialDesignToolBar}">
             <ListBox ItemsSource="{Binding TextAlignments}"
                      SelectedValue="{Binding TextAlignment}"

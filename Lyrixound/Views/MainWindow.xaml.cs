@@ -4,6 +4,7 @@ using NLog;
 using System;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -22,6 +23,83 @@ namespace Lyrixound.Views
         {
             _settings = settings;
             InitializeComponent();
+        }
+
+        private void OnSyncedLyricsSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ScrollToCenterCurrentLine();
+        }
+
+        private void OnSyncedLyricsListSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            ScrollToCenterCurrentLine();
+        }
+
+        private void ScrollToCenterCurrentLine()
+        {
+            if (SyncedLyricsList?.SelectedItem == null)
+                return;
+
+            var selectedIndex = SyncedLyricsList.SelectedIndex;
+            if (selectedIndex < 0)
+                return;
+
+            // Get the ScrollViewer from the ListBox
+            var scrollViewer = FindVisualChild<ScrollViewer>(SyncedLyricsList);
+            if (scrollViewer == null)
+                return;
+
+            // Get the container for the selected item
+            var container = SyncedLyricsList.ItemContainerGenerator.ContainerFromIndex(selectedIndex) as ListBoxItem;
+            if (container != null)
+            {
+                // Get the position of the item relative to the ListBox
+                var transform = container.TransformToAncestor(SyncedLyricsList);
+                var position = transform.Transform(new Point(0, 0));
+
+                // Calculate offset to center the item
+                var itemHeight = container.ActualHeight;
+                var viewportHeight = scrollViewer.ViewportHeight;
+                var currentOffset = scrollViewer.VerticalOffset;
+
+                // Target: center of viewport
+                var targetOffset = currentOffset + position.Y - (viewportHeight / 2) + (itemHeight / 2);
+
+                scrollViewer.ScrollToVerticalOffset(Math.Max(0, targetOffset));
+            }
+            else
+            {
+                // Fallback: estimate scroll position if container not generated
+                var itemCount = SyncedLyricsList.Items.Count;
+                if (itemCount > 0 && scrollViewer.ExtentHeight > 0)
+                {
+                    var estimatedItemHeight = scrollViewer.ExtentHeight / itemCount;
+                    var targetOffset = (selectedIndex * estimatedItemHeight) - (scrollViewer.ViewportHeight / 2);
+                    scrollViewer.ScrollToVerticalOffset(Math.Max(0, targetOffset));
+                }
+            }
+        }
+
+        private static T FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            if (parent == null)
+                return null;
+
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is T typedChild)
+                {
+                    return typedChild;
+                }
+
+                var result = FindVisualChild<T>(child);
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+            return null;
         }
 
         protected override void OnInitialized(EventArgs e)
