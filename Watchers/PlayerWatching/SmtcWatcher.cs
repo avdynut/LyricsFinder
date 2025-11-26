@@ -1,4 +1,4 @@
-﻿using FlaUI.Core.AutomationElements;
+using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Conditions;
 using FlaUI.Core.Definitions;
 using FlaUI.UIA3;
@@ -6,6 +6,7 @@ using LyricsFinder.Core;
 using NLog;
 using PlayerWatching.Localization;
 using System;
+using System.Text.RegularExpressions;
 
 namespace PlayerWatching
 {
@@ -36,6 +37,27 @@ namespace PlayerWatching
             _desktop = _automation.GetDesktop();
         }
 
+        /// <summary>
+        /// Cleans track text by removing YouTube channel names, parentheses content, and text after pipe character.
+        /// </summary>
+        private string CleanTrackText(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return text;
+
+            // Remove text after pipe character (|)
+            var pipeIndex = text.IndexOf('|');
+            if (pipeIndex > 0)
+            {
+                text = text.Substring(0, pipeIndex);
+            }
+
+            // Remove parentheses and their content, including (*) patterns
+            text = Regex.Replace(text, @"\s*\([^)]*\)", "");
+
+            return text.Trim();
+        }
+
         public bool UpdateMediaInfo()
         {
             var track = new Track();
@@ -52,8 +74,12 @@ namespace PlayerWatching
                 {
                     var titleText = window.FindFirstChild(TitleTextAutomationId)?.Name;
                     var artistText = window.FindFirstChild(ArtistTextAutomationId)?.Name;
-                    track.Title = titleText?.Replace(_localization.TitlePrecedingText, string.Empty);
-                    track.Artist = artistText?.Replace(_localization.ArtistPrecedingText, string.Empty);
+                    
+                    var cleanedTitle = titleText?.Replace(_localization.TitlePrecedingText, string.Empty);
+                    var cleanedArtist = artistText?.Replace(_localization.ArtistPrecedingText, string.Empty);
+                    
+                    track.Title = CleanTrackText(cleanedTitle);
+                    track.Artist = CleanTrackText(cleanedArtist);
 
                     var playButtonText = window.FindFirstChild(PlayButtonAutomationId).Name;
                     playerState = playButtonText.Contains(_localization.PlayButtonPlayingText) ? PlayerState.Playing : PlayerState.Paused;
