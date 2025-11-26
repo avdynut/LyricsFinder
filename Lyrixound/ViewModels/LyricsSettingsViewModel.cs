@@ -1,4 +1,4 @@
-﻿using Lyrixound.Configuration;
+using Lyrixound.Configuration;
 using MaterialDesignThemes.Wpf;
 using Prism.Mvvm;
 using System.Collections.Generic;
@@ -79,6 +79,16 @@ namespace Lyrixound.ViewModels
             set
             {
                 _lyricsSettings.ShadowColor = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public Color ActiveLineBackgroundColor
+        {
+            get => _lyricsSettings.ActiveLineBackgroundColor;
+            set
+            {
+                _lyricsSettings.ActiveLineBackgroundColor = value;
                 RaisePropertyChanged();
             }
         }
