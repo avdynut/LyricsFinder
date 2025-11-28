@@ -1,4 +1,4 @@
-﻿<Window x:Class="Lyrixound.Views.MainWindow"
+<Window x:Class="Lyrixound.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -236,7 +236,11 @@
                                     <Style TargetType="TextBlock">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                                <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                                                <Setter Property="Background">
+                                                    <Setter.Value>
+                                                        <SolidColorBrush Color="{Binding DataContext.LyricsSettings.ActiveLineBackgroundColor, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                    </Setter.Value>
+                                                </Setter>
                                                 <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
                                                 <Setter Property="FontWeight" Value="Bold"/>
                                             </DataTrigger>
