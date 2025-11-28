@@ -5,7 +5,6 @@ using LyricsFinder.Core;
 using NLog;
 using PlayerWatching.Localization;
 using System;
-using System.Text.RegularExpressions;
 
 namespace PlayerWatching
 {
@@ -42,27 +41,6 @@ namespace PlayerWatching
             _desktop = _automation.GetDesktop();
         }
 
-        /// <summary>
-        /// Cleans track text by removing YouTube channel names, parentheses content, and text after pipe character.
-        /// </summary>
-        private string CleanTrackText(string text)
-        {
-            if (string.IsNullOrWhiteSpace(text))
-                return text;
-
-            // Remove text after pipe character (|)
-            var pipeIndex = text.IndexOf('|');
-            if (pipeIndex > 0)
-            {
-                text = text.Substring(0, pipeIndex);
-            }
-
-            // Remove parentheses and their content, including (*) patterns
-            text = Regex.Replace(text, @"\s*\([^)]*\)", "");
-
-            return text.Trim();
-        }
-
         public bool UpdateMediaInfo()
         {
             var result = false;
@@ -85,8 +63,8 @@ namespace PlayerWatching
                         var title = window.FindFirstChild(TitleTextBlockAutomationId)?.Name;
                         var artist = window.FindFirstChild(ArtistTextBlockAutomationId)?.Name;
                         
-                        track.Title = CleanTrackText(title);
-                        track.Artist = CleanTrackText(artist);
+                        track.Title = TrackTextCleaner.Clean(title);
+                        track.Artist = TrackTextCleaner.Clean(artist);
                     }
                     else if (size.Width < PhoneModeMaxWidth && size.Height >= PhoneModeMaxWidth) // in phone mode
                     {
@@ -97,8 +75,8 @@ namespace PlayerWatching
                         {
                             if (children[i].AutomationId == TitleButtonPhoneModeAutomationId)
                             {
-                                track.Title = CleanTrackText(children[i].Name);
-                                track.Artist = CleanTrackText(children[i + 1].Name);
+                                track.Title = TrackTextCleaner.Clean(children[i].Name);
+                                track.Artist = TrackTextCleaner.Clean(children[i + 1].Name);
                                 break;
                             }
                         }
@@ -109,8 +87,8 @@ namespace PlayerWatching
                         var title = window.FindFirstChild(TitleButtonAutomationId)?.Name;
                         var artist = window.FindFirstChild(ArtistButtonAutomationId)?.Name;
                         
-                        track.Title = CleanTrackText(title);
-                        track.Artist = CleanTrackText(artist);
+                        track.Title = TrackTextCleaner.Clean(title);
+                        track.Artist = TrackTextCleaner.Clean(artist);
                     }
 
                     // todo: set player state
