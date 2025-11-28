@@ -2,7 +2,6 @@ using LyricsFinder.Core;
 using NLog;
 using System;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.Media.Control;
 
@@ -29,27 +28,6 @@ namespace SmtcWatcher
 
             _sessionManager.SessionsChanged += OnSessionsChanged;
             _sessionManager.CurrentSessionChanged += OnCurrentSessionChanged;
-        }
-
-        /// <summary>
-        /// Cleans track text by removing YouTube channel names, parentheses content, and text after pipe character.
-        /// </summary>
-        private string CleanTrackText(string text)
-        {
-            if (string.IsNullOrWhiteSpace(text))
-                return text;
-
-            // Remove text after pipe character (|)
-            var pipeIndex = text.IndexOf('|');
-            if (pipeIndex > 0)
-            {
-                text = text.Substring(0, pipeIndex);
-            }
-
-            // Remove parentheses and their content, including (*) patterns
-            text = Regex.Replace(text, @"\s*\([^)]*\)", "");
-
-            return text.Trim();
         }
 
         private void GetSessions()
@@ -82,8 +60,8 @@ namespace SmtcWatcher
             {
                 Track = new Track
                 {
-                    Artist = CleanTrackText(mp.Artist),
-                    Title = CleanTrackText(mp.Title),
+                    Artist = TrackTextCleaner.Clean(mp.Artist),
+                    Title = TrackTextCleaner.Clean(mp.Title),
                     Album = mp.AlbumTitle,
                     Genres = mp.Genres,
                     Thumbnail = mp.Thumbnail
