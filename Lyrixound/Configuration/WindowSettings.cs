@@ -16,7 +16,5 @@ namespace Lyrixound.Configuration
         public virtual Size WindowSize { get; set; } = new Size(420, 450);
 
         public virtual Point? WindowPosition { get; set; }
-
-        public virtual double FloatingBackgroundOpacity { get; set; } = 0.2;
     }
 }

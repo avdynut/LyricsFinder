@@ -18,10 +18,12 @@ namespace Lyrixound.Views
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly Brush _lyricsPanelBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFAFAFA"));
         private readonly WindowSettings _settings;
+        private readonly LyricsSettings _lyricsSettings;
 
-        public MainWindow(WindowSettings settings)
+        public MainWindow(WindowSettings settings, LyricsSettings lyricsSettings)
         {
             _settings = settings;
+            _lyricsSettings = lyricsSettings;
             InitializeComponent();
         }
 
@@ -135,8 +137,10 @@ namespace Lyrixound.Views
         {
             base.OnActivated(e);
 
+            Lyrics.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
             LyricsPanel.Background.Opacity = TextSettings.Background.Opacity = 1;
             TextSettings.Visibility = Visibility.Visible;
+            ResizeMode = ResizeMode.CanResizeWithGrip;
         }
 
         protected override void OnDeactivated(EventArgs e)
@@ -144,9 +148,11 @@ namespace Lyrixound.Views
             base.OnDeactivated(e);
 
             Lyrics.IsReadOnly = true;
-            LyricsPanel.Background.Opacity = TextSettings.Background.Opacity = _settings.FloatingBackgroundOpacity;
+            Lyrics.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+            LyricsPanel.Background.Opacity = TextSettings.Background.Opacity = _lyricsSettings.FloatingBackgroundOpacity;
             TextSettings.IsExpanded = false;
             TextSettings.Visibility = Visibility.Collapsed;
+            ResizeMode = ResizeMode.NoResize;
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)

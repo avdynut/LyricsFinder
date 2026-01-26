@@ -22,5 +22,7 @@ namespace Lyrixound.Configuration
         public virtual double BlurRadius { get; set; } = 5;
 
         public virtual double TimeOffsetMilliseconds { get; set; } = 500;
+
+        public virtual double FloatingBackgroundOpacity { get; set; } = 0;
     }
 }

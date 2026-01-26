@@ -123,6 +123,16 @@ namespace Lyrixound.ViewModels
             }
         }
 
+        public double FloatingBackgroundOpacity
+        {
+            get => _lyricsSettings.FloatingBackgroundOpacity;
+            set
+            {
+                _lyricsSettings.FloatingBackgroundOpacity = value;
+                RaisePropertyChanged();
+            }
+        }
+
         public FontStyle FontStyle => IsItalic ? FontStyles.Italic : FontStyles.Normal;
         public FontWeight FontWeight => IsBold ? FontWeights.Bold : FontWeights.Normal;
 

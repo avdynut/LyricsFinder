@@ -11,13 +11,27 @@
              mc:Ignorable="d">
 
     <StackPanel>
-        <Slider Height="60"
-                IsMoveToPointEnabled="True"
-                Style="{DynamicResource MaterialDesignDiscreteSlider}"
-                ToolTip="Font Size"
-                Value="{Binding FontSize}"
+        <TextBlock Margin="0,5,0,0"
+                   Style="{StaticResource MaterialDesignBody2TextBlock}"
+                   Text="Font Size"/>
+        <Slider IsMoveToPointEnabled="True"
+                Maximum="200"
                 Minimum="7"
-                Maximum="200"/>
+                Style="{DynamicResource MaterialDesignDiscreteSlider}"
+                ToolTip="{Binding FontSize}"
+                Value="{Binding FontSize}"/>
+
+        <TextBlock Margin="0,5,0,0"
+                   Style="{StaticResource MaterialDesignBody2TextBlock}"
+                   Text="Floating Background Opacity"/>
+        <Slider IsMoveToPointEnabled="True"
+                Maximum="1"
+                Minimum="0"
+                SmallChange="0.01"
+                Style="{DynamicResource MaterialDesignDiscreteSlider}"
+                TickFrequency="0.01"
+                ToolTip="{Binding FloatingBackgroundOpacity, StringFormat=F2}"
+                Value="{Binding FloatingBackgroundOpacity, StringFormat=F2}"/>
 
         <TextBox md:HintAssist.Hint="Synced Lyrics Time Offset, ms"
                  Style="{StaticResource MaterialDesignFloatingHintTextBox}"
