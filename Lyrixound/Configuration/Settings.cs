@@ -19,7 +19,7 @@ namespace Lyrixound.Configuration
             new Element(LrcLibTrackInfoProvider.Name, isEnabled: true),
             new Element(MusixmatchTrackInfoProvider.Name, isEnabled: true),
             new Element(LyricsOvhTrackInfoProvider.Name, isEnabled: true),
-            new Element(GoogleTrackInfoProvider.Name, isEnabled: false)
+            //new Element(GoogleTrackInfoProvider.Name, isEnabled: false)
         ];
 
         public override string FileName { get; set; }

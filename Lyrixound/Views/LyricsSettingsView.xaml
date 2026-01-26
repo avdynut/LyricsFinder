@@ -33,10 +33,32 @@
                 ToolTip="{Binding FloatingBackgroundOpacity, StringFormat=F2}"
                 Value="{Binding FloatingBackgroundOpacity, StringFormat=F2}"/>
 
-        <TextBox md:HintAssist.Hint="Synced Lyrics Time Offset, ms"
-                 Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                 Text="{Binding TimeOffsetMilliseconds, UpdateSourceTrigger=PropertyChanged, Delay=200}"
-                 ToolTip="Adjust synced lyrics timing. Positive values move lyrics forward, negative values move them backward."/>
+        <TextBlock Margin="0,5,0,0"
+                   Style="{StaticResource MaterialDesignBody2TextBlock}"
+                   Text="Synced Lyrics Time Offset (seconds)"/>
+        <Grid Margin="0,5,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Slider Grid.Column="0"
+                    VerticalAlignment="Center"
+                    IsMoveToPointEnabled="True"
+                    Maximum="10"
+                    Minimum="-10"
+                    SmallChange="0.1"
+                    Style="{DynamicResource MaterialDesignDiscreteSlider}"
+                    TickFrequency="0.1"
+                    ToolTip="{Binding TimeOffsetSeconds, StringFormat=F3}"
+                    Value="{Binding TimeOffsetSeconds}"/>
+            <TextBox Grid.Column="1"
+                     Width="60"
+                     Margin="10,0,0,0"
+                     md:HintAssist.Hint="sec"
+                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                     Text="{Binding TimeOffsetSeconds, StringFormat=F3, UpdateSourceTrigger=PropertyChanged}"
+                     ToolTip="Adjust synced lyrics timing. Positive values move lyrics forward, negative values move them backward."/>
+        </Grid>
 
         <ToolBar Style="{DynamicResource MaterialDesignToolBar}">
             <ListBox ItemsSource="{Binding TextAlignments}"

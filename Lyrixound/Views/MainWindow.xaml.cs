@@ -138,6 +138,7 @@ namespace Lyrixound.Views
             base.OnActivated(e);
 
             Lyrics.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+            ScrollViewer.SetVerticalScrollBarVisibility(SyncedLyricsList, ScrollBarVisibility.Auto);
             LyricsPanel.Background.Opacity = TextSettings.Background.Opacity = 1;
             TextSettings.Visibility = Visibility.Visible;
             ResizeMode = ResizeMode.CanResizeWithGrip;
@@ -149,6 +150,7 @@ namespace Lyrixound.Views
 
             Lyrics.IsReadOnly = true;
             Lyrics.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+            ScrollViewer.SetVerticalScrollBarVisibility(SyncedLyricsList, ScrollBarVisibility.Hidden);
             LyricsPanel.Background.Opacity = TextSettings.Background.Opacity = _lyricsSettings.FloatingBackgroundOpacity;
             TextSettings.IsExpanded = false;
             TextSettings.Visibility = Visibility.Collapsed;
