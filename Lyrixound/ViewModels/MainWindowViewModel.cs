@@ -24,7 +24,7 @@ namespace Lyrixound.ViewModels
         private readonly MultiTrackInfoProvider _trackInfoProvider;
         private readonly DispatcherTimer _progressTimer;
         private TimeSpan _lastKnownPosition;
-        private DateTime _lastPositionUpdateTime;
+        private DateTimeOffset _lastPositionUpdateTime;
 
         public TrackViewModel Track { get; }
 
@@ -149,11 +149,11 @@ namespace Lyrixound.ViewModels
             await UpdateTrackInfoAsync(track);
         }
 
-        private void OnTrackProgressChanged(object sender, TimeSpan progress)
+        private void OnTrackProgressChanged(TimeSpan progress, DateTimeOffset lastUpdatedTime)
         {
             // Store the last known position from SMTC
             _lastKnownPosition = progress;
-            _lastPositionUpdateTime = DateTime.Now;
+            _lastPositionUpdateTime = lastUpdatedTime;
             Track.CurrentPosition = progress;
             //_logger.Info($"Track progress: {progress}");
         }
@@ -176,7 +176,7 @@ namespace Lyrixound.ViewModels
             // Interpolate position when playing
             if (_musicWatcher.PlayerState == PlayerState.Playing && Track.HasSyncedLyrics)
             {
-                var elapsed = DateTime.Now - _lastPositionUpdateTime;
+                var elapsed = DateTime.UtcNow - _lastPositionUpdateTime;
                 var interpolatedPosition = _lastKnownPosition + elapsed;
                 Track.CurrentPosition = interpolatedPosition;
                 //_logger.Info($"Track progress: {interpolatedPosition}");

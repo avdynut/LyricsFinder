@@ -14,6 +14,11 @@ namespace SmtcWatcher
         private TimeSpan _trackProgress;
 
         /// <summary>
+        /// The UTC time at which the timeline properties were last updated.
+        /// </summary>
+        protected DateTimeOffset LastUpdatedTime;
+
+        /// <summary>
         /// Current player ID.
         /// </summary>
         public string PlayerId
@@ -72,7 +77,7 @@ namespace SmtcWatcher
                 if (value != _trackProgress)
                 {
                     _trackProgress = value;
-                    TrackProgressChanged?.Invoke(this, _trackProgress);
+                    TrackProgressChanged?.Invoke(_trackProgress, LastUpdatedTime);
                 }
             }
         }
@@ -95,7 +100,7 @@ namespace SmtcWatcher
         /// <summary>
         /// Occurs when time progress changed.
         /// </summary>
-        public event EventHandler<TimeSpan> TrackProgressChanged;
+        public event Action<TimeSpan, DateTimeOffset> TrackProgressChanged;
 
         public abstract void Dispose();
     }

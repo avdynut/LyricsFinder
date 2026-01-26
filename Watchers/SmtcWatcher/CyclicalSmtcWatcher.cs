@@ -81,6 +81,7 @@ namespace SmtcWatcher
         {
             if (_currentSession?.GetTimelineProperties() is GlobalSystemMediaTransportControlsSessionTimelineProperties timeline)
             {
+                LastUpdatedTime = timeline.LastUpdatedTime;
                 TrackProgress = timeline.Position;
                 //_logger.Debug($"Position: {timeline.Position}, StartTime: {timeline.StartTime}, EndTime: {timeline.EndTime}, LastUpdatedTime: {timeline.LastUpdatedTime}");
             }
