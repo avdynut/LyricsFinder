@@ -1,4 +1,4 @@
-﻿using LyricsFinder.Core;
+using LyricsFinder.Core;
 using LyricsFinder.Core.LyricTypes;
 using LyricsProviders;
 using LyricsProviders.DirectoriesProvider;
@@ -99,54 +99,73 @@ namespace Lyrixound.ViewModels
 
         private async Task FindLyricsAsync(TrackInfo trackInfo)
         {
-            SearchInProgress = true;
-            ProviderName = null;
-            var foundTrack = await _trackInfoProvider.FindTrackAsync(trackInfo);
-            SearchInProgress = false;
-
-            Track.Lyrics = foundTrack.Lyrics;
-            if (Track.Lyrics.Text?.Length > 0)
+            try
             {
-                _logger.Debug($"Found lyrics for {foundTrack}");
+                SearchInProgress = true;
+                ProviderName = null;
+                var foundTrack = await _trackInfoProvider.FindTrackAsync(trackInfo);
 
-                var fileName = DirectoriesTrackInfoProvider.GetFileName(_directoriesSettings.LyricsFileNamePattern, foundTrack);
-                var lyricsDirectory = _directoriesSettings.LyricsDirectories.First();
-
-                // Determine file extension based on lyric type
-                string fileExtension;
-                if (Track.Lyrics is SyncedLyric syncedLyric && syncedLyric.Type == SyncedLyricType.Lrc)
+                Track.Lyrics = foundTrack?.Lyrics;
+                if (Track.Lyrics?.Text?.Length > 0)
                 {
-                    fileExtension = ".lrc";
+                    _logger.Debug($"Found lyrics for {foundTrack}");
+
+                    var fileName = DirectoriesTrackInfoProvider.GetFileName(_directoriesSettings.LyricsFileNamePattern, foundTrack);
+                    var lyricsDirectory = _directoriesSettings.LyricsDirectories.FirstOrDefault();
+
+                    if (!string.IsNullOrEmpty(lyricsDirectory))
+                    {
+                        string fileExtension;
+                        if (Track.Lyrics is SyncedLyric syncedLyric && syncedLyric.Type == SyncedLyricType.Lrc)
+                        {
+                            fileExtension = ".lrc";
+                        }
+                        else
+                        {
+                            fileExtension = ".txt";
+                        }
+
+                        var file = Path.Combine(lyricsDirectory, fileName + fileExtension);
+
+                        if (!File.Exists(file))
+                        {
+                            Directory.CreateDirectory(lyricsDirectory);
+                            File.WriteAllText(file, Track.Lyrics.Text);
+                            _logger.Info($"Saved {file}");
+                        }
+                    }
+
+                    ProviderName = _trackInfoProvider.CurrentProvider?.DisplayName;
                 }
                 else
                 {
-                    fileExtension = ".txt";
+                    _logger.Debug("Lyrics not found");
+                    ProviderName = null;
                 }
-
-                var file = Path.Combine(lyricsDirectory, fileName + fileExtension);
-
-                if (!File.Exists(file))
-                {
-                    Directory.CreateDirectory(lyricsDirectory);
-                    File.WriteAllText(file, Track.Lyrics.Text);
-                    _logger.Info($"Saved {file}");
-                }
-
-                ProviderName = _trackInfoProvider.CurrentProvider?.DisplayName;
             }
-            else
+            catch (Exception ex)
             {
-                _logger.Debug("Lyrics not found");
-                ProviderName = null;
+                _logger.Error(ex, "Error finding lyrics for {trackInfo}", trackInfo);
+            }
+            finally
+            {
+                SearchInProgress = false;
             }
         }
 
         private async void OnWatcherTrackChanged(object sender, Track track)
         {
-            _logger.Debug($"Track changed {_musicWatcher.PlayerId} - {_musicWatcher.PlayerState}");
+            try
+            {
+                _logger.Debug($"Track changed {_musicWatcher.PlayerId} - {_musicWatcher.PlayerState}");
 
-            PlayerName = _musicWatcher.PlayerId;
-            await UpdateTrackInfoAsync(track);
+                PlayerName = _musicWatcher.PlayerId;
+                await UpdateTrackInfoAsync(track);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error handling track change");
+            }
         }
 
         private void OnTrackProgressChanged(TimeSpan progress, DateTimeOffset lastUpdatedTime)

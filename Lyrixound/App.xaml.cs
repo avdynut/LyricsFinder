@@ -147,6 +147,7 @@ namespace Lyrixound
         private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
             _logger.Fatal(e.Exception, "Unhandled error");
+            e.Handled = true;
         }
     }
 }
