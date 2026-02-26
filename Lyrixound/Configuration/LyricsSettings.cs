@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using nucs.JsonSettings;
 using System.Windows;
 using System.Windows.Media;
@@ -22,6 +23,10 @@ namespace Lyrixound.Configuration
         public virtual double BlurRadius { get; set; } = 5;
 
         public virtual double TimeOffsetSeconds { get; set; } = 0.5;
+
+        // for backward compatibility with old settings files
+        [JsonProperty(nameof(TimeOffsetMilliseconds))]
+        private double TimeOffsetMilliseconds { set => TimeOffsetSeconds = value / 1000.0; }
 
         public virtual double FloatingBackgroundOpacity { get; set; } = 0;
     }

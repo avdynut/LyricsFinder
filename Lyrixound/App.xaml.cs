@@ -1,10 +1,11 @@
-﻿using LyricsProviders;
+using LyricsProviders;
 using LyricsProviders.DirectoriesProvider;
 using LyricsProviders.GoogleProvider;
 using LyricsProviders.LrcLib;
 using LyricsProviders.LyricsOvh;
 using LyricsProviders.MusixMatch;
 using Lyrixound.Configuration;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using NLog;
 using nucs.JsonSettings;
@@ -49,6 +50,7 @@ namespace Lyrixound
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             JsonSettings.SerializationSettings.Converters.Add(new StringEnumConverter());
+            JsonSettings.SerializationSettings.MissingMemberHandling = MissingMemberHandling.Ignore;
 
             var settings = LoadSettings<Settings>("app.json");
             var directoriesSettings = LoadSettings<DirectoriesProviderSettings>("directories_provider.json");
@@ -90,11 +92,11 @@ namespace Lyrixound
         protected override Window CreateShell()
         {
             var mainWindow = Container.Resolve<Views.MainWindow>();
-            
+
             // Show rating reminder on every third launch
             var settings = Container.Resolve<Settings>();
             ShowRatingReminderIfNeeded(settings, mainWindow);
-            
+
             return mainWindow;
         }
 
@@ -123,7 +125,23 @@ namespace Lyrixound
         private T LoadSettings<T>(string filename) where T : JsonSettings
         {
             var filePath = Path.Combine(_dataFolder, "settings", filename);
-            return JsonSettings.Load<T>(filePath).EnableAutosave();
+            try
+            {
+                return JsonSettings.Load<T>(filePath).EnableAutosave();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, $"Failed to load settings from {filename}, resetting to defaults");
+
+                if (File.Exists(filePath))
+                {
+                    var backupPath = filePath + ".bak";
+                    try { File.Copy(filePath, backupPath, overwrite: true); } catch { }
+                    File.Delete(filePath);
+                }
+
+                return JsonSettings.Load<T>(filePath).EnableAutosave();
+            }
         }
 
         private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
