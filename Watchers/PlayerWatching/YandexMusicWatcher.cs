@@ -1,4 +1,4 @@
-﻿using FlaUI.Core.AutomationElements;
+using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
 using FlaUI.UIA3;
 using LyricsFinder.Core;
@@ -60,8 +60,11 @@ namespace PlayerWatching
                     {
                         _logger.Trace("Getting song info from Y.Music in topmost mode");
 
-                        track.Title = window.FindFirstChild(TitleTextBlockAutomationId)?.Name;
-                        track.Artist = window.FindFirstChild(ArtistTextBlockAutomationId)?.Name;
+                        var title = window.FindFirstChild(TitleTextBlockAutomationId)?.Name;
+                        var artist = window.FindFirstChild(ArtistTextBlockAutomationId)?.Name;
+                        
+                        track.Title = TrackTextCleaner.Clean(title);
+                        track.Artist = TrackTextCleaner.Clean(artist);
                     }
                     else if (size.Width < PhoneModeMaxWidth && size.Height >= PhoneModeMaxWidth) // in phone mode
                     {
@@ -72,8 +75,8 @@ namespace PlayerWatching
                         {
                             if (children[i].AutomationId == TitleButtonPhoneModeAutomationId)
                             {
-                                track.Title = children[i].Name;
-                                track.Artist = children[i + 1].Name;
+                                track.Title = TrackTextCleaner.Clean(children[i].Name);
+                                track.Artist = TrackTextCleaner.Clean(children[i + 1].Name);
                                 break;
                             }
                         }
@@ -81,8 +84,11 @@ namespace PlayerWatching
                     else // normal mode
                     {
                         _logger.Trace("Getting song info from Y.Music");
-                        track.Title = window.FindFirstChild(TitleButtonAutomationId)?.Name;
-                        track.Artist = window.FindFirstChild(ArtistButtonAutomationId)?.Name;
+                        var title = window.FindFirstChild(TitleButtonAutomationId)?.Name;
+                        var artist = window.FindFirstChild(ArtistButtonAutomationId)?.Name;
+                        
+                        track.Title = TrackTextCleaner.Clean(title);
+                        track.Artist = TrackTextCleaner.Clean(artist);
                     }
 
                     // todo: set player state
