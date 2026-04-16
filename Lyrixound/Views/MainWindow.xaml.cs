@@ -3,9 +3,11 @@ using MaterialDesignThemes.Wpf;
 using NLog;
 using System;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 
 namespace Lyrixound.Views
@@ -15,10 +17,21 @@ namespace Lyrixound.Views
     /// </summary>
     public partial class MainWindow : Window
     {
+        private const int GWL_EXSTYLE = -20;
+        private const int WS_EX_TRANSPARENT = 0x00000020;
+        private const int WS_EX_NOACTIVATE = 0x08000000;
+
+        [DllImport("user32.dll")]
+        private static extern int GetWindowLong(IntPtr hwnd, int index);
+
+        [DllImport("user32.dll")]
+        private static extern int SetWindowLong(IntPtr hwnd, int index, int newStyle);
+
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly Brush _lyricsPanelBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFAFAFA"));
         private readonly WindowSettings _settings;
         private readonly LyricsSettings _lyricsSettings;
+        private bool _isClickThrough;
 
         public MainWindow(WindowSettings settings, LyricsSettings lyricsSettings)
         {
@@ -137,9 +150,13 @@ namespace Lyrixound.Views
         {
             base.OnActivated(e);
 
+            if (_isClickThrough)
+                return;
+
             Lyrics.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
             ScrollViewer.SetVerticalScrollBarVisibility(SyncedLyricsList, ScrollBarVisibility.Auto);
             LyricsPanel.Background.Opacity = TextSettings.Background.Opacity = 1;
+            TopPanel.Visibility = Visibility.Visible;
             TextSettings.Visibility = Visibility.Visible;
             ResizeMode = ResizeMode.CanResizeWithGrip;
         }
@@ -148,13 +165,7 @@ namespace Lyrixound.Views
         {
             base.OnDeactivated(e);
 
-            Lyrics.IsReadOnly = true;
-            Lyrics.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
-            ScrollViewer.SetVerticalScrollBarVisibility(SyncedLyricsList, ScrollBarVisibility.Hidden);
-            LyricsPanel.Background.Opacity = TextSettings.Background.Opacity = _lyricsSettings.FloatingBackgroundOpacity;
-            TextSettings.IsExpanded = false;
-            TextSettings.Visibility = Visibility.Collapsed;
-            ResizeMode = ResizeMode.NoResize;
+            ApplyDeactivatedVisuals();
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
@@ -244,6 +255,37 @@ namespace Lyrixound.Views
         private void OnLyricsMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             Lyrics.IsReadOnly = false;
+        }
+
+        private void OnClickThroughToggle(object sender, RoutedEventArgs e)
+        {
+            _isClickThrough = !_isClickThrough;
+
+            var hwnd = new WindowInteropHelper(this).Handle;
+            var extStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
+
+            if (_isClickThrough)
+            {
+                SetWindowLong(hwnd, GWL_EXSTYLE, extStyle | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE);
+                ApplyDeactivatedVisuals();
+                TopPanel.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                SetWindowLong(hwnd, GWL_EXSTYLE, extStyle & ~WS_EX_TRANSPARENT & ~WS_EX_NOACTIVATE);
+                TopPanel.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void ApplyDeactivatedVisuals()
+        {
+            Lyrics.IsReadOnly = true;
+            Lyrics.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+            ScrollViewer.SetVerticalScrollBarVisibility(SyncedLyricsList, ScrollBarVisibility.Hidden);
+            LyricsPanel.Background.Opacity = TextSettings.Background.Opacity = _lyricsSettings.FloatingBackgroundOpacity;
+            TextSettings.IsExpanded = false;
+            TextSettings.Visibility = Visibility.Collapsed;
+            ResizeMode = ResizeMode.NoResize;
         }
 
         private void OnSettingsButtonClick(object sender, RoutedEventArgs e)

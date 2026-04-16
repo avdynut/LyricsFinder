@@ -44,6 +44,11 @@
                     <MenuItem Click="OnSettingsButtonClick" Header="Settings"/>
                     <MenuItem Command="{Binding OpenWebsiteCommand}" Header="Help"/>
                     <Separator/>
+                    <MenuItem Name="ClickThroughMenuItem"
+                              Click="OnClickThroughToggle"
+                              Header="Click Through"
+                              IsCheckable="True"/>
+                    <Separator/>
                     <MenuItem Click="OnExitClick" Header="Exit"/>
                 </ContextMenu>
             </tb:TaskbarIcon.ContextMenu>
