@@ -2,6 +2,7 @@ using LyricsFinder.Core;
 using LyricsFinder.Core.LyricTypes;
 using LyricsProviders;
 using LyricsProviders.DirectoriesProvider;
+using Lyrixound.Services;
 using NLog;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -23,6 +24,7 @@ namespace Lyrixound.ViewModels
         private readonly CyclicalSmtcWatcher _musicWatcher;
         private readonly MultiTrackInfoProvider _trackInfoProvider;
         private readonly DispatcherTimer _progressTimer;
+        private readonly AudioRecognitionService _audioRecognitionService;
         private TimeSpan _lastKnownPosition;
         private DateTimeOffset _lastPositionUpdateTime;
 
@@ -33,6 +35,13 @@ namespace Lyrixound.ViewModels
         {
             get => _searchInProgress;
             set => SetProperty(ref _searchInProgress, value);
+        }
+
+        private bool _recognizeInProgress;
+        public bool RecognizeInProgress
+        {
+            get => _recognizeInProgress;
+            set => SetProperty(ref _recognizeInProgress, value);
         }
 
         private string _playerImage;
@@ -52,6 +61,7 @@ namespace Lyrixound.ViewModels
         public ICommand FindLyricsCommand { get; }
         public ICommand OpenLyricsCommand { get; }
         public ICommand OpenWebsiteCommand { get; }
+        public ICommand RecognizeSongCommand { get; }
 
         public LyricsSettingsViewModel LyricsSettings { get; }
 
@@ -66,6 +76,7 @@ namespace Lyrixound.ViewModels
             _directoriesSettings = directoriesSettings;
             LyricsSettings = lyricsSettings;
             Track = new TrackViewModel(new Track(), lyricsSettings);
+            _audioRecognitionService = new AudioRecognitionService();
 
             _musicWatcher.TrackChanged += OnWatcherTrackChanged;
             _musicWatcher.TrackProgressChanged += OnTrackProgressChanged;
@@ -76,26 +87,18 @@ namespace Lyrixound.ViewModels
             _progressTimer.Tick += OnProgressTimerTick;
 
             FindLyricsCommand = new DelegateCommand(async () => await FindLyricsAsync(), CanFindLyrics)
-                .ObservesProperty(() => Track.Artist).ObservesProperty(() => Track.Title).ObservesProperty(() => SearchInProgress);
+                .ObservesProperty(() => Track.Artist).ObservesProperty(() => Track.Title).ObservesProperty(() => SearchInProgress).ObservesProperty(() => RecognizeInProgress);
 
             OpenLyricsCommand = new DelegateCommand(async () => await OpenLyricsAsync(), () => Track.Lyrics?.Source != null)
                 .ObservesProperty(() => Track.Lyrics);
 
             OpenWebsiteCommand = new DelegateCommand(async () => await OpenWebsiteAsync());
+
+            RecognizeSongCommand = new DelegateCommand(async () => await RecognizeSongAsync(), () => !RecognizeInProgress && !SearchInProgress)
+                .ObservesProperty(() => RecognizeInProgress).ObservesProperty(() => SearchInProgress);
         }
 
-        private bool CanFindLyrics() => !string.IsNullOrEmpty(Track.Title) && !SearchInProgress;
-
-        private async Task UpdateTrackInfoAsync(Track track)
-        {
-            _logger.Info("Update track info {track}", track);
-
-            Track.Artist = track.Artist;
-            Track.Title = track.Title;
-            Track.Lyrics = track.Lyrics;
-
-            await FindLyricsAsync(track.ToTrackInfo());
-        }
+        private bool CanFindLyrics() => !string.IsNullOrEmpty(Track.Title) && !SearchInProgress && !RecognizeInProgress;
 
         private async Task FindLyricsAsync(TrackInfo trackInfo)
         {
@@ -153,6 +156,33 @@ namespace Lyrixound.ViewModels
             }
         }
 
+        private async Task<RecognizedTrackInfo> RecognizeFromAudioAsync()
+        {
+            try
+            {
+                RecognizeInProgress = true;
+                var trackInfo = await _audioRecognitionService.RecognizeSongFromSystemAudioAsync(3);
+
+                if (trackInfo.IsRecognized)
+                {
+                    _logger.Info($"Recognized: {trackInfo.Artist} - {trackInfo.Title}");
+                    return trackInfo;
+                }
+
+                _logger.Warn("Could not recognize the song");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error during audio recognition");
+                return null;
+            }
+            finally
+            {
+                RecognizeInProgress = false;
+            }
+        }
+
         private async void OnWatcherTrackChanged(object sender, Track track)
         {
             try
@@ -160,7 +190,26 @@ namespace Lyrixound.ViewModels
                 _logger.Debug($"Track changed {_musicWatcher.PlayerId} - {_musicWatcher.PlayerState}");
 
                 PlayerName = _musicWatcher.PlayerId;
-                await UpdateTrackInfoAsync(track);
+                Track.Artist = track.Artist;
+                Track.Title = track.Title;
+                Track.Lyrics = track.Lyrics;
+
+                var searchTask = FindLyricsAsync(track.ToTrackInfo());
+                var recognizeTask = RecognizeFromAudioAsync();
+
+                await Task.WhenAll(searchTask, recognizeTask);
+
+                if (Track.Lyrics?.Text?.Length > 0)
+                    return;
+
+                var recognized = recognizeTask.Result;
+                if (recognized != null)
+                {
+                    _logger.Info($"Metadata search found no lyrics, trying recognized: {recognized.Artist} - {recognized.Title}");
+                    Track.Artist = recognized.Artist;
+                    Track.Title = recognized.Title;
+                    await FindLyricsAsync(new TrackInfo { Artist = recognized.Artist, Title = recognized.Title });
+                }
             }
             catch (Exception ex)
             {
@@ -229,6 +278,17 @@ namespace Lyrixound.ViewModels
             catch (Exception ex)
             {
                 _logger.Error(ex, $"Cannot open website");
+            }
+        }
+
+        private async Task RecognizeSongAsync()
+        {
+            var recognized = await RecognizeFromAudioAsync();
+            if (recognized != null)
+            {
+                Track.Artist = recognized.Artist;
+                Track.Title = recognized.Title;
+                await FindLyricsAsync();
             }
         }
 

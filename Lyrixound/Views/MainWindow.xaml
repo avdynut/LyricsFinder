@@ -1,4 +1,4 @@
-<Window x:Class="Lyrixound.Views.MainWindow"
+﻿<Window x:Class="Lyrixound.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -154,6 +154,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <UniformGrid Grid.Column="0" Rows="2">
                         <TextBox md:HintAssist.Hint="Title" Text="{Binding Track.Title, UpdateSourceTrigger=PropertyChanged}"/>
@@ -168,26 +169,37 @@
                             Content="{md:PackIcon Kind=Search,
                                                   Size=24}"
                             IsDefault="True"
-                            Style="{DynamicResource MaterialDesignRaisedLightButton}"/>
+                            Style="{DynamicResource MaterialDesignRaisedLightButton}"
+                            ToolTip="Search for lyrics"/>
+                    <Button Grid.Column="2"
+                            Height="50"
+                            Margin="6,0,0,0"
+                            md:ButtonProgressAssist.IsIndeterminate="True"
+                            md:ButtonProgressAssist.IsIndicatorVisible="{Binding RecognizeInProgress}"
+                            Command="{Binding RecognizeSongCommand}"
+                            Content="{md:PackIcon Kind=Microphone,
+                                                  Size=24}"
+                            Style="{DynamicResource MaterialDesignRaisedButton}"
+                            ToolTip="Recognize song from system audio"/>
                 </Grid>
             </StackPanel>
 
             <Grid Name="LyricsPanel" Grid.Row="1">
                 <!-- Synced Lyrics Display -->
                 <ListBox Name="SyncedLyricsList"
-                         ItemsSource="{Binding Track.LyricLines}"
-                         SelectedItem="{Binding Track.CurrentLine, Mode=OneWay}"
                          Background="Transparent"
                          BorderThickness="0"
+                         Focusable="False"
+                         ItemsSource="{Binding Track.LyricLines}"
+                         ScrollViewer.CanContentScroll="True"
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                          ScrollViewer.VerticalScrollBarVisibility="Auto"
-                         ScrollViewer.CanContentScroll="True"
-                         VirtualizingPanel.ScrollUnit="Pixel"
-                         Visibility="{Binding Track.HasSyncedLyrics, Converter={StaticResource BooleanToVisibilityConverter}}"
+                         SelectedItem="{Binding Track.CurrentLine, Mode=OneWay}"
+                         SelectionChanged="OnSyncedLyricsSelectionChanged"
                          SelectionMode="Single"
-                         Focusable="False"
                          SizeChanged="OnSyncedLyricsListSizeChanged"
-                         SelectionChanged="OnSyncedLyricsSelectionChanged">
+                         VirtualizingPanel.ScrollUnit="Pixel"
+                         Visibility="{Binding Track.HasSyncedLyrics, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <ListBox.ItemContainerStyle>
                         <Style TargetType="ListBoxItem">
                             <Setter Property="Background" Value="Transparent"/>
@@ -198,7 +210,7 @@
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="ListBoxItem">
-                                        <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                                        <Border Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}">
                                             <ContentPresenter/>
                                         </Border>
                                     </ControlTemplate>
@@ -214,15 +226,15 @@
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Name="LyricLine"
-                                       Text="{Binding Text}"
+                                       Margin="0"
+                                       Padding="10,8"
                                        FontFamily="{Binding DataContext.LyricsSettings.FontFamily, RelativeSource={RelativeSource AncestorType=Window}}"
                                        FontSize="{Binding DataContext.LyricsSettings.FontSize, RelativeSource={RelativeSource AncestorType=Window}}"
                                        FontStyle="{Binding DataContext.LyricsSettings.FontStyle, RelativeSource={RelativeSource AncestorType=Window}}"
                                        FontWeight="{Binding DataContext.LyricsSettings.FontWeight, RelativeSource={RelativeSource AncestorType=Window}}"
+                                       Text="{Binding Text}"
                                        TextAlignment="{Binding DataContext.LyricsSettings.TextAlignment, RelativeSource={RelativeSource AncestorType=Window}}"
-                                       TextWrapping="Wrap"
-                                       Padding="10,8"
-                                       Margin="0">
+                                       TextWrapping="Wrap">
                                 <TextBlock.Foreground>
                                     <SolidColorBrush Color="{Binding DataContext.LyricsSettings.TextColor, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                 </TextBlock.Foreground>
@@ -266,8 +278,8 @@
                          Text="{Binding Track.Lyrics.Text}"
                          TextAlignment="{Binding LyricsSettings.TextAlignment}"
                          TextWrapping="Wrap"
-                         VerticalScrollBarVisibility="Auto"
-                         Visibility="{Binding Track.HasSyncedLyrics, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
+                         Visibility="{Binding Track.HasSyncedLyrics, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
+                         VerticalScrollBarVisibility="Auto">
                     <TextBox.Foreground>
                         <SolidColorBrush Color="{Binding LyricsSettings.TextColor}"/>
                     </TextBox.Foreground>
@@ -279,7 +291,9 @@
                 </TextBox>
             </Grid>
 
-            <Expander Name="TextSettings" Grid.Row="2" Padding="10,0">
+            <Expander Name="TextSettings"
+                      Grid.Row="2"
+                      Padding="10,0">
                 <views:LyricsSettingsView DataContext="{Binding LyricsSettings}"/>
             </Expander>
         </Grid>
