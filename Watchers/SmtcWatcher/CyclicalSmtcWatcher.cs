@@ -1,4 +1,4 @@
-﻿using LyricsFinder.Core;
+using LyricsFinder.Core;
 using NLog;
 using System;
 using System.Threading;
@@ -58,8 +58,8 @@ namespace SmtcWatcher
             {
                 Track = new Track
                 {
-                    Artist = mp.Artist,
-                    Title = mp.Title,
+                    Artist = TrackTextCleaner.Clean(mp.Artist),
+                    Title = TrackTextCleaner.Clean(mp.Title),
                     Album = mp.AlbumTitle,
                     Genres = mp.Genres,
                     Thumbnail = mp.Thumbnail
