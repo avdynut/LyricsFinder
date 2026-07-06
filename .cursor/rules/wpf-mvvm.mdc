@@ -1,0 +1,56 @@
+﻿---
+description: WPF / Prism MVVM conventions for the Lyrixound app
+globs: Lyrixound/**/*.cs,Lyrixound/**/*.xaml
+alwaysApply: false
+---
+
+# WPF + Prism MVVM (Lyrixound)
+
+## ViewModel resolution
+
+Views set `prism:ViewModelLocator.AutoWireViewModel="True"`. The locator pairs `Lyrixound.Views.FooWindow` with `Lyrixound.ViewModels.FooWindowViewModel` (and `Views.Bar` with `ViewModels.BarViewModel`) by convention. To add a new view-model pair, just name the class accordingly; no manual registration is required for the VM itself.
+
+Dependencies (services, settings, watchers) come in via VM constructor. They're already registered in `App.xaml.cs > RegisterTypes`. If you need a new dependency type, register it there first.
+
+## Bindable properties
+
+Use Prism `BindableBase` + `SetProperty`:
+
+```csharp
+private bool _searchInProgress;
+public bool SearchInProgress
+{
+    get => _searchInProgress;
+    set => SetProperty(ref _searchInProgress, value);
+}
+```
+
+For derived properties (e.g. `FontStyle` from `IsItalic`), explicitly `RaisePropertyChanged(nameof(FontStyle))` from the source setter - see `LyricsSettingsViewModel`.
+
+## Commands
+
+Use `DelegateCommand` with `ObservesProperty` so CanExecute updates automatically when bound state changes:
+
+```csharp
+FindLyricsCommand = new DelegateCommand(async () => await FindLyricsAsync(), CanFindLyrics)
+    .ObservesProperty(() => Track.Artist)
+    .ObservesProperty(() => Track.Title)
+    .ObservesProperty(() => SearchInProgress);
+```
+
+Don't swallow exceptions in async command bodies - log them; the dispatcher handler in `App.OnDispatcherUnhandledException` is the last resort.
+
+## Code-behind
+
+Code-behind in `Views/*.xaml.cs` is reserved for view-only concerns: drag/move, click-through P/Invoke (`WS_EX_TRANSPARENT`/`WS_EX_NOACTIVATE`), scroll-to-center for synced lyrics, tray-icon glue. Do **not** put business logic, lyrics search, or audio recognition there.
+
+## XAML
+
+- Prefer Material Design controls (`md:PackIcon`, `MaterialDesignRaisedButton`, `MaterialDesignFlatButton`, etc.).
+- Window is `AllowsTransparency="True"` + `WindowStyle="None"`; the title bar is custom (`Grid Name="TitleBar"`). Don't add chrome.
+- Bind synced-lyric formatting via `RelativeSource AncestorType=Window` so it follows `LyricsSettings` regardless of `ListBox` container DataContext.
+- Use `BooleanToVisibilityConverter` / `InverseBooleanToVisibilityConverter` (from `Converters/`) - don't add new visibility converters.
+
+## Dispatcher
+
+When a property setter triggers heavy UI work, marshal via `Application.Current.Dispatcher.BeginInvoke(...)` (see `TrackViewModel.Lyrics` setter rebuilding `LyricLines`).

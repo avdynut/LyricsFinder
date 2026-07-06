@@ -1,0 +1,39 @@
+﻿---
+description: High-level architecture and project map for the Lyrixound / LyricsFinder solution
+alwaysApply: true
+---
+
+# Lyrixound / LyricsFinder
+
+WPF desktop app (Windows, .NET 10) that auto-detects the currently playing track via SMTC, fetches lyrics from multiple providers, displays them as a transparent topmost overlay (with synced LRC support), and can fall back to recognizing the song from system audio via Shazam.
+
+## Solution map
+
+| Project | TFM | Role |
+|---|---|---|
+| `LyricsFinder.Core` | `netstandard2.0` | Shared models: `Track`, `TrackInfo`, `PlayerState`, `ILyric` + `SyncedLyric`/`UnsyncedLyric`/`NoneLyric`, `LrcParser` |
+| `Providers/LyricsProviders` | `net10.0` | `ITrackInfoProvider` + `MultiTrackInfoProvider` (fallback chain) + `WebTrackInfoProvider` base. Concrete providers: `Directories`, `LrcLib`, `Musixmatch`, `LyricsOvh`, `Google` |
+| `Providers/LyricsProviders.Tests` / `.Demo` | `net10.0` | Provider tests / CLI demo |
+| `Watchers/SmtcWatcher` | `net10.0-windows10.0.17763.0` | `MusicWatcher` base + `CyclicalSmtcWatcher` polling `GlobalSystemMediaTransportControlsSession`. This is the watcher actually used by the app. |
+| `Watchers/PlayerWatching` (+ `.Demo` / `.Tests`) | `net10.0-windows` | Newer `IPlayerWatcher` abstraction (SMTC, Yandex.Music). Not yet wired into the WPF app. |
+| `Watchers/Win10Watcher` | `netstandard2.0` | Legacy NPSM watcher (kept around, commented out in `App.xaml.cs`) |
+| `ShazamIO` | `net10.0` | Reverse-engineered Shazam client used for system-audio song recognition |
+| `Lyrixound` | `net10.0-windows10.0.17763.0`, `WinExe`, `UseWPF` | WPF app shell, MVVM, services |
+| `LyrixoundPackaging` | `wapproj` | MSIX packaging |
+
+Build configurations: `Debug`, `Release`, `ReleasePortable` (defines `PORTABLE`; stores settings next to the exe instead of `%LocalAppData%/Lyrixound`).
+
+## Key conventions
+
+- **DI**: Prism + Ninject (`PrismApplication`). All composition lives in `Lyrixound/App.xaml.cs > RegisterTypes`.
+- **MVVM**: Prism `BindableBase` + `prism:ViewModelLocator.AutoWireViewModel="True"`. Views in `Lyrixound/Views`, VMs in `Lyrixound/ViewModels` (matched by name).
+- **Settings**: `nucs.JsonSettings` with `.EnableAutosave()`. All settable properties must be `virtual`. Files live under `%LocalAppData%/Lyrixound/settings/*.json`.
+- **Logging**: NLog (`LogManager.GetCurrentClassLogger()`), config in `Lyrixound/NLog.config`.
+- **UI**: MaterialDesignThemes (`md:` namespace), gong-wpf-dragdrop, Hardcodet tray icon.
+- **JSON**: `Newtonsoft.Json` (for settings) and `System.Text.Json` (for provider/Shazam APIs) coexist - don't unify them.
+
+## Notable feature flows
+
+- **Track change → lyrics + recognition**: `CyclicalSmtcWatcher.TrackChanged` → `MainWindowViewModel.OnWatcherTrackChanged` runs metadata search (`MultiTrackInfoProvider`) and `AudioRecognitionService` in parallel; if metadata search fails, falls back to the Shazam-recognized artist/title and searches again.
+- **Synced lyrics**: `.lrc` content (or anything passing `LrcParser.IsLrcFormat`) becomes `SyncedLyric`, parsed by `LrcParser.Parse`, line-highlighted in `MainWindow` using `TrackProgress` from SMTC + 100ms interpolation timer + user `TimeOffsetSeconds`.
+- **Lyrics persistence**: First found result is written to `DirectoriesProviderSettings.LyricsDirectories[0]` using `LyricsFileNamePattern`. `.lrc` extension for synced, `.txt` otherwise.

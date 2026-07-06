@@ -1,0 +1,52 @@
+﻿---
+description: Rules for nucs.JsonSettings configuration classes
+globs: Lyrixound/Configuration/*.cs,Providers/LyricsProviders/**/*Settings.cs
+alwaysApply: false
+---
+
+# JsonSettings classes
+
+Settings persistence uses `nucs.JsonSettings` + `nucs.JsonSettings.Autosave`. The autosave proxy intercepts property setters at runtime via Castle DynamicProxy, so:
+
+## All settable properties MUST be `virtual`
+
+```csharp
+public class LyricsSettings : JsonSettings
+{
+    public override string FileName { get; set; }
+
+    public virtual double FontSize { get; set; } = 25;   // virtual = autosaved
+    public virtual bool IsItalic { get; set; }
+}
+```
+
+A non-virtual property silently breaks autosave for that field. When adding new properties to existing settings types, always mark them `virtual`.
+
+## Loading and registration
+
+Settings are loaded once in `App.xaml.cs > LoadSettings<T>` and registered as singletons via `containerRegistry.RegisterInstance(...)`. To add a new settings type:
+
+1. Create `XxxSettings : JsonSettings` (or `XxxProviderSettings` for provider-scoped) with `override string FileName { get; set; }`.
+2. Add a `RegisterInstance(LoadSettings<XxxSettings>("xxx.json"))` line in `RegisterTypes`.
+3. Inject `XxxSettings` (constructor parameter) wherever you need it.
+
+`LoadSettings<T>` already handles corrupt files (backs up to `.bak`, deletes original, reloads defaults). Don't reimplement that.
+
+## Backward compatibility
+
+For renamed/retyped fields, keep a private setter under the old JSON name:
+
+```csharp
+public virtual double TimeOffsetSeconds { get; set; } = 0.5;
+
+[JsonProperty(nameof(TimeOffsetMilliseconds))]
+private double TimeOffsetMilliseconds { set => TimeOffsetSeconds = value / 1000.0; }
+```
+
+## After-load hooks
+
+Use `AfterLoad += ...` in the constructor to merge defaults into collections (see `Settings.OnAfterLoad` adding default provider entries via `Union`). Don't do this in property initializers - the file isn't loaded yet.
+
+## Serializer settings
+
+`JsonSettings.SerializationSettings` is configured globally in `App.RegisterTypes` (StringEnumConverter, `MissingMemberHandling.Ignore`). Don't override it per-class.

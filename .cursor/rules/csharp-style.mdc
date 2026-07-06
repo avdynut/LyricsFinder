@@ -1,0 +1,50 @@
+﻿---
+description: C# coding conventions used across the Lyrixound solution
+globs: **/*.cs
+alwaysApply: false
+---
+
+# C# style for this solution
+
+## Logging
+
+Use NLog with a `private readonly` per-class logger field. Do not use `Console`, `Trace`, or `Debug.WriteLine`.
+
+```csharp
+private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+```
+
+Levels in use: `Trace` / `Debug` for verbose flow, `Info` for milestones, `Warn` for recoverable misses (no lyrics, no match), `Error` for caught exceptions, `Fatal` for unhandled dispatcher exceptions.
+
+Prefer message templates for context: `_logger.Error(ex, "Error finding lyrics for {trackInfo}", trackInfo);`
+
+## Exceptions
+
+Wrap external/IO work (HTTP, file, audio capture, SMTC) in `try/catch (Exception ex) { _logger.Error(...); ... }` and degrade gracefully. Lyrics providers should never throw out of `FindTrackAsync` - return a `Track` with `Lyrics = new NoneLyric(reason)` on failure (see `LrcLibTrackInfoProvider`, `MusixmatchTrackInfoProvider`).
+
+## Async
+
+- Public async methods return `Task` / `Task<T>` and end in `Async`.
+- `MultiTrackInfoProvider` is sequential by design (provider order matters for fallback). Don't parallelize it.
+- For independent operations on the UI side (e.g. metadata search + Shazam recognition), use `Task.WhenAll`.
+
+## Comments
+
+- No narration comments (`// loop over items`, `// return result`).
+- Use XML doc comments only on public abstractions (`MusicWatcher`, `LrcParser`, `Shazam`, etc.).
+- Inline comments are reserved for non-obvious intent, trade-offs, or known quirks (see the `// The watcher will be removed when Microsoft fixes a bug with SMTC events.` style in `CyclicalSmtcWatcher`).
+
+## Project nullability
+
+`ShazamIO.csproj` has `Nullable=enable` and `ImplicitUsings=enable`. Every other project does not - do not silently flip nullability or implicit usings when editing.
+
+## C# language level
+
+- Most projects target the SDK default for net10.0; `ShazamIO` pins `LangVersion=latest`.
+- `LyricsFinder.Core` targets `netstandard2.0`; avoid C# 12+ features there (no collection expressions, no primary constructors, no `field` keyword). Collection expressions (`[ ... ]`) are fine in net10.0 projects (used in `Settings.cs`).
+
+## Naming
+
+- Private fields: `_camelCase`.
+- Constants: `PascalCase` (e.g. `const string Name = "LrcLib";`).
+- Provider/Watcher classes end in `TrackInfoProvider` / `Watcher`.
