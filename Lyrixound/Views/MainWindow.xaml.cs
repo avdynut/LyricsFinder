@@ -1,14 +1,17 @@
 ﻿using Lyrixound.Configuration;
+using Lyrixound.Services;
 using MaterialDesignThemes.Wpf;
 using NLog;
 using System;
 using System.ComponentModel;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace Lyrixound.Views
 {
@@ -21,6 +24,9 @@ namespace Lyrixound.Views
         private const int WS_EX_TRANSPARENT = 0x00000020;
         private const int WS_EX_NOACTIVATE = 0x08000000;
 
+        private static readonly Uri FreeIconUri = new Uri("pack://application:,,,/lyrics.ico");
+        private static readonly Uri ProIconUri = new Uri("pack://application:,,,/lyrics-pro.ico");
+
         [DllImport("user32.dll")]
         private static extern int GetWindowLong(IntPtr hwnd, int index);
 
@@ -31,13 +37,58 @@ namespace Lyrixound.Views
         private readonly Brush _lyricsPanelBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFAFAFA"));
         private readonly WindowSettings _settings;
         private readonly LyricsSettings _lyricsSettings;
+        private readonly ILicenseService _licenseService;
+        private readonly ILicenseAnalytics _licenseAnalytics;
         private bool _isClickThrough;
 
-        public MainWindow(WindowSettings settings, LyricsSettings lyricsSettings)
+        public MainWindow(
+            WindowSettings settings,
+            LyricsSettings lyricsSettings,
+            ILicenseService licenseService,
+            ILicenseAnalytics licenseAnalytics)
         {
             _settings = settings;
             _lyricsSettings = lyricsSettings;
+            _licenseService = licenseService;
+            _licenseAnalytics = licenseAnalytics;
             InitializeComponent();
+
+            _licenseService.EntitlementChanged += OnEntitlementChanged;
+            Loaded += (_, _) => ApplyProBranding();
+        }
+
+        private void OnEntitlementChanged(object sender, EventArgs e)
+        {
+            Dispatcher.Invoke(ApplyProBranding);
+        }
+
+        private void ApplyProBranding()
+        {
+            var isPro = _licenseService.IsPro;
+            var uri = isPro ? ProIconUri : FreeIconUri;
+            var image = new BitmapImage(uri);
+
+            Title = isPro ? "LyrixoundPro" : App.AppName;
+            Icon = image;
+            TrayIcon.IconSource = image;
+            if (AppIconImage != null)
+            {
+                AppIconImage.Source = image;
+            }
+
+            if (TrayTooltipLabel != null)
+            {
+                TrayTooltipLabel.Content = isPro
+                    ? $"LyrixoundPro v{Assembly.GetExecutingAssembly().GetName().Version.ToString(3)}"
+                    : App.AppNameWithVersion;
+            }
+
+            if (SupportAuthorMenuItem != null)
+            {
+                SupportAuthorMenuItem.Visibility = isPro
+                    ? Visibility.Collapsed
+                    : Visibility.Visible;
+            }
         }
 
         private void OnSyncedLyricsSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -185,6 +236,7 @@ namespace Lyrixound.Views
             }
 
             TrayIcon.Dispose();
+            _licenseService.EntitlementChanged -= OnEntitlementChanged;
 
             _settings.Topmost = Topmost;
             _settings.Save();
@@ -292,6 +344,13 @@ namespace Lyrixound.Views
         {
             var settingsWindow = new SettingsWindow { Owner = this };
             settingsWindow.ShowDialog();
+            ApplyProBranding();
+        }
+
+        private void OnSupportAuthorClick(object sender, RoutedEventArgs e)
+        {
+            PaywallWindow.Show(this, _licenseService, _licenseAnalytics, "tray");
+            ApplyProBranding();
         }
     }
 }

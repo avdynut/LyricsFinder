@@ -43,6 +43,9 @@
                 <ContextMenu>
                     <MenuItem Click="OnSettingsButtonClick" Header="Settings"/>
                     <MenuItem Command="{Binding OpenWebsiteCommand}" Header="Help"/>
+                    <MenuItem Name="SupportAuthorMenuItem"
+                              Click="OnSupportAuthorClick"
+                              Header="Support the author"/>
                     <Separator/>
                     <MenuItem Name="ClickThroughMenuItem"
                               Click="OnClickThroughToggle"
@@ -54,7 +57,7 @@
             </tb:TaskbarIcon.ContextMenu>
             <tb:TaskbarIcon.TrayToolTip>
                 <Border Background="{DynamicResource MaterialDesignLightBackground}">
-                    <Label Content="{x:Static local:App.AppNameWithVersion}"/>
+                    <Label Name="TrayTooltipLabel" Content="{x:Static local:App.AppNameWithVersion}"/>
                 </Border>
             </tb:TaskbarIcon.TrayToolTip>
         </tb:TaskbarIcon>
@@ -93,7 +96,8 @@
                             Height="24"
                             Command="{Binding OpenWebsiteCommand}"
                             Style="{StaticResource MaterialDesignIconButton}">
-                        <Image Height="16"
+                        <Image Name="AppIconImage"
+                               Height="16"
                                Source="/lyrics.ico"
                                ToolTip="Open Lyrixound website"/>
                     </Button>

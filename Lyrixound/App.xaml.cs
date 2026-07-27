@@ -1,10 +1,11 @@
-using LyricsProviders;
+﻿using LyricsProviders;
 using LyricsProviders.DirectoriesProvider;
 using LyricsProviders.GoogleProvider;
 using LyricsProviders.LrcLib;
 using LyricsProviders.LyricsOvh;
 using LyricsProviders.MusixMatch;
 using Lyrixound.Configuration;
+using Lyrixound.Services;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using NLog;
@@ -67,6 +68,17 @@ namespace Lyrixound
                 .RegisterInstance(LoadSettings<LyricsSettings>("lyrics.json"))
                 .RegisterInstance(LoadSettings<WindowSettings>("window.json"))
                 .RegisterInstance(LoadSettings<GoogleProviderSettings>("google_provider.json"))
+                .RegisterSingleton<ILicenseAnalytics, NLogLicenseAnalytics>();
+
+#if DEBUG
+            containerRegistry.RegisterSingleton<ILicenseService, MockLicenseService>();
+#elif PORTABLE
+            containerRegistry.RegisterSingleton<ILicenseService, FreeLicenseService>();
+#else
+            containerRegistry.RegisterSingleton<ILicenseService, StoreLicenseService>();
+#endif
+
+            containerRegistry
                 .Register<ITrackInfoProvider, DirectoriesTrackInfoProvider>(DirectoriesTrackInfoProvider.Name)
                 .Register<ITrackInfoProvider, LrcLibTrackInfoProvider>(LrcLibTrackInfoProvider.Name)
                 .Register<ITrackInfoProvider, MusixmatchTrackInfoProvider>(MusixmatchTrackInfoProvider.Name)
@@ -113,7 +125,10 @@ namespace Lyrixound
                 // Show the rating reminder after the main window is loaded
                 owner.Loaded += (s, e) =>
                 {
-                    var ratingWindow = new Views.RatingReminderWindow(settings)
+                    var ratingWindow = new Views.RatingReminderWindow(
+                        settings,
+                        Container.Resolve<ILicenseService>(),
+                        Container.Resolve<ILicenseAnalytics>())
                     {
                         Owner = owner
                     };

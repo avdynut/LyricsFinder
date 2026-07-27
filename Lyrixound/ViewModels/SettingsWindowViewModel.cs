@@ -1,23 +1,72 @@
 ﻿using LyricsProviders.DirectoriesProvider;
 using Lyrixound.Configuration;
+using Lyrixound.Services;
+using Lyrixound.Views;
 using NLog;
 using Prism.Commands;
 using Prism.Mvvm;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using Windows.ApplicationModel;
 using Windows.Foundation;
 
 namespace Lyrixound.ViewModels
 {
-    public class SettingsWindowViewModel : BindableBase
+    public class SettingsWindowViewModel : BindableBase, IDisposable
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly DirectoriesProviderSettings _directoriesSettings;
+        private readonly ILicenseService _licenseService;
+        private readonly ILicenseAnalytics _licenseAnalytics;
+        private bool _disposed;
+
+        public SettingsWindowViewModel(
+            Settings settings,
+            DirectoriesProviderSettings directoriesSettings,
+            ILicenseService licenseService,
+            ILicenseAnalytics licenseAnalytics)
+        {
+            Settings = settings;
+            _directoriesSettings = directoriesSettings;
+            _licenseService = licenseService;
+            _licenseAnalytics = licenseAnalytics;
+
+            _licenseService.EntitlementChanged += OnEntitlementChanged;
+
+            SaveSettingsCommand = new DelegateCommand(Settings.Save);
+            ClosingCommand = new DelegateCommand(OnClosing);
+            InitializeCommand = new DelegateCommand(async () => await InitializeAsync());
+            ChangeRunAtStartupCommand = new DelegateCommand(async () => await ChangeRunAtStartupEnabledAsync());
+            UnlockProCommand = new DelegateCommand(ShowPaywall);
+            RestorePurchasesCommand = new DelegateCommand(async () => await RestorePurchasesAsync());
+        }
 
         public Settings Settings { get; }
+
+        public bool IsPro => _licenseService.IsPro;
+
+        public string ProStatusText => IsPro
+            ? "Thank you for supporting Lyrixound!"
+            : "You are using the free version.";
+
+        public bool CanSimulatePro => _licenseService is IMockLicenseService;
+
+        public bool SimulatePro
+        {
+            get => _licenseService is IMockLicenseService mock && mock.SimulatePro;
+            set
+            {
+                if (_licenseService is IMockLicenseService mock)
+                {
+                    mock.SimulatePro = value;
+                    RaisePropertyChanged(nameof(SimulatePro));
+                    RaiseProStatusChanged();
+                }
+            }
+        }
 
         public double CheckInterval
         {
@@ -63,17 +112,89 @@ namespace Lyrixound.ViewModels
         }
 
         public ICommand SaveSettingsCommand { get; }
-        public ICommand CheckRunAtStartupCommand { get; }
+        public ICommand ClosingCommand { get; }
+        public ICommand InitializeCommand { get; }
         public ICommand ChangeRunAtStartupCommand { get; }
+        public ICommand UnlockProCommand { get; }
+        public ICommand RestorePurchasesCommand { get; }
 
-        public SettingsWindowViewModel(Settings settings, DirectoriesProviderSettings directoriesSettings)
+        private void OnClosing()
         {
-            Settings = settings;
-            _directoriesSettings = directoriesSettings;
+            Settings.Save();
+            Dispose();
+        }
 
-            SaveSettingsCommand = new DelegateCommand(Settings.Save);
-            CheckRunAtStartupCommand = new DelegateCommand(async () => await GetRunAtStartupEnabledAsync());
-            ChangeRunAtStartupCommand = new DelegateCommand(async () => await ChangeRunAtStartupEnabledAsync());
+        public void Dispose()
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            _disposed = true;
+            _licenseService.EntitlementChanged -= OnEntitlementChanged;
+        }
+
+        private void OnEntitlementChanged(object sender, EventArgs e)
+        {
+            RaiseProStatusChanged();
+        }
+
+        private async Task InitializeAsync()
+        {
+            await RefreshLicenseAsync();
+            await GetRunAtStartupEnabledAsync();
+        }
+
+        private async Task RefreshLicenseAsync()
+        {
+            try
+            {
+                await _licenseService.RefreshAsync();
+                RaiseProStatusChanged();
+            }
+            catch (Exception ex)
+            {
+                _logger.Warn(ex, "Failed to refresh license status");
+            }
+        }
+
+        private void ShowPaywall()
+        {
+            var owner = Application.Current.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive)
+                ?? Application.Current.MainWindow;
+
+            PaywallWindow.Show(owner, _licenseService, _licenseAnalytics, "settings");
+            RaiseProStatusChanged();
+        }
+
+        private async Task RestorePurchasesAsync()
+        {
+            try
+            {
+                var result = await _licenseService.RestoreAsync();
+                if (result == LicenseResult.Success)
+                {
+                    _licenseAnalytics.PurchaseSucceeded();
+                }
+                else if (result != LicenseResult.Cancelled)
+                {
+                    _licenseAnalytics.PurchaseFailed(result.ToString());
+                }
+
+                RaiseProStatusChanged();
+            }
+            catch (Exception ex)
+            {
+                _logger.Warn(ex, "Failed to restore purchases");
+                _licenseAnalytics.PurchaseFailed(ex.Message);
+            }
+        }
+
+        private void RaiseProStatusChanged()
+        {
+            RaisePropertyChanged(nameof(IsPro));
+            RaisePropertyChanged(nameof(ProStatusText));
         }
 
         private static IAsyncOperation<StartupTask> GetStartupTaskAsync() => StartupTask.GetAsync(App.AppName);

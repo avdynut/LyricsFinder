@@ -11,7 +11,7 @@ public static class LyricsOvhApi
     private static readonly HttpClient _client = new()
     {
         BaseAddress = new Uri("https://api.lyrics.ovh/"),
-        Timeout = TimeSpan.FromSeconds(5),
+        Timeout = TimeSpan.FromSeconds(10),
     };
 
     public static async Task<JsonDocument> SuggestSongs(string query)

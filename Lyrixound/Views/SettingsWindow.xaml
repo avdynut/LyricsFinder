@@ -9,7 +9,7 @@
         xmlns:prism="http://prismlibrary.com/"
         xmlns:vm="clr-namespace:Lyrixound.ViewModels"
         Width="400"
-        Height="260"
+        Height="320"
         d:DataContext="{d:DesignInstance vm:SettingsWindowViewModel}"
         prism:ViewModelLocator.AutoWireViewModel="True"
         ResizeMode="NoResize"
@@ -41,10 +41,10 @@
 
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
-            <i:InvokeCommandAction Command="{Binding CheckRunAtStartupCommand}"/>
+            <i:InvokeCommandAction Command="{Binding InitializeCommand}"/>
         </i:EventTrigger>
         <i:EventTrigger EventName="Closing">
-            <i:InvokeCommandAction Command="{Binding SaveSettingsCommand}"/>
+            <i:InvokeCommandAction Command="{Binding ClosingCommand}"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
 
@@ -101,6 +101,36 @@
                      dd:DragDrop.IsDropTarget="True"
                      ItemTemplate="{StaticResource CheckIconItemTemplate}"
                      ItemsSource="{Binding Settings.LyricsProviders}"/>
+        </TabItem>
+
+        <TabItem Header="Pro">
+            <StackPanel Margin="0,8,0,0">
+                <TextBlock FontSize="14"
+                           FontWeight="SemiBold"
+                           Text="{Binding ProStatusText}"
+                           TextWrapping="Wrap"/>
+                <TextBlock Margin="0,8,0,16"
+                           FontSize="12"
+                           Foreground="{DynamicResource MaterialDesignBodyLight}"
+                           Text="Purchase Pro to support the author. Exclusive Pro features will be added in future updates (Light/Dark mode, modern UI, etc.). The main features remain free."
+                           TextWrapping="Wrap"/>
+                <Button Margin="0,0,0,8"
+                        Padding="12,6"
+                        HorizontalAlignment="Left"
+                        Command="{Binding UnlockProCommand}"
+                        Content="Support the author"
+                        Style="{StaticResource MaterialDesignRaisedButton}"
+                        Visibility="{Binding IsPro, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                <!--<Button Padding="12,6"
+                        HorizontalAlignment="Left"
+                        Command="{Binding RestorePurchasesCommand}"
+                        Content="Restore purchases"
+                        Style="{StaticResource MaterialDesignOutlinedButton}"/>-->
+                <CheckBox Margin="0,16,0,0"
+                          Content="Simulate Pro (Debug only)"
+                          IsChecked="{Binding SimulatePro}"
+                          Visibility="{Binding CanSimulatePro, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            </StackPanel>
         </TabItem>
 
     </TabControl>

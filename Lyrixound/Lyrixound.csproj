@@ -47,6 +47,7 @@
 
   <ItemGroup>
     <Resource Include="lyrics.ico" />
+    <Resource Include="lyrics-pro.ico" />
   </ItemGroup>
 
   <ItemGroup>
