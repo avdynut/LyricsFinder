@@ -1,5 +1,6 @@
 ﻿using LyricsProviders;
 using LyricsProviders.DirectoriesProvider;
+using LyricsProviders.Genius;
 using LyricsProviders.GoogleProvider;
 using LyricsProviders.LrcLib;
 using LyricsProviders.LyricsOvh;
@@ -82,6 +83,7 @@ namespace Lyrixound
                 .Register<ITrackInfoProvider, DirectoriesTrackInfoProvider>(DirectoriesTrackInfoProvider.Name)
                 .Register<ITrackInfoProvider, LrcLibTrackInfoProvider>(LrcLibTrackInfoProvider.Name)
                 .Register<ITrackInfoProvider, MusixmatchTrackInfoProvider>(MusixmatchTrackInfoProvider.Name)
+                .Register<ITrackInfoProvider, GeniusTrackInfoProvider>(GeniusTrackInfoProvider.Name)
                 .Register<ITrackInfoProvider, LyricsOvhTrackInfoProvider>(LyricsOvhTrackInfoProvider.Name)
                 .Register<ITrackInfoProvider, GoogleTrackInfoProvider>(GoogleTrackInfoProvider.Name);
 

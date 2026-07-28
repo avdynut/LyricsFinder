@@ -1,4 +1,5 @@
 ﻿using LyricsProviders.DirectoriesProvider;
+using LyricsProviders.Genius;
 using LyricsProviders.GoogleProvider;
 using LyricsProviders.LrcLib;
 using LyricsProviders.LyricsOvh;
@@ -18,6 +19,7 @@ namespace Lyrixound.Configuration
             new Element(DirectoriesTrackInfoProvider.Name, isEnabled: true),
             new Element(LrcLibTrackInfoProvider.Name, isEnabled: true),
             new Element(MusixmatchTrackInfoProvider.Name, isEnabled: true),
+            new Element(GeniusTrackInfoProvider.Name, isEnabled: true),
             new Element(LyricsOvhTrackInfoProvider.Name, isEnabled: true),
             //new Element(GoogleTrackInfoProvider.Name, isEnabled: false)
         ];
