@@ -21,48 +21,66 @@ public class MusixmatchTrackInfoProvider : ITrackInfoProvider
         var track = new Track(trackInfo);
         try
         {
-            // Use track.search to get track metadata and check if synced lyrics available
-            using var docSearch = await MusixmatchAPI.SearchTracksAsync($"{trackInfo.Artist} {trackInfo.Title}");
-            var trackProperty = docSearch.RootElement
-                .GetProperty("message")
-                .GetProperty("body")
-                .GetProperty("track_list")[0]
-                .GetProperty("track");
+            // Prefer macro.subtitles.get (artist+title match + lyrics in one call).
+            // Fall back to track.search for queries the matcher misses (e.g. some Cyrillic titles).
+            string commontrackId;
+            string mxmTrackId;
+            bool hasRichsync;
+            Uri sourceUri;
+            string lyricsFromMacro;
 
-            var trackId = trackProperty.GetProperty("commontrack_id").GetInt64().ToString();
+            using (var macroDoc = await MusixmatchAPI.GetMacroSubtitlesAsync(trackInfo.Artist, trackInfo.Title))
+            {
+                if (TryReadMatchedTrack(macroDoc.RootElement, out commontrackId, out mxmTrackId, out hasRichsync, out sourceUri, out lyricsFromMacro))
+                {
+                    // Matched via macro.
+                }
+                else
+                {
+                    lyricsFromMacro = null;
+                    using var searchDoc = await MusixmatchAPI.SearchTracksAsync($"{trackInfo.Artist} {trackInfo.Title}");
+                    var trackProperty = searchDoc.RootElement
+                        .GetProperty("message")
+                        .GetProperty("body")
+                        .GetProperty("track_list")[0]
+                        .GetProperty("track");
 
-            // Check if synced lyrics are available before making the API call
-            var hasRichsync = trackProperty.TryGetProperty("has_richsync", out var hasRichsyncProp) &&
-                              hasRichsyncProp.GetInt32() == 1;
+                    commontrackId = trackProperty.GetProperty("commontrack_id").GetInt64().ToString();
+                    mxmTrackId = trackProperty.TryGetProperty("track_id", out var trackIdProp)
+                        ? trackIdProp.GetInt64().ToString()
+                        : null;
+                    hasRichsync = trackProperty.TryGetProperty("has_richsync", out var hasRichsyncProp) &&
+                                  hasRichsyncProp.GetInt32() == 1;
+                    sourceUri = trackProperty.TryGetProperty("track_share_url", out var urlProperty) &&
+                                urlProperty.GetString() is string url
+                        ? new Uri(url)
+                        : null;
+                }
+            }
 
             if (hasRichsync)
             {
-                var syncedLyrics = await TryGetSyncedLyrics(trackId);
+                var syncedLyrics = await TryGetSyncedLyrics(commontrackId);
                 if (syncedLyrics != null)
                 {
-                    if (trackProperty.TryGetProperty("track_share_url", out var urlProperty) && urlProperty.GetString() is string url)
-                    {
-                        syncedLyrics.Source = new Uri(url);
-                    }
+                    syncedLyrics.Source = sourceUri;
                     track.Lyrics = syncedLyrics;
                     return track;
                 }
             }
 
-            // Fall back to unsynced lyrics
-            using var docLyrics = await MusixmatchAPI.GetTrackLyricsAsync(trackId);
-            var lyricsText = docLyrics.RootElement
-                .GetProperty("message")
-                .GetProperty("body")
-                .GetProperty("lyrics")
-                .GetProperty("lyrics_body").ToString();
-
-            var lyrics = new UnsyncedLyric(lyricsText);
-            if (trackProperty.TryGetProperty("track_share_url", out var urlProperty2) && urlProperty2.GetString() is string url2)
+            var lyricsText = lyricsFromMacro;
+            if (string.IsNullOrEmpty(lyricsText))
             {
-                lyrics.Source = new Uri(url2);
+                lyricsText = await TryGetUnsyncedLyricsAsync(commontrackId, mxmTrackId);
             }
-            track.Lyrics = lyrics;
+
+            if (string.IsNullOrEmpty(lyricsText))
+            {
+                throw new Exception("Musixmatch returned no lyrics for the matched track.");
+            }
+
+            track.Lyrics = new UnsyncedLyric(lyricsText) { Source = sourceUri };
         }
         catch (Exception ex)
         {
@@ -71,6 +89,106 @@ public class MusixmatchTrackInfoProvider : ITrackInfoProvider
         }
 
         return track;
+    }
+
+    private async Task<string> TryGetUnsyncedLyricsAsync(string commontrackId, string trackId)
+    {
+        if (!string.IsNullOrEmpty(commontrackId))
+        {
+            using var doc = await MusixmatchAPI.GetTrackLyricsAsync(commontrackId: commontrackId);
+            var text = TryReadLyricsBody(doc.RootElement);
+            if (!string.IsNullOrEmpty(text))
+                return text;
+        }
+
+        if (!string.IsNullOrEmpty(trackId))
+        {
+            using var doc = await MusixmatchAPI.GetTrackLyricsAsync(trackId: trackId);
+            var text = TryReadLyricsBody(doc.RootElement);
+            if (!string.IsNullOrEmpty(text))
+                return text;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Error responses use <c>"body": []</c>; success uses an object with <c>lyrics</c>.
+    /// </summary>
+    private static string TryReadLyricsBody(JsonElement root)
+    {
+        if (!root.TryGetProperty("message", out var message) ||
+            !message.TryGetProperty("header", out var header) ||
+            !header.TryGetProperty("status_code", out var statusProp) ||
+            statusProp.GetInt32() != (int)HttpStatusCode.OK)
+        {
+            return null;
+        }
+
+        if (!message.TryGetProperty("body", out var body) || body.ValueKind != JsonValueKind.Object)
+            return null;
+
+        if (!body.TryGetProperty("lyrics", out var lyrics) ||
+            !lyrics.TryGetProperty("lyrics_body", out var lyricsBody))
+        {
+            return null;
+        }
+
+        return lyricsBody.GetString();
+    }
+
+    private static bool TryReadMatchedTrack(
+        JsonElement root,
+        out string commontrackId,
+        out string trackId,
+        out bool hasRichsync,
+        out Uri sourceUri,
+        out string lyricsBody)
+    {
+        commontrackId = null;
+        trackId = null;
+        hasRichsync = false;
+        sourceUri = null;
+        lyricsBody = null;
+
+        if (!root.TryGetProperty("message", out var message) ||
+            !message.TryGetProperty("body", out var body) ||
+            body.ValueKind != JsonValueKind.Object ||
+            !body.TryGetProperty("macro_calls", out var macroCalls) ||
+            !macroCalls.TryGetProperty("matcher.track.get", out var matcherCall))
+        {
+            return false;
+        }
+
+        var matcherMessage = matcherCall.GetProperty("message");
+        if (matcherMessage.GetProperty("header").GetProperty("status_code").GetInt32() != (int)HttpStatusCode.OK)
+            return false;
+
+        if (!matcherMessage.TryGetProperty("body", out var matcherBody) ||
+            matcherBody.ValueKind != JsonValueKind.Object ||
+            !matcherBody.TryGetProperty("track", out var trackProperty))
+        {
+            return false;
+        }
+
+        commontrackId = trackProperty.GetProperty("commontrack_id").GetInt64().ToString();
+        if (trackProperty.TryGetProperty("track_id", out var trackIdProp))
+            trackId = trackIdProp.GetInt64().ToString();
+
+        hasRichsync = trackProperty.TryGetProperty("has_richsync", out var hasRichsyncProp) &&
+                      hasRichsyncProp.GetInt32() == 1;
+        if (trackProperty.TryGetProperty("track_share_url", out var urlProperty) &&
+            urlProperty.GetString() is string url)
+        {
+            sourceUri = new Uri(url);
+        }
+
+        if (macroCalls.TryGetProperty("track.lyrics.get", out var lyricsCall))
+        {
+            lyricsBody = TryReadLyricsBody(lyricsCall);
+        }
+
+        return true;
     }
 
     private async Task<SyncedLyric> TryGetSyncedLyrics(string commontrackId)
@@ -86,7 +204,8 @@ public class MusixmatchTrackInfoProvider : ITrackInfoProvider
             }
 
             var body = message.GetProperty("body");
-            if (!body.TryGetProperty("richsync", out var richsync) ||
+            if (body.ValueKind != JsonValueKind.Object ||
+                !body.TryGetProperty("richsync", out var richsync) ||
                 !richsync.TryGetProperty("richsync_body", out var richsyncBody) ||
                 richsyncBody.ValueKind == JsonValueKind.Null)
             {

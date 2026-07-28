@@ -18,7 +18,8 @@ public class MusixmatchTrackInfoProviderTests
 
         Assert.IsNotNull(track.Lyrics);
         Assert.IsFalse(string.IsNullOrEmpty(track.Lyrics.Text?.Trim()));
-        Assert.IsTrue(track.Lyrics.Text.StartsWith("I'm just a step away"));
+        // Synced (LRC) lyrics are prefixed with timestamps; unsynced start with the plain line.
+        Assert.IsTrue(track.Lyrics.Text.Contains("I'm just a step away"));
     }
 
     [TestMethod]
@@ -30,6 +31,6 @@ public class MusixmatchTrackInfoProviderTests
 
         Assert.IsNotNull(track.Lyrics);
         Assert.IsFalse(string.IsNullOrEmpty(track.Lyrics.Text?.Trim()));
-        Assert.IsTrue(track.Lyrics.Text.StartsWith("А я сотру горизонт"));
+        Assert.IsTrue(track.Lyrics.Text.Contains("А я сотру горизонт"));
     }
 }

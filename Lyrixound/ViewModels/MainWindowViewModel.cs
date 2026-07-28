@@ -161,7 +161,7 @@ namespace Lyrixound.ViewModels
             try
             {
                 RecognizeInProgress = true;
-                var trackInfo = await _audioRecognitionService.RecognizeSongFromSystemAudioAsync(3);
+                var trackInfo = await _audioRecognitionService.RecognizeSongFromSystemAudioAsync(4);
 
                 if (trackInfo.IsRecognized)
                 {
