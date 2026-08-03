@@ -1,4 +1,4 @@
-using FlaUI.Core.AutomationElements;
+﻿using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Conditions;
 using FlaUI.Core.Definitions;
 using FlaUI.UIA3;
@@ -52,12 +52,8 @@ namespace PlayerWatching
                 {
                     var titleText = window.FindFirstChild(TitleTextAutomationId)?.Name;
                     var artistText = window.FindFirstChild(ArtistTextAutomationId)?.Name;
-                    
-                    var cleanedTitle = titleText?.Replace(_localization.TitlePrecedingText, string.Empty);
-                    var cleanedArtist = artistText?.Replace(_localization.ArtistPrecedingText, string.Empty);
-                    
-                    track.Title = TrackTextCleaner.Clean(cleanedTitle);
-                    track.Artist = TrackTextCleaner.Clean(cleanedArtist);
+                    track.Title = TrackTextCleaner.Clean(titleText?.Replace(_localization.TitlePrecedingText, string.Empty));
+                    track.Artist = TrackTextCleaner.Clean(artistText?.Replace(_localization.ArtistPrecedingText, string.Empty));
 
                     var playButtonText = window.FindFirstChild(PlayButtonAutomationId).Name;
                     playerState = playButtonText.Contains(_localization.PlayButtonPlayingText) ? PlayerState.Playing : PlayerState.Paused;
