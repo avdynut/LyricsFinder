@@ -52,8 +52,8 @@ namespace PlayerWatching
                 {
                     var titleText = window.FindFirstChild(TitleTextAutomationId)?.Name;
                     var artistText = window.FindFirstChild(ArtistTextAutomationId)?.Name;
-                    track.Title = titleText?.Replace(_localization.TitlePrecedingText, string.Empty);
-                    track.Artist = artistText?.Replace(_localization.ArtistPrecedingText, string.Empty);
+                    track.Title = TrackTextCleaner.Clean(titleText?.Replace(_localization.TitlePrecedingText, string.Empty));
+                    track.Artist = TrackTextCleaner.Clean(artistText?.Replace(_localization.ArtistPrecedingText, string.Empty));
 
                     var playButtonText = window.FindFirstChild(PlayButtonAutomationId).Name;
                     playerState = playButtonText.Contains(_localization.PlayButtonPlayingText) ? PlayerState.Playing : PlayerState.Paused;

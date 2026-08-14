@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.3.11426.168 d18.3
+VisualStudioVersion = 18.3.11426.168
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Providers", "Providers", "{54B19386-5F64-490C-9EF5-D7845EBB0016}"
 EndProject
@@ -32,6 +32,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Win10Watcher", "Watchers\Win10Watcher\Win10Watcher.csproj", "{CA2824B9-66A0-4065-8052-28B33111FD0B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShazamIO", "ShazamIO\ShazamIO.csproj", "{85FC7E50-682F-D273-99D3-AB873348A89E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LyricsFinder.Core.Tests", "LyricsFinder.Core.Tests\LyricsFinder.Core.Tests.csproj", "{76DB1A74-7D2B-48C5-A479-FEE13153DB72}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -289,6 +291,24 @@ Global
 		{85FC7E50-682F-D273-99D3-AB873348A89E}.ReleasePortable|x64.Build.0 = Release|Any CPU
 		{85FC7E50-682F-D273-99D3-AB873348A89E}.ReleasePortable|x86.ActiveCfg = Release|Any CPU
 		{85FC7E50-682F-D273-99D3-AB873348A89E}.ReleasePortable|x86.Build.0 = Release|Any CPU
+		{76DB1A74-7D2B-48C5-A479-FEE13153DB72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76DB1A74-7D2B-48C5-A479-FEE13153DB72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76DB1A74-7D2B-48C5-A479-FEE13153DB72}.Debug|x64.ActiveCfg = Debug|x64
+		{76DB1A74-7D2B-48C5-A479-FEE13153DB72}.Debug|x64.Build.0 = Debug|x64
+		{76DB1A74-7D2B-48C5-A479-FEE13153DB72}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{76DB1A74-7D2B-48C5-A479-FEE13153DB72}.Debug|x86.Build.0 = Debug|Any CPU
+		{76DB1A74-7D2B-48C5-A479-FEE13153DB72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76DB1A74-7D2B-48C5-A479-FEE13153DB72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76DB1A74-7D2B-48C5-A479-FEE13153DB72}.Release|x64.ActiveCfg = Release|x64
+		{76DB1A74-7D2B-48C5-A479-FEE13153DB72}.Release|x64.Build.0 = Release|x64
+		{76DB1A74-7D2B-48C5-A479-FEE13153DB72}.Release|x86.ActiveCfg = Release|Any CPU
+		{76DB1A74-7D2B-48C5-A479-FEE13153DB72}.Release|x86.Build.0 = Release|Any CPU
+		{76DB1A74-7D2B-48C5-A479-FEE13153DB72}.ReleasePortable|Any CPU.ActiveCfg = Debug|Any CPU
+		{76DB1A74-7D2B-48C5-A479-FEE13153DB72}.ReleasePortable|Any CPU.Build.0 = Debug|Any CPU
+		{76DB1A74-7D2B-48C5-A479-FEE13153DB72}.ReleasePortable|x64.ActiveCfg = Debug|x64
+		{76DB1A74-7D2B-48C5-A479-FEE13153DB72}.ReleasePortable|x64.Build.0 = Debug|x64
+		{76DB1A74-7D2B-48C5-A479-FEE13153DB72}.ReleasePortable|x86.ActiveCfg = Debug|Any CPU
+		{76DB1A74-7D2B-48C5-A479-FEE13153DB72}.ReleasePortable|x86.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
