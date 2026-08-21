@@ -70,5 +70,30 @@ namespace LyricsFinder.Core.Tests
                 "Bohemian Rhapsody",
                 TrackTextCleaner.Clean("Bohemian Rhapsody (Official Video) | Queen"));
         }
+
+        [DataTestMethod]
+        [DataRow("Queen - Bohemian Rhapsody", "Queen", "Bohemian Rhapsody")]
+        [DataRow("queen - Bohemian Rhapsody", "Queen", "Bohemian Rhapsody")]
+        [DataRow("Queen – Bohemian Rhapsody", "Queen", "Bohemian Rhapsody")]
+        [DataRow("Queen — Bohemian Rhapsody", "Queen", "Bohemian Rhapsody")]
+        [DataRow("Queen - Bohemian Rhapsody (Official Video)", "Queen", "Bohemian Rhapsody")]
+        [DataRow("Queen - Bohemian Rhapsody | Channel", "Queen", "Bohemian Rhapsody")]
+        [DataRow("A-ha - Take On Me", "A-ha", "Take On Me")]
+        [DataRow("Queen - Bohemian Rhapsody", "Queen - Topic", "Bohemian Rhapsody")]
+        public void CleanTitle_StripsDuplicatedArtistPrefix(string title, string artist, string expected)
+        {
+            Assert.AreEqual(expected, TrackTextCleaner.CleanTitle(title, artist));
+        }
+
+        [DataTestMethod]
+        [DataRow("Bohemian Rhapsody", "Queen", "Bohemian Rhapsody")]
+        [DataRow("Queen II", "Queen", "Queen II")]
+        [DataRow("X-Ray", "X", "X-Ray")]
+        [DataRow("Queen - ", "Queen", "Queen -")]
+        [DataRow("The Beatles - Hey Jude", "Beatles", "The Beatles - Hey Jude")]
+        public void CleanTitle_KeepsTitle_WhenArtistIsNotADashPrefix(string title, string artist, string expected)
+        {
+            Assert.AreEqual(expected, TrackTextCleaner.CleanTitle(title, artist));
+        }
     }
 }

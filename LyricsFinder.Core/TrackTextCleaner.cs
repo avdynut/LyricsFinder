@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 
 namespace LyricsFinder.Core
 {
@@ -63,5 +64,37 @@ namespace LyricsFinder.Core
 
             return string.IsNullOrWhiteSpace(text) ? original.Trim() : text;
         }
+
+        /// <summary>
+        /// Cleans a track title, then drops a duplicated <c>Artist - </c> prefix when the
+        /// title already starts with the same artist (common in YouTube / SMTC metadata).
+        /// </summary>
+        public static string CleanTitle(string title, string artist)
+        {
+            title = Clean(title);
+            if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(artist))
+                return title;
+
+            artist = Clean(artist);
+            if (string.IsNullOrWhiteSpace(artist))
+                return title;
+
+            return StripRedundantArtistPrefix(title, artist);
+        }
+
+        private static string StripRedundantArtistPrefix(string title, string artist)
+        {
+            if (!title.StartsWith(artist, StringComparison.OrdinalIgnoreCase))
+                return title;
+
+            var remainder = title.Substring(artist.Length).TrimStart();
+            if (remainder.Length < 2 || !IsDash(remainder[0]) || !char.IsWhiteSpace(remainder[1]))
+                return title;
+
+            var song = remainder.Substring(1).Trim();
+            return string.IsNullOrWhiteSpace(song) ? title : song;
+        }
+
+        private static bool IsDash(char c) => c == '-' || c == '–' || c == '—';
     }
 }
