@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         Width="530"
-        Height="300"
+        Height="360"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
         WindowStyle="None"
@@ -59,6 +59,9 @@
                            Text="• One-time purchase - no subscription"
                            TextWrapping="Wrap"/>
                 <TextBlock FontSize="13"
+                           Text="• Priority support"
+                           TextWrapping="Wrap"/>
+                <TextBlock FontSize="13"
                            Text="• Exclusive Pro features coming in future updates (Light/Dark mode, modern UI, etc.)"
                            TextWrapping="Wrap"/>
                 <TextBlock FontSize="13"
@@ -73,6 +76,17 @@
                            Foreground="{DynamicResource MaterialDesignBodyLight}"
                            Text="{Binding StatusMessage}"
                            TextWrapping="Wrap"/>
+                <TextBlock Margin="0,4,0,0"
+                           FontSize="12"
+                           Foreground="{DynamicResource MaterialDesignBodyLight}"
+                           TextWrapping="Wrap"
+                           Visibility="{Binding PurchaseCompleted, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Run Text="For priority support, email "/>
+                    <Hyperlink Command="{Binding OpenSupportEmailCommand}">
+                        <Run Text="{Binding SupportEmail, Mode=OneWay}"/>
+                    </Hyperlink>
+                    <Run Text="."/>
+                </TextBlock>
             </StackPanel>
 
             <ProgressBar Grid.Row="2"
@@ -88,10 +102,12 @@
                         Padding="15,8"
                         Command="{Binding MaybeLaterCommand}"
                         Content="MAYBE LATER"
-                        Style="{StaticResource MaterialDesignFlatButton}"/>
+                        Style="{StaticResource MaterialDesignFlatButton}"
+                        Visibility="{Binding PurchaseCompleted, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
                 <Button Padding="20,8"
                         Command="{Binding UnlockProCommand}"
-                        Style="{StaticResource MaterialDesignRaisedButton}">
+                        Style="{StaticResource MaterialDesignRaisedButton}"
+                        Visibility="{Binding PurchaseCompleted, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
                     <StackPanel Orientation="Horizontal">
                         <md:PackIcon Width="18"
                                      Height="18"
@@ -100,6 +116,11 @@
                         <TextBlock Text="SUPPORT THE AUTHOR"/>
                     </StackPanel>
                 </Button>
+                <Button Padding="20,8"
+                        Command="{Binding CloseCommand}"
+                        Content="CLOSE"
+                        Style="{StaticResource MaterialDesignRaisedButton}"
+                        Visibility="{Binding PurchaseCompleted, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             </StackPanel>
         </Grid>
     </Border>

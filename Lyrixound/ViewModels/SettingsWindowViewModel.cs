@@ -6,6 +6,7 @@ using NLog;
 using Prism.Commands;
 using Prism.Mvvm;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -42,6 +43,7 @@ namespace Lyrixound.ViewModels
             ChangeRunAtStartupCommand = new DelegateCommand(async () => await ChangeRunAtStartupEnabledAsync());
             UnlockProCommand = new DelegateCommand(ShowPaywall);
             RestorePurchasesCommand = new DelegateCommand(async () => await RestorePurchasesAsync());
+            OpenSupportEmailCommand = new DelegateCommand(OpenSupportEmail);
         }
 
         public Settings Settings { get; }
@@ -51,6 +53,8 @@ namespace Lyrixound.ViewModels
         public string ProStatusText => IsPro
             ? "Thank you for supporting Lyrixound!"
             : "You are using the free version.";
+
+        public string SupportEmail => ProConstants.SupportEmail;
 
         public bool CanSimulatePro => _licenseService is IMockLicenseService;
 
@@ -117,6 +121,7 @@ namespace Lyrixound.ViewModels
         public ICommand ChangeRunAtStartupCommand { get; }
         public ICommand UnlockProCommand { get; }
         public ICommand RestorePurchasesCommand { get; }
+        public ICommand OpenSupportEmailCommand { get; }
 
         private void OnClosing()
         {
@@ -195,6 +200,22 @@ namespace Lyrixound.ViewModels
         {
             RaisePropertyChanged(nameof(IsPro));
             RaisePropertyChanged(nameof(ProStatusText));
+        }
+
+        private static void OpenSupportEmail()
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = $"mailto:{ProConstants.SupportEmail}",
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
         }
 
         private static IAsyncOperation<StartupTask> GetStartupTaskAsync() => StartupTask.GetAsync(App.AppName);

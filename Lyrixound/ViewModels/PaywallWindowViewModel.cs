@@ -2,6 +2,7 @@
 using Prism.Commands;
 using Prism.Mvvm;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -12,6 +13,7 @@ public class PaywallWindowViewModel : BindableBase
     private readonly ILicenseService _licenseService;
     private readonly ILicenseAnalytics _licenseAnalytics;
     private bool _purchaseInProgress;
+    private bool _purchaseCompleted;
     private string _statusMessage;
     private Func<IntPtr> _getOwnerWindowHandle;
 
@@ -20,14 +22,19 @@ public class PaywallWindowViewModel : BindableBase
         _licenseService = licenseService;
         _licenseAnalytics = licenseAnalytics;
 
-        UnlockProCommand = new DelegateCommand(async () => await UnlockProAsync(), () => !PurchaseInProgress)
-            .ObservesProperty(() => PurchaseInProgress);
+        UnlockProCommand = new DelegateCommand(async () => await UnlockProAsync(), () => !PurchaseInProgress && !PurchaseCompleted)
+            .ObservesProperty(() => PurchaseInProgress)
+            .ObservesProperty(() => PurchaseCompleted);
         MaybeLaterCommand = new DelegateCommand(() => RequestClose?.Invoke(false));
+        CloseCommand = new DelegateCommand(() => RequestClose?.Invoke(true));
+        OpenSupportEmailCommand = new DelegateCommand(OpenSupportEmail);
     }
 
     public event Action<bool> RequestClose;
 
     public string PriceDisplay => ProConstants.ProPriceDisplay;
+
+    public string SupportEmail => ProConstants.SupportEmail;
 
     public string StatusMessage
     {
@@ -41,14 +48,25 @@ public class PaywallWindowViewModel : BindableBase
         private set => SetProperty(ref _purchaseInProgress, value);
     }
 
+    public bool PurchaseCompleted
+    {
+        get => _purchaseCompleted;
+        private set => SetProperty(ref _purchaseCompleted, value);
+    }
+
     public ICommand UnlockProCommand { get; }
 
     public ICommand MaybeLaterCommand { get; }
+
+    public ICommand CloseCommand { get; }
+
+    public ICommand OpenSupportEmailCommand { get; }
 
     public void OnOpened(string source, Func<IntPtr> getOwnerWindowHandle)
     {
         _getOwnerWindowHandle = getOwnerWindowHandle;
         _licenseAnalytics.PaywallShown(source);
+        PurchaseCompleted = false;
         StatusMessage = null;
     }
 
@@ -72,12 +90,28 @@ public class PaywallWindowViewModel : BindableBase
 
             if (result is LicenseResult.Success or LicenseResult.AlreadyOwned)
             {
-                RequestClose?.Invoke(true);
+                PurchaseCompleted = true;
             }
         }
         finally
         {
             PurchaseInProgress = false;
+        }
+    }
+
+    private static void OpenSupportEmail()
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = $"mailto:{ProConstants.SupportEmail}",
+                UseShellExecute = true
+            });
+        }
+        catch
+        {
+            // ignored
         }
     }
 }

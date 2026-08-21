@@ -112,8 +112,20 @@
                 <TextBlock Margin="0,8,0,16"
                            FontSize="12"
                            Foreground="{DynamicResource MaterialDesignBodyLight}"
-                           Text="Purchase Pro to support the author. Exclusive Pro features will be added in future updates (Light/Dark mode, modern UI, etc.). The main features remain free."
-                           TextWrapping="Wrap"/>
+                           Text="Purchase Pro to support the author. Includes priority support. Exclusive Pro features will be added in future updates (Light/Dark mode, modern UI, etc.). The main features remain free."
+                           TextWrapping="Wrap"
+                           Visibility="{Binding IsPro, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                <TextBlock Margin="0,8,0,16"
+                           FontSize="12"
+                           Foreground="{DynamicResource MaterialDesignBodyLight}"
+                           TextWrapping="Wrap"
+                           Visibility="{Binding IsPro, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Run Text="For priority support or feedback, email "/>
+                    <Hyperlink Command="{Binding OpenSupportEmailCommand}">
+                        <Run Text="{Binding SupportEmail, Mode=OneWay}"/>
+                    </Hyperlink>
+                    <Run Text="."/>
+                </TextBlock>
                 <Button Margin="0,0,0,8"
                         Padding="12,6"
                         HorizontalAlignment="Left"
