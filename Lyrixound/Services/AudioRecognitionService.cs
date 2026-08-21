@@ -1,4 +1,4 @@
-using NAudio.Wave;
+﻿using NAudio.Wave;
 using NLog;
 using ShazamIO;
 using System;
@@ -14,9 +14,6 @@ namespace Lyrixound.Services
     public class AudioRecognitionService
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-        private WasapiLoopbackCapture _capture;
-        private MemoryStream _audioBuffer;
-        private WaveFileWriter _waveWriter;
 
         public async Task<RecognizedTrackInfo> RecognizeSongFromSystemAudioAsync(int durationSeconds = 5)
         {
@@ -45,49 +42,66 @@ namespace Lyrixound.Services
 
         private async Task<byte[]> CaptureSystemAudioAsync(int durationSeconds)
         {
-            _audioBuffer = new MemoryStream();
+            var audioBuffer = new MemoryStream();
+            WasapiLoopbackCapture capture = null;
+            WaveFileWriter waveWriter = null;
+            var writeLock = new object();
+            var recordingStopped = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            return await Task.Run(() =>
+            try
             {
-                try
+                capture = new WasapiLoopbackCapture();
+                waveWriter = new WaveFileWriter(audioBuffer, capture.WaveFormat);
+
+                capture.DataAvailable += (s, e) =>
                 {
-                    // Use loopback capture to record system audio
-                    _capture = new WasapiLoopbackCapture();
-
-                    // Create wave writer to write to memory stream
-                    _waveWriter = new WaveFileWriter(_audioBuffer, _capture.WaveFormat);
-
-                    _capture.DataAvailable += (s, e) =>
+                    lock (writeLock)
                     {
-                        _waveWriter.Write(e.Buffer, 0, e.BytesRecorded);
-                    };
+                        if (waveWriter == null || e.BytesRecorded <= 0)
+                            return;
 
-                    _capture.StartRecording();
-                    _logger.Info($"Recording system audio for {durationSeconds} seconds...");
+                        waveWriter.Write(e.Buffer, 0, e.BytesRecorded);
+                    }
+                };
 
-                    // Record for specified duration
-                    System.Threading.Thread.Sleep(durationSeconds * 1000);
+                capture.RecordingStopped += (s, e) =>
+                {
+                    if (e.Exception != null)
+                        recordingStopped.TrySetException(e.Exception);
+                    else
+                        recordingStopped.TrySetResult(true);
+                };
 
-                    _capture.StopRecording();
-                    _waveWriter.Flush();
+                capture.StartRecording();
+                _logger.Info($"Recording system audio for {durationSeconds} seconds...");
 
-                    var audioData = _audioBuffer.ToArray();
+                await Task.Delay(TimeSpan.FromSeconds(durationSeconds));
+                capture.StopRecording();
+                await recordingStopped.Task;
+
+                lock (writeLock)
+                {
+                    waveWriter.Flush();
+                    var audioData = audioBuffer.ToArray();
                     _logger.Info($"Captured {audioData.Length} bytes of audio");
-
                     return audioData;
                 }
-                catch (Exception ex)
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error capturing system audio");
+                return null;
+            }
+            finally
+            {
+                lock (writeLock)
                 {
-                    _logger.Error(ex, "Error capturing system audio");
-                    return null;
+                    waveWriter?.Dispose();
+                    waveWriter = null;
                 }
-                finally
-                {
-                    _capture?.Dispose();
-                    _waveWriter?.Dispose();
-                    _audioBuffer?.Dispose();
-                }
-            });
+
+                capture?.Dispose();
+            }
         }
 
         private async Task<RecognizedTrackInfo> RecognizeAudioAsync(byte[] audioData)
