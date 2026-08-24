@@ -1,4 +1,4 @@
-using LyricsFinder.Core;
+﻿using LyricsFinder.Core;
 using LyricsFinder.Core.LyricTypes;
 using NLog;
 using System;
@@ -20,33 +20,21 @@ public class LrcLibTrackInfoProvider : ITrackInfoProvider
 
         try
         {
-            // Strategy 1: Try field-based search (more precise)
             using var searchDoc = await LrcLibAPI.SearchLyricsByFields(trackInfo.Title, trackInfo.Artist);
-            var searchResults = searchDoc.RootElement;
-
-            if (searchResults.ValueKind == JsonValueKind.Array && searchResults.GetArrayLength() > 0)
+            var lyrics = PickBestLyrics(searchDoc.RootElement, trackInfo);
+            if (lyrics != null)
             {
-                var lyrics = ExtractLyricsFromResult(searchResults[0]);
-                if (lyrics != null)
-                {
-                    track.Lyrics = lyrics;
-                    return track;
-                }
+                track.Lyrics = lyrics;
+                return track;
             }
 
-            // Strategy 2: Try general search with combined query
             var combinedQuery = $"{trackInfo.Artist} {trackInfo.Title}";
             using var generalDoc = await LrcLibAPI.SearchLyrics(combinedQuery);
-            var generalResults = generalDoc.RootElement;
-
-            if (generalResults.ValueKind == JsonValueKind.Array && generalResults.GetArrayLength() > 0)
+            lyrics = PickBestLyrics(generalDoc.RootElement, trackInfo);
+            if (lyrics != null)
             {
-                var lyrics = ExtractLyricsFromResult(generalResults[0]);
-                if (lyrics != null)
-                {
-                    track.Lyrics = lyrics;
-                    return track;
-                }
+                track.Lyrics = lyrics;
+                return track;
             }
 
             track.Lyrics = new NoneLyric("No lyrics found");
@@ -60,16 +48,47 @@ public class LrcLibTrackInfoProvider : ITrackInfoProvider
         return track;
     }
 
+    internal static ILyric PickBestLyrics(JsonElement searchResults, TrackInfo trackInfo)
+    {
+        if (searchResults.ValueKind != JsonValueKind.Array)
+            return null;
+
+        ILyric best = null;
+        var bestScore = 0;
+        var bestIsSynced = false;
+
+        foreach (var result in searchResults.EnumerateArray())
+        {
+            var resultTitle = result.TryGetProperty("trackName", out var titleProp) ? titleProp.GetString() : null;
+            var resultArtist = result.TryGetProperty("artistName", out var artistProp) ? artistProp.GetString() : null;
+            var score = TrackMatch.Score(resultTitle, resultArtist, trackInfo);
+            if (!TrackMatch.IsAcceptable(score))
+                continue;
+
+            var lyrics = ExtractLyricsFromResult(result);
+            if (lyrics is null or NoneLyric)
+                continue;
+
+            var isSynced = lyrics is SyncedLyric;
+            if (score > bestScore || (score == bestScore && isSynced && !bestIsSynced))
+            {
+                best = lyrics;
+                bestScore = score;
+                bestIsSynced = isSynced;
+            }
+        }
+
+        return best;
+    }
+
     private static ILyric ExtractLyricsFromResult(JsonElement result)
     {
-        // Check if the track is marked as instrumental
         if (result.TryGetProperty("instrumental", out var instrumentalProperty) &&
             instrumentalProperty.GetBoolean())
         {
             return new NoneLyric("Track is instrumental");
         }
 
-        // Prefer synced lyrics over plain lyrics
         if (result.TryGetProperty("syncedLyrics", out var syncedLyricsProperty) &&
             syncedLyricsProperty.ValueKind != JsonValueKind.Null &&
             !string.IsNullOrEmpty(syncedLyricsProperty.GetString()))
@@ -78,7 +97,6 @@ public class LrcLibTrackInfoProvider : ITrackInfoProvider
             return new SyncedLyric(syncedLyrics, SyncedLyricType.Lrc);
         }
 
-        // Fall back to plain lyrics if synced lyrics are not available
         if (result.TryGetProperty("plainLyrics", out var plainLyricsProperty) &&
             plainLyricsProperty.ValueKind != JsonValueKind.Null &&
             !string.IsNullOrEmpty(plainLyricsProperty.GetString()))

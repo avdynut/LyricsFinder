@@ -20,17 +20,33 @@ namespace LyricsProviders
         {
             _logger.Trace("Start searching lyrics");
 
+            Track unsyncedFallback = null;
+            ITrackInfoProvider unsyncedProvider = null;
+
             foreach (var provider in LyricsProviders)
             {
                 var track = await provider.FindTrackAsync(trackInfo);
-                bool lyricsFound = !(track.Lyrics is null || track.Lyrics is NoneLyric);
 
-                if (lyricsFound)
+                if (track.Lyrics is SyncedLyric)
                 {
-                    _logger.Info($"Lyrics found by {provider.DisplayName} provider");
+                    _logger.Info($"Synced lyrics found by {provider.DisplayName} provider");
                     CurrentProvider = provider;
                     return track;
                 }
+
+                if (unsyncedFallback == null && track.Lyrics is not null && track.Lyrics is not NoneLyric)
+                {
+                    _logger.Debug($"Unsynced lyrics found by {provider.DisplayName} provider, continuing search for synced");
+                    unsyncedFallback = track;
+                    unsyncedProvider = provider;
+                }
+            }
+
+            if (unsyncedFallback != null)
+            {
+                _logger.Info($"Lyrics found by {unsyncedProvider.DisplayName} provider");
+                CurrentProvider = unsyncedProvider;
+                return unsyncedFallback;
             }
 
             return new Track { Lyrics = new NoneLyric("Lyrics not found") };

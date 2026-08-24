@@ -1,6 +1,7 @@
 ﻿using LyricsFinder.Core;
 using LyricsFinder.Core.LyricTypes;
 using NLog;
+using LyricsProviders;
 using System;
 using System.Net;
 using System.Text;
@@ -39,22 +40,10 @@ public class MusixmatchTrackInfoProvider : ITrackInfoProvider
                 {
                     lyricsFromMacro = null;
                     using var searchDoc = await MusixmatchAPI.SearchTracksAsync($"{trackInfo.Artist} {trackInfo.Title}");
-                    var trackProperty = searchDoc.RootElement
-                        .GetProperty("message")
-                        .GetProperty("body")
-                        .GetProperty("track_list")[0]
-                        .GetProperty("track");
-
-                    commontrackId = trackProperty.GetProperty("commontrack_id").GetInt64().ToString();
-                    mxmTrackId = trackProperty.TryGetProperty("track_id", out var trackIdProp)
-                        ? trackIdProp.GetInt64().ToString()
-                        : null;
-                    hasRichsync = trackProperty.TryGetProperty("has_richsync", out var hasRichsyncProp) &&
-                                  hasRichsyncProp.GetInt32() == 1;
-                    sourceUri = trackProperty.TryGetProperty("track_share_url", out var urlProperty) &&
-                                urlProperty.GetString() is string url
-                        ? new Uri(url)
-                        : null;
+                    if (!TryPickBestSearchTrack(searchDoc.RootElement, trackInfo, out commontrackId, out mxmTrackId, out hasRichsync, out sourceUri))
+                    {
+                        throw new Exception("Musixmatch search did not match the requested track.");
+                    }
                 }
             }
 
@@ -186,6 +175,64 @@ public class MusixmatchTrackInfoProvider : ITrackInfoProvider
         if (macroCalls.TryGetProperty("track.lyrics.get", out var lyricsCall))
         {
             lyricsBody = TryReadLyricsBody(lyricsCall);
+        }
+
+        return true;
+    }
+
+    private static bool TryPickBestSearchTrack(
+        JsonElement root,
+        TrackInfo trackInfo,
+        out string commontrackId,
+        out string trackId,
+        out bool hasRichsync,
+        out Uri sourceUri)
+    {
+        commontrackId = null;
+        trackId = null;
+        hasRichsync = false;
+        sourceUri = null;
+
+        if (!root.TryGetProperty("message", out var message) ||
+            !message.TryGetProperty("body", out var body) ||
+            body.ValueKind != JsonValueKind.Object ||
+            !body.TryGetProperty("track_list", out var trackList) ||
+            trackList.ValueKind != JsonValueKind.Array)
+        {
+            return false;
+        }
+
+        JsonElement? bestTrack = null;
+        var bestScore = 0;
+
+        foreach (var item in trackList.EnumerateArray())
+        {
+            if (!item.TryGetProperty("track", out var trackProperty))
+                continue;
+
+            var resultTitle = trackProperty.TryGetProperty("track_name", out var titleProp) ? titleProp.GetString() : null;
+            var resultArtist = trackProperty.TryGetProperty("artist_name", out var artistProp) ? artistProp.GetString() : null;
+            var score = TrackMatch.Score(resultTitle, resultArtist, trackInfo);
+            if (!TrackMatch.IsAcceptable(score) || score <= bestScore)
+                continue;
+
+            bestScore = score;
+            bestTrack = trackProperty;
+        }
+
+        if (bestTrack is not JsonElement chosen)
+            return false;
+
+        commontrackId = chosen.GetProperty("commontrack_id").GetInt64().ToString();
+        trackId = chosen.TryGetProperty("track_id", out var trackIdProp)
+            ? trackIdProp.GetInt64().ToString()
+            : null;
+        hasRichsync = chosen.TryGetProperty("has_richsync", out var hasRichsyncProp) &&
+                      hasRichsyncProp.GetInt32() == 1;
+        if (chosen.TryGetProperty("track_share_url", out var urlProperty) &&
+            urlProperty.GetString() is string url)
+        {
+            sourceUri = new Uri(url);
         }
 
         return true;

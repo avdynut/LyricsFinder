@@ -9,7 +9,7 @@ This skill walks through every file that must change to plug a new source into t
 
 ## Mental model
 
-A provider is a small unit that takes a `TrackInfo` and returns a `Track` whose `Lyrics` is either a real `SyncedLyric`/`UnsyncedLyric` or a `NoneLyric(reason)`. The host (`App.xaml.cs`) registers it, lists it in default settings, and the user can re-order/disable it from the Settings window. The first provider in the user's order that returns non-empty lyrics wins.
+A provider is a small unit that takes a `TrackInfo` and returns a `Track` whose `Lyrics` is either a real `SyncedLyric`/`UnsyncedLyric` or a `NoneLyric(reason)`. The host (`App.xaml.cs`) registers it, lists it in default settings, and the user can re-order/disable it from the Settings window. The first provider in the user's order that returns synced lyrics wins; if none do, the first non-empty (unsynced) result is used.
 
 ## Checklist
 
