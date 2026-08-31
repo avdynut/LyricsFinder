@@ -40,6 +40,8 @@ namespace Lyrixound.Configuration
 
         public virtual bool DevSimulatePro { get; set; }
 
+        public virtual bool IsDarkTheme { get; set; }
+
         public virtual ObservableCollection<Element> LyricsProviders { get; set; } = new ObservableCollection<Element>();
 
         public Settings()

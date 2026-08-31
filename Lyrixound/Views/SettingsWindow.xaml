@@ -9,9 +9,12 @@
         xmlns:prism="http://prismlibrary.com/"
         xmlns:vm="clr-namespace:Lyrixound.ViewModels"
         Width="400"
-        Height="320"
+        Height="360"
         d:DataContext="{d:DesignInstance vm:SettingsWindowViewModel}"
         prism:ViewModelLocator.AutoWireViewModel="True"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
         mc:Ignorable="d">
@@ -48,11 +51,14 @@
         </i:EventTrigger>
     </i:Interaction.Triggers>
 
-    <TabControl Padding="10">
+    <TabControl Padding="10"
+                Background="{DynamicResource MaterialDesignPaper}"
+                BorderThickness="0">
         <TabControl.ItemContainerStyle>
             <Style TargetType="TabItem">
                 <Setter Property="Padding" Value="10"/>
                 <Setter Property="FontSize" Value="13"/>
+                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="TabItem">
@@ -60,7 +66,9 @@
                                     Padding="{TemplateBinding Padding}"
                                     Background="{DynamicResource MaterialDesignChipBackground}"
                                     CornerRadius="5,5,0,0">
-                                <TextBlock x:Name="Header" Text="{TemplateBinding Header}"/>
+                                <TextBlock x:Name="Header"
+                                           Foreground="{TemplateBinding Foreground}"
+                                           Text="{TemplateBinding Header}"/>
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsSelected" Value="True">
@@ -93,12 +101,23 @@
                           Command="{Binding ChangeRunAtStartupCommand}"
                           Content="Run at startup"
                           IsChecked="{Binding RunAtStartup}"/>
+                <StackPanel Margin="0,4,0,0" Orientation="Horizontal">
+                    <CheckBox Content="Dark mode"
+                              IsChecked="{Binding IsDarkTheme}"/>
+                    <TextBlock Margin="8,0,0,0"
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource MaterialDesignBodyLight}"
+                               Text="Pro"
+                               Visibility="{Binding IsPro, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                </StackPanel>
             </StackPanel>
         </TabItem>
 
         <TabItem Header="Providers">
             <ListBox dd:DragDrop.IsDragSource="True"
                      dd:DragDrop.IsDropTarget="True"
+                     Background="Transparent"
+                     BorderThickness="0"
                      ItemTemplate="{StaticResource CheckIconItemTemplate}"
                      ItemsSource="{Binding Settings.LyricsProviders}"/>
         </TabItem>
@@ -112,7 +131,7 @@
                 <TextBlock Margin="0,8,0,16"
                            FontSize="12"
                            Foreground="{DynamicResource MaterialDesignBodyLight}"
-                           Text="Purchase Pro to support the author. Includes priority support. Exclusive Pro features will be added in future updates (Light/Dark mode, modern UI, etc.). The main features remain free."
+                           Text="Purchase Pro to support the author. Includes priority support and Light/Dark mode. Exclusive Pro features will be added in future updates (modern UI, etc.). The main features remain free."
                            TextWrapping="Wrap"
                            Visibility="{Binding IsPro, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
                 <TextBlock Margin="0,8,0,16"

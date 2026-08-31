@@ -34,32 +34,60 @@ namespace Lyrixound.Views
         private static extern int SetWindowLong(IntPtr hwnd, int index, int newStyle);
 
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-        private readonly Brush _lyricsPanelBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFAFAFA"));
+        private SolidColorBrush _lyricsPanelBrush;
         private readonly WindowSettings _settings;
         private readonly LyricsSettings _lyricsSettings;
         private readonly ILicenseService _licenseService;
         private readonly ILicenseAnalytics _licenseAnalytics;
+        private readonly ThemeService _themeService;
         private bool _isClickThrough;
 
         public MainWindow(
             WindowSettings settings,
             LyricsSettings lyricsSettings,
             ILicenseService licenseService,
-            ILicenseAnalytics licenseAnalytics)
+            ILicenseAnalytics licenseAnalytics,
+            ThemeService themeService)
         {
             _settings = settings;
             _lyricsSettings = lyricsSettings;
             _licenseService = licenseService;
             _licenseAnalytics = licenseAnalytics;
+            _themeService = themeService;
             InitializeComponent();
 
             _licenseService.EntitlementChanged += OnEntitlementChanged;
-            Loaded += (_, _) => ApplyProBranding();
+            _themeService.ThemeChanged += OnThemeChanged;
+            Loaded += (_, _) => ApplyProUi();
         }
 
-        private void OnEntitlementChanged(object sender, EventArgs e)
+        private void OnEntitlementChanged(object sender, EventArgs e) => InvokeOnDispatcher(ApplyProUi);
+
+        private void OnThemeChanged(object sender, EventArgs e)
         {
-            Dispatcher.Invoke(ApplyProBranding);
+            InvokeOnDispatcher(() =>
+            {
+                ApplyLyricsPanelBrush();
+                ApplyThemeChrome();
+            });
+        }
+
+        private void InvokeOnDispatcher(Action action)
+        {
+            if (Dispatcher.CheckAccess())
+            {
+                action();
+            }
+            else
+            {
+                Dispatcher.Invoke(action);
+            }
+        }
+
+        private void ApplyProUi()
+        {
+            ApplyProBranding();
+            ApplyThemeChrome();
         }
 
         private void ApplyProBranding()
@@ -173,7 +201,37 @@ namespace Lyrixound.Views
             base.OnInitialized(e);
 
             RestoreWindowParameters();
-            LyricsPanel.Background = TextSettings.Background = _lyricsPanelBrush;
+            ApplyLyricsPanelBrush();
+        }
+
+        private void ApplyLyricsPanelBrush()
+        {
+            var color = TryFindResource("MaterialDesignPaper") is SolidColorBrush paper
+                ? paper.Color
+                : (Color)ColorConverter.ConvertFromString("#FFFAFAFA");
+            var opacity = _lyricsPanelBrush?.Opacity ?? 1;
+            _lyricsPanelBrush = new SolidColorBrush(color) { Opacity = opacity };
+            if (LyricsPanel != null && TextSettings != null)
+            {
+                LyricsPanel.Background = TextSettings.Background = _lyricsPanelBrush;
+            }
+        }
+
+        private void ApplyThemeChrome()
+        {
+            if (ThemeButton == null)
+            {
+                return;
+            }
+
+            var isDark = _themeService.IsDarkThemeActive;
+            ThemeButton.Content = new PackIcon
+            {
+                Kind = isDark ? PackIconKind.WhiteBalanceSunny : PackIconKind.WeatherNight
+            };
+            ThemeButton.ToolTip = isDark
+                ? "Light mode"
+                : _licenseService.IsPro ? "Dark mode" : "Dark mode (Pro)";
         }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
@@ -237,6 +295,7 @@ namespace Lyrixound.Views
 
             TrayIcon.Dispose();
             _licenseService.EntitlementChanged -= OnEntitlementChanged;
+            _themeService.ThemeChanged -= OnThemeChanged;
 
             _settings.Topmost = Topmost;
             _settings.Save();
@@ -344,13 +403,25 @@ namespace Lyrixound.Views
         {
             var settingsWindow = new SettingsWindow { Owner = this };
             settingsWindow.ShowDialog();
-            ApplyProBranding();
+            ApplyProUi();
+        }
+
+        private void OnThemeButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (!_licenseService.IsPro)
+            {
+                PaywallWindow.Show(this, _licenseService, _licenseAnalytics, "theme");
+                ApplyProUi();
+                return;
+            }
+
+            _themeService.ToggleDarkTheme();
         }
 
         private void OnSupportAuthorClick(object sender, RoutedEventArgs e)
         {
             PaywallWindow.Show(this, _licenseService, _licenseAnalytics, "tray");
-            ApplyProBranding();
+            ApplyProUi();
         }
     }
 }

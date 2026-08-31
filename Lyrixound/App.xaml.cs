@@ -79,6 +79,8 @@ namespace Lyrixound
             containerRegistry.RegisterSingleton<ILicenseService, StoreLicenseService>();
 #endif
 
+            containerRegistry.RegisterSingleton<ThemeService>();
+
             containerRegistry
                 .Register<ITrackInfoProvider, DirectoriesTrackInfoProvider>(DirectoriesTrackInfoProvider.Name)
                 .Register<ITrackInfoProvider, LrcLibTrackInfoProvider>(LrcLibTrackInfoProvider.Name)

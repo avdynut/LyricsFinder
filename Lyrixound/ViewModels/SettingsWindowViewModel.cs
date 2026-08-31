@@ -22,18 +22,21 @@ namespace Lyrixound.ViewModels
         private readonly DirectoriesProviderSettings _directoriesSettings;
         private readonly ILicenseService _licenseService;
         private readonly ILicenseAnalytics _licenseAnalytics;
+        private readonly ThemeService _themeService;
         private bool _disposed;
 
         public SettingsWindowViewModel(
             Settings settings,
             DirectoriesProviderSettings directoriesSettings,
             ILicenseService licenseService,
-            ILicenseAnalytics licenseAnalytics)
+            ILicenseAnalytics licenseAnalytics,
+            ThemeService themeService)
         {
             Settings = settings;
             _directoriesSettings = directoriesSettings;
             _licenseService = licenseService;
             _licenseAnalytics = licenseAnalytics;
+            _themeService = themeService;
 
             _licenseService.EntitlementChanged += OnEntitlementChanged;
 
@@ -49,6 +52,27 @@ namespace Lyrixound.ViewModels
         public Settings Settings { get; }
 
         public bool IsPro => _licenseService.IsPro;
+
+        public bool IsDarkTheme
+        {
+            get => _themeService.IsDarkThemeActive;
+            set
+            {
+                if (value && !_licenseService.IsPro)
+                {
+                    ShowPaywall();
+                    RaisePropertyChanged();
+                    return;
+                }
+
+                if (_licenseService.IsPro)
+                {
+                    _themeService.SetDarkTheme(value);
+                }
+
+                RaisePropertyChanged();
+            }
+        }
 
         public string ProStatusText => IsPro
             ? "Thank you for supporting Lyrixound!"
@@ -200,6 +224,7 @@ namespace Lyrixound.ViewModels
         {
             RaisePropertyChanged(nameof(IsPro));
             RaisePropertyChanged(nameof(ProStatusText));
+            RaisePropertyChanged(nameof(IsDarkTheme));
         }
 
         private static void OpenSupportEmail()

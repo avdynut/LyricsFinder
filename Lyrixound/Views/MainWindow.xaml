@@ -56,7 +56,7 @@
                 </ContextMenu>
             </tb:TaskbarIcon.ContextMenu>
             <tb:TaskbarIcon.TrayToolTip>
-                <Border Background="{DynamicResource MaterialDesignLightBackground}">
+                <Border Background="{DynamicResource MaterialDesignPaper}">
                     <Label Name="TrayTooltipLabel" Content="{x:Static local:App.AppNameWithVersion}"/>
                 </Border>
             </tb:TaskbarIcon.TrayToolTip>
@@ -137,6 +137,14 @@
                                 Click="OnSettingsButtonClick"
                                 Style="{StaticResource MaterialDesignIconButton}">
                             <md:PackIcon Kind="Settings"/>
+                        </Button>
+
+                        <Button Name="ThemeButton"
+                                Height="24"
+                                Click="OnThemeButtonClick"
+                                Style="{StaticResource MaterialDesignIconButton}"
+                                ToolTip="Dark mode (Pro)">
+                            <md:PackIcon Kind="WeatherNight"/>
                         </Button>
 
                         <Separator Width="2"

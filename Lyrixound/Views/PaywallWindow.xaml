@@ -5,23 +5,23 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         Width="530"
-        Height="360"
+        Height="380"
+        AllowsTransparency="True"
+        Background="Transparent"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
         WindowStyle="None"
-        AllowsTransparency="True"
-        Background="Transparent"
         mc:Ignorable="d">
 
-    <Border Background="{DynamicResource MaterialDesignPaper}"
+    <Border Padding="20"
+            Background="{DynamicResource MaterialDesignPaper}"
             BorderBrush="{DynamicResource PrimaryHueMidBrush}"
             BorderThickness="2"
-            CornerRadius="10"
-            Padding="20">
+            CornerRadius="10">
         <Border.Effect>
             <DropShadowEffect BlurRadius="15"
-                              ShadowDepth="5"
-                              Opacity="0.5"/>
+                              Opacity="0.5"
+                              ShadowDepth="5"/>
         </Border.Effect>
 
         <Grid>
@@ -33,13 +33,13 @@
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Row="0"
-                        Orientation="Horizontal"
-                        Margin="0,0,0,15">
+                        Margin="0,0,0,15"
+                        Orientation="Horizontal">
                 <md:PackIcon Width="32"
                              Height="32"
-                             Kind="GuitarAcoustic"
+                             VerticalAlignment="Center"
                              Foreground="{DynamicResource PrimaryHueMidBrush}"
-                             VerticalAlignment="Center"/>
+                             Kind="GuitarAcoustic"/>
                 <TextBlock Margin="10,0,0,0"
                            VerticalAlignment="Center"
                            FontSize="20"
@@ -53,16 +53,16 @@
                            TextWrapping="Wrap"/>
                 <TextBlock Margin="0,12,0,0"
                            FontSize="13"
-                           Text="• Support continued development"
+                           Text="• Light and Dark theme"
+                           TextWrapping="Wrap"/>
+                <TextBlock FontSize="13"
+                           Text="• Priority support from the author"
                            TextWrapping="Wrap"/>
                 <TextBlock FontSize="13"
                            Text="• One-time purchase - no subscription"
                            TextWrapping="Wrap"/>
                 <TextBlock FontSize="13"
-                           Text="• Priority support"
-                           TextWrapping="Wrap"/>
-                <TextBlock FontSize="13"
-                           Text="• Exclusive Pro features coming in future updates (Light/Dark mode, modern UI, etc.)"
+                           Text="• Exclusive Pro features coming in future updates (modern UI, etc.)"
                            TextWrapping="Wrap"/>
                 <TextBlock FontSize="13"
                            Text="• The main features remain free"
