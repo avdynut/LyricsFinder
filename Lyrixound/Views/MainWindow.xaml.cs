@@ -23,6 +23,17 @@ namespace Lyrixound.Views
         private const int GWL_EXSTYLE = -20;
         private const int WS_EX_TRANSPARENT = 0x00000020;
         private const int WS_EX_NOACTIVATE = 0x08000000;
+        private const int WM_NCHITTEST = 0x0084;
+        private const int HTCLIENT = 1;
+        private const int HTLEFT = 10;
+        private const int HTRIGHT = 11;
+        private const int HTTOP = 12;
+        private const int HTTOPLEFT = 13;
+        private const int HTTOPRIGHT = 14;
+        private const int HTBOTTOM = 15;
+        private const int HTBOTTOMLEFT = 16;
+        private const int HTBOTTOMRIGHT = 17;
+        private const double ResizeBorderThickness = 6;
 
         private static readonly Uri FreeIconUri = new Uri("pack://application:,,,/lyrics.ico");
         private static readonly Uri ProIconUri = new Uri("pack://application:,,,/lyrics-pro.ico");
@@ -234,6 +245,44 @@ namespace Lyrixound.Views
                 : _licenseService.IsPro ? "Dark mode" : "Dark mode (Pro)";
         }
 
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            ((HwndSource)PresentationSource.FromVisual(this)).AddHook(WndProc);
+        }
+
+        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            if (msg != WM_NCHITTEST || _isClickThrough || WindowState != WindowState.Normal)
+                return IntPtr.Zero;
+
+            var packed = lParam.ToInt64();
+            var mouse = PointFromScreen(new Point((short)packed, (short)(packed >> 16)));
+            var onLeft = mouse.X <= ResizeBorderThickness;
+            var onRight = mouse.X >= ActualWidth - ResizeBorderThickness;
+            var onTop = mouse.Y <= ResizeBorderThickness;
+            var onBottom = mouse.Y >= ActualHeight - ResizeBorderThickness;
+
+            var hit = (onTop, onBottom, onLeft, onRight) switch
+            {
+                (true, _, true, _) => HTTOPLEFT,
+                (true, _, _, true) => HTTOPRIGHT,
+                (true, _, _, _) => HTTOP,
+                (_, true, true, _) => HTBOTTOMLEFT,
+                (_, true, _, true) => HTBOTTOMRIGHT,
+                (_, true, _, _) => HTBOTTOM,
+                (_, _, true, _) => HTLEFT,
+                (_, _, _, true) => HTRIGHT,
+                _ => HTCLIENT
+            };
+
+            if (hit == HTCLIENT)
+                return IntPtr.Zero;
+
+            handled = true;
+            return (IntPtr)hit;
+        }
+
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
             base.OnRenderSizeChanged(sizeInfo);
@@ -267,7 +316,6 @@ namespace Lyrixound.Views
             LyricsPanel.Background.Opacity = TextSettings.Background.Opacity = 1;
             TopPanel.Visibility = Visibility.Visible;
             TextSettings.Visibility = Visibility.Visible;
-            ResizeMode = ResizeMode.CanResizeWithGrip;
         }
 
         protected override void OnDeactivated(EventArgs e)
@@ -396,7 +444,6 @@ namespace Lyrixound.Views
             LyricsPanel.Background.Opacity = TextSettings.Background.Opacity = _lyricsSettings.FloatingBackgroundOpacity;
             TextSettings.IsExpanded = false;
             TextSettings.Visibility = Visibility.Collapsed;
-            ResizeMode = ResizeMode.NoResize;
         }
 
         private void OnSettingsButtonClick(object sender, RoutedEventArgs e)
