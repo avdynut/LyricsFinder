@@ -13,6 +13,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Version>1.5.3</Version>
     <PackageProjectUrl>https://lyrixound.blogspot.com/</PackageProjectUrl>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleasePortable|AnyCPU'">

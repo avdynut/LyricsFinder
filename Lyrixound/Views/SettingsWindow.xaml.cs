@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using Lyrixound.Services;
+using System.Windows;
 
 namespace Lyrixound.Views
 {
@@ -8,8 +9,18 @@ namespace Lyrixound.Views
     public partial class SettingsWindow : Window
     {
         public SettingsWindow()
+            : this(null)
+        {
+        }
+
+        public SettingsWindow(ThemeService themeService)
         {
             InitializeComponent();
+
+            if (themeService != null)
+            {
+                NativeWindowTheme.BindTitleBarTheme(this, themeService);
+            }
         }
     }
 }

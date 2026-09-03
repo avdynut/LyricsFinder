@@ -38,11 +38,11 @@ namespace Lyrixound.Views
         private static readonly Uri FreeIconUri = new Uri("pack://application:,,,/lyrics.ico");
         private static readonly Uri ProIconUri = new Uri("pack://application:,,,/lyrics-pro.ico");
 
-        [DllImport("user32.dll")]
-        private static extern int GetWindowLong(IntPtr hwnd, int index);
+        [LibraryImport("user32.dll")]
+        private static partial int GetWindowLong(IntPtr hwnd, int index);
 
-        [DllImport("user32.dll")]
-        private static extern int SetWindowLong(IntPtr hwnd, int index, int newStyle);
+        [LibraryImport("user32.dll")]
+        private static partial int SetWindowLong(IntPtr hwnd, int index, int newStyle);
 
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private SolidColorBrush _lyricsPanelBrush;
@@ -280,7 +280,7 @@ namespace Lyrixound.Views
                 return IntPtr.Zero;
 
             handled = true;
-            return (IntPtr)hit;
+            return hit;
         }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
@@ -448,7 +448,7 @@ namespace Lyrixound.Views
 
         private void OnSettingsButtonClick(object sender, RoutedEventArgs e)
         {
-            var settingsWindow = new SettingsWindow { Owner = this };
+            var settingsWindow = new SettingsWindow(_themeService) { Owner = this };
             settingsWindow.ShowDialog();
             ApplyProUi();
         }
