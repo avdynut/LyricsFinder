@@ -31,10 +31,15 @@ namespace SmtcWatcher
         {
             _logger.Debug($"Initialize music watcher with timer {Interval}");
 
-            while (true)
+            // Request the session manager once. Requesting it per iteration creates a new
+            // out-of-process COM proxy into NPSMSvc on every tick that is never released,
+            // leaking native RPC threads and handles in both processes.
+            var sessionManager = await GlobalSystemMediaTransportControlsSessionManager.RequestAsync();
+            var token = _cancellationTokenSource.Token;
+
+            while (!token.IsCancellationRequested)
             {
-                var _sessionManager = await GlobalSystemMediaTransportControlsSessionManager.RequestAsync();
-                _currentSession = _sessionManager.GetCurrentSession();
+                _currentSession = sessionManager.GetCurrentSession();
 
                 PlayerId = _currentSession?.SourceAppUserModelId;
 
@@ -48,8 +53,18 @@ namespace SmtcWatcher
                     //_currentSession.PlaybackInfoChanged += OnCurrentSessionPlaybackInfoChanged;
                     //_currentSession.TimelinePropertiesChanged += OnCurrentSessionTimelinePropertiesChanged;
                 }
-                await Task.Delay(Interval);
+
+                try
+                {
+                    await Task.Delay(Interval, token);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
             }
+
+            _logger.Debug("Music watcher loop stopped");
         }
 
         private async Task GetMediaPropertiesAsync()
