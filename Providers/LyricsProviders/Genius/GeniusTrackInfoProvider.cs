@@ -4,7 +4,6 @@ using MSHTML;
 using NLog;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -34,7 +33,7 @@ public class GeniusTrackInfoProvider : ITrackInfoProvider
             using var searchDoc = await GeniusAPI.SearchSongsAsync(query);
             if (!TryPickBestSong(searchDoc.RootElement, trackInfo, out var songUrl, out var matchedTitle, out var matchedArtist))
             {
-                track.Lyrics = new NoneLyric("No lyrics found");
+                track.Lyrics = new NoneLyric("Genius search did not match the requested track.");
                 return track;
             }
 
@@ -58,7 +57,7 @@ public class GeniusTrackInfoProvider : ITrackInfoProvider
         return track;
     }
 
-    private static bool TryPickBestSong(
+    internal static bool TryPickBestSong(
         JsonElement root,
         TrackInfo trackInfo,
         out string songUrl,
@@ -71,13 +70,14 @@ public class GeniusTrackInfoProvider : ITrackInfoProvider
 
         if (!root.TryGetProperty("response", out var response) ||
             !response.TryGetProperty("hits", out var hits) ||
-            hits.ValueKind != JsonValueKind.Array ||
-            hits.GetArrayLength() == 0)
+            hits.ValueKind != JsonValueKind.Array)
         {
             return false;
         }
 
-        var songs = new List<(JsonElement Result, int Score)>();
+        JsonElement? bestResult = null;
+        var bestScore = 0;
+
         foreach (var hit in hits.EnumerateArray())
         {
             if (!hit.TryGetProperty("type", out var typeProp) ||
@@ -87,67 +87,32 @@ public class GeniusTrackInfoProvider : ITrackInfoProvider
                 continue;
             }
 
-            songs.Add((result, ScoreSong(result, trackInfo)));
+            var title = result.TryGetProperty("title", out var titleProp) ? titleProp.GetString() : null;
+            var artist = TryReadPrimaryArtist(result);
+            var score = TrackMatch.Score(title, artist, trackInfo);
+            if (!TrackMatch.IsAcceptable(score) || score <= bestScore)
+                continue;
+
+            bestScore = score;
+            bestResult = result;
         }
 
-        if (songs.Count == 0)
+        if (bestResult is not JsonElement song)
             return false;
 
-        var best = songs.OrderByDescending(s => s.Score).First();
-        if (best.Score <= 0)
-            best = songs[0];
-
-        var song = best.Result;
         songUrl = song.GetProperty("url").GetString();
-        matchedTitle = song.TryGetProperty("title", out var titleProp) ? titleProp.GetString() : null;
-        matchedArtist = song.TryGetProperty("primary_artist", out var artistProp) &&
-                        artistProp.TryGetProperty("name", out var artistNameProp)
-            ? artistNameProp.GetString()
-            : null;
+        matchedTitle = song.TryGetProperty("title", out var matchedTitleProp) ? matchedTitleProp.GetString() : null;
+        matchedArtist = TryReadPrimaryArtist(song);
 
         return !string.IsNullOrEmpty(songUrl);
     }
 
-    private static int ScoreSong(JsonElement result, TrackInfo trackInfo)
+    private static string TryReadPrimaryArtist(JsonElement result)
     {
-        var title = result.TryGetProperty("title", out var titleProp) ? titleProp.GetString() ?? "" : "";
-        var artist = result.TryGetProperty("primary_artist", out var artistProp) &&
-                     artistProp.TryGetProperty("name", out var artistNameProp)
-            ? artistNameProp.GetString() ?? ""
-            : "";
-
-        var score = 0;
-        if (NamesMatch(title, trackInfo.Title))
-            score += 3;
-        else if (ContainsNormalized(title, trackInfo.Title) || ContainsNormalized(trackInfo.Title, title))
-            score += 1;
-
-        if (NamesMatch(artist, trackInfo.Artist))
-            score += 3;
-        else if (ContainsNormalized(artist, trackInfo.Artist) || ContainsNormalized(trackInfo.Artist, artist))
-            score += 1;
-
-        return score;
-    }
-
-    private static bool NamesMatch(string left, string right) =>
-        string.Equals(NormalizeName(left), NormalizeName(right), StringComparison.Ordinal);
-
-    private static bool ContainsNormalized(string haystack, string needle)
-    {
-        var h = NormalizeName(haystack);
-        var n = NormalizeName(needle);
-        return !string.IsNullOrEmpty(n) && h.Contains(n, StringComparison.Ordinal);
-    }
-
-    private static string NormalizeName(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return string.Empty;
-
-        var normalized = value.Trim().ToLowerInvariant();
-        normalized = Regex.Replace(normalized, @"\s+", " ");
-        return normalized;
+        return result.TryGetProperty("primary_artist", out var artistProp) &&
+               artistProp.TryGetProperty("name", out var artistNameProp)
+            ? artistNameProp.GetString()
+            : null;
     }
 
     private static string ParseLyricsHtml(string html)

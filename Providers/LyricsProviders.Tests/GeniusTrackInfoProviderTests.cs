@@ -2,6 +2,7 @@
 using LyricsFinder.Core.LyricTypes;
 using LyricsProviders.Genius;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Threading.Tasks;
 
 namespace LyricsProviders.Tests;
@@ -45,5 +46,21 @@ public class GeniusTrackInfoProviderTests
 
         Assert.IsNotNull(track.Lyrics);
         Assert.IsInstanceOfType(track.Lyrics, typeof(NoneLyric));
+    }
+
+    [TestMethod]
+    public async Task GeniusTrackInfoProviderRejectsYouTubeAdTest()
+    {
+        var provider = new GeniusTrackInfoProvider();
+        var trackInfo = new TrackInfo
+        {
+            Artist = "JustCall",
+            Title = "The First Phone Call Could have been Answered by AI"
+        };
+        var track = await provider.FindTrackAsync(trackInfo);
+
+        Assert.IsInstanceOfType(track.Lyrics, typeof(NoneLyric));
+        Assert.IsTrue(track.Lyrics.Source == null ||
+                      !track.Lyrics.Source.AbsoluteUri.Contains("magic-johnson", StringComparison.OrdinalIgnoreCase));
     }
 }

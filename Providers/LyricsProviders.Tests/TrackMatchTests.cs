@@ -47,4 +47,18 @@ public class TrackMatchTests
             new TrackInfo { Artist = "Beatles", Title = "Yesterday" });
         Assert.IsTrue(TrackMatch.IsAcceptable(score));
     }
+
+    [TestMethod]
+    public void YouTubeAdDoesNotMatchUnrelatedGeniusHit()
+    {
+        var score = TrackMatch.Score(
+            "Interview: A Response to Donald Sterling's Remarks",
+            "Magic Johnson",
+            new TrackInfo
+            {
+                Artist = "JustCall",
+                Title = "The First Phone Call Could have been Answered by AI"
+            });
+        Assert.IsFalse(TrackMatch.IsAcceptable(score));
+    }
 }
