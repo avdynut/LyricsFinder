@@ -1,6 +1,8 @@
 ﻿using LyricsFinder.Core;
+using LyricsFinder.Core.LyricTypes;
 using LyricsProviders.MusixMatch;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Threading.Tasks;
 
 namespace LyricsProviders.Tests;
@@ -32,5 +34,29 @@ public class MusixmatchTrackInfoProviderTests
         Assert.IsNotNull(track.Lyrics);
         Assert.IsFalse(string.IsNullOrEmpty(track.Lyrics.Text?.Trim()));
         Assert.IsTrue(track.Lyrics.Text.Contains("А я сотру горизонт"));
+    }
+
+    [TestMethod]
+    public async Task MusixmatchTrackInfoProviderFindSyncedLyricsGayazovTest()
+    {
+        var provider = new MusixmatchTrackInfoProvider();
+        var trackInfo = new TrackInfo { Artist = "GAYAZOV$ BROTHER$", Title = "Залпом за любовь" };
+        var track = await provider.FindTrackAsync(trackInfo);
+
+        Assert.IsInstanceOfType(track.Lyrics, typeof(SyncedLyric));
+        Assert.IsTrue(LrcParser.IsLrcFormat(track.Lyrics.Text));
+        Assert.IsTrue(track.Lyrics.Text.Contains("залпом", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [TestMethod]
+    public async Task MusixmatchTrackInfoProviderFindSyncedLyricsGayazovShortArtistTest()
+    {
+        var provider = new MusixmatchTrackInfoProvider();
+        var trackInfo = new TrackInfo { Artist = "GAYAZOV", Title = "Залпом за любовь" };
+        var track = await provider.FindTrackAsync(trackInfo);
+
+        Assert.IsInstanceOfType(track.Lyrics, typeof(SyncedLyric));
+        Assert.IsTrue(LrcParser.IsLrcFormat(track.Lyrics.Text));
+        Assert.IsTrue(track.Lyrics.Text.Contains("залпом", StringComparison.OrdinalIgnoreCase));
     }
 }

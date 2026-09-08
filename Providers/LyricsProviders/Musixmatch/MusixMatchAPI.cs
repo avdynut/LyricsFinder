@@ -119,7 +119,7 @@ public static class MusixmatchAPI
     public static async Task<JsonDocument> GetMacroSubtitlesAsync(string artist, string title)
     {
         string url =
-            $"macro.subtitles.get?format=json&namespace=lyrics_richsynched&subtitle_format=mxm&app_id={AppId}" +
+            $"macro.subtitles.get?format=json&namespace=lyrics_richsynched&subtitle_format=lrc&app_id={AppId}" +
             $"&q_artist={WebUtility.UrlEncode(artist)}&q_track={WebUtility.UrlEncode(title)}";
         return await MakeRequestAsync(url);
     }
@@ -153,6 +153,25 @@ public static class MusixmatchAPI
             : $"track_isrc={trackIsrc}";
         string url = $"track.lyrics.get?app_id={AppId}&format=json&{param}";
         return await MakeRequestAsync(url);
+    }
+
+    public static async Task<JsonDocument> GetTrackSubtitleAsync(
+        string commontrackId = null,
+        string trackId = null,
+        string trackIsrc = null)
+    {
+        if (commontrackId == null && trackId == null && trackIsrc == null)
+            throw new ArgumentException("Either commontrackId, trackId, or trackIsrc must be provided.");
+
+        var url = new StringBuilder($"track.subtitle.get?app_id={AppId}&format=json&subtitle_format=lrc");
+        if (!string.IsNullOrEmpty(commontrackId))
+            url.Append($"&commontrack_id={commontrackId}");
+        if (!string.IsNullOrEmpty(trackId))
+            url.Append($"&track_id={trackId}");
+        if (!string.IsNullOrEmpty(trackIsrc))
+            url.Append($"&track_isrc={trackIsrc}");
+
+        return await MakeRequestAsync(url.ToString());
     }
 
     public static async Task<JsonDocument> SearchArtistAsync(string query, int page = 1)

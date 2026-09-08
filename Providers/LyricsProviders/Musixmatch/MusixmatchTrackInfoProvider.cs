@@ -27,20 +27,23 @@ public class MusixmatchTrackInfoProvider : ITrackInfoProvider
             string commontrackId;
             string mxmTrackId;
             bool hasRichsync;
+            bool? hasSubtitles;
             Uri sourceUri;
             string lyricsFromMacro;
+            string subtitleFromMacro;
 
             using (var macroDoc = await MusixmatchAPI.GetMacroSubtitlesAsync(trackInfo.Artist, trackInfo.Title))
             {
-                if (TryReadMatchedTrack(macroDoc.RootElement, out commontrackId, out mxmTrackId, out hasRichsync, out sourceUri, out lyricsFromMacro))
+                if (TryReadMatchedTrack(macroDoc.RootElement, out commontrackId, out mxmTrackId, out hasRichsync, out hasSubtitles, out sourceUri, out lyricsFromMacro, out subtitleFromMacro))
                 {
                     // Matched via macro.
                 }
                 else
                 {
                     lyricsFromMacro = null;
+                    subtitleFromMacro = null;
                     using var searchDoc = await MusixmatchAPI.SearchTracksAsync($"{trackInfo.Artist} {trackInfo.Title}");
-                    if (!TryPickBestSearchTrack(searchDoc.RootElement, trackInfo, out commontrackId, out mxmTrackId, out hasRichsync, out sourceUri))
+                    if (!TryPickBestSearchTrack(searchDoc.RootElement, trackInfo, out commontrackId, out mxmTrackId, out hasRichsync, out hasSubtitles, out sourceUri))
                     {
                         throw new Exception("Musixmatch search did not match the requested track.");
                     }
@@ -56,6 +59,18 @@ public class MusixmatchTrackInfoProvider : ITrackInfoProvider
                     track.Lyrics = syncedLyrics;
                     return track;
                 }
+            }
+
+            var subtitleText = subtitleFromMacro;
+            if (string.IsNullOrEmpty(subtitleText) && hasSubtitles != false)
+            {
+                subtitleText = await TryGetSubtitleLyricsAsync(commontrackId, mxmTrackId);
+            }
+
+            if (!string.IsNullOrEmpty(subtitleText))
+            {
+                track.Lyrics = new SyncedLyric(subtitleText, SyncedLyricType.Lrc) { Source = sourceUri };
+                return track;
             }
 
             var lyricsText = lyricsFromMacro;
@@ -101,6 +116,34 @@ public class MusixmatchTrackInfoProvider : ITrackInfoProvider
         return null;
     }
 
+    private async Task<string> TryGetSubtitleLyricsAsync(string commontrackId, string trackId)
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(commontrackId))
+            {
+                using var doc = await MusixmatchAPI.GetTrackSubtitleAsync(commontrackId: commontrackId);
+                var text = TryReadSubtitleBody(doc.RootElement);
+                if (!string.IsNullOrEmpty(text))
+                    return text;
+            }
+
+            if (!string.IsNullOrEmpty(trackId))
+            {
+                using var doc = await MusixmatchAPI.GetTrackSubtitleAsync(trackId: trackId);
+                var text = TryReadSubtitleBody(doc.RootElement);
+                if (!string.IsNullOrEmpty(text))
+                    return text;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug(ex, "Could not fetch line-synced subtitles, will fall back to unsynced");
+        }
+
+        return null;
+    }
+
     /// <summary>
     /// Error responses use <c>"body": []</c>; success uses an object with <c>lyrics</c>.
     /// </summary>
@@ -126,19 +169,91 @@ public class MusixmatchTrackInfoProvider : ITrackInfoProvider
         return lyricsBody.GetString();
     }
 
+    /// <summary>
+    /// Reads line-synced LRC from <c>track.subtitles.get</c> (macro) or <c>track.subtitle.get</c>.
+    /// </summary>
+    private static string TryReadSubtitleBody(JsonElement root)
+    {
+        if (!root.TryGetProperty("message", out var message) ||
+            !message.TryGetProperty("header", out var header) ||
+            !header.TryGetProperty("status_code", out var statusProp) ||
+            statusProp.GetInt32() != (int)HttpStatusCode.OK)
+        {
+            return null;
+        }
+
+        if (!message.TryGetProperty("body", out var body) || body.ValueKind != JsonValueKind.Object)
+            return null;
+
+        if (body.TryGetProperty("subtitle_list", out var subtitleList) &&
+            subtitleList.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var item in subtitleList.EnumerateArray())
+            {
+                if (item.TryGetProperty("subtitle", out var listSubtitle) &&
+                    TryReadSubtitleBodyText(listSubtitle, out var listText))
+                {
+                    return listText;
+                }
+            }
+        }
+
+        if (body.TryGetProperty("subtitle", out var subtitle) &&
+            TryReadSubtitleBodyText(subtitle, out var text))
+        {
+            return text;
+        }
+
+        return null;
+    }
+
+    private static bool TryReadSubtitleBodyText(JsonElement subtitle, out string text)
+    {
+        text = null;
+        if (!subtitle.TryGetProperty("subtitle_body", out var subtitleBody) ||
+            subtitleBody.ValueKind != JsonValueKind.String)
+        {
+            return false;
+        }
+
+        text = subtitleBody.GetString();
+        if (string.IsNullOrEmpty(text) || !LrcParser.IsLrcFormat(text))
+        {
+            text = null;
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool? TryReadHasFlag(JsonElement trackProperty, string propertyName)
+    {
+        if (!trackProperty.TryGetProperty(propertyName, out var flagProp))
+            return null;
+
+        if (flagProp.ValueKind == JsonValueKind.Number && flagProp.TryGetInt32(out var flag))
+            return flag == 1;
+
+        return null;
+    }
+
     private static bool TryReadMatchedTrack(
         JsonElement root,
         out string commontrackId,
         out string trackId,
         out bool hasRichsync,
+        out bool? hasSubtitles,
         out Uri sourceUri,
-        out string lyricsBody)
+        out string lyricsBody,
+        out string subtitleBody)
     {
         commontrackId = null;
         trackId = null;
         hasRichsync = false;
+        hasSubtitles = null;
         sourceUri = null;
         lyricsBody = null;
+        subtitleBody = null;
 
         if (!root.TryGetProperty("message", out var message) ||
             !message.TryGetProperty("body", out var body) ||
@@ -164,8 +279,8 @@ public class MusixmatchTrackInfoProvider : ITrackInfoProvider
         if (trackProperty.TryGetProperty("track_id", out var trackIdProp))
             trackId = trackIdProp.GetInt64().ToString();
 
-        hasRichsync = trackProperty.TryGetProperty("has_richsync", out var hasRichsyncProp) &&
-                      hasRichsyncProp.GetInt32() == 1;
+        hasRichsync = TryReadHasFlag(trackProperty, "has_richsync") == true;
+        hasSubtitles = TryReadHasFlag(trackProperty, "has_subtitles");
         if (trackProperty.TryGetProperty("track_share_url", out var urlProperty) &&
             urlProperty.GetString() is string url)
         {
@@ -177,6 +292,17 @@ public class MusixmatchTrackInfoProvider : ITrackInfoProvider
             lyricsBody = TryReadLyricsBody(lyricsCall);
         }
 
+        if (macroCalls.TryGetProperty("track.subtitles.get", out var subtitlesCall))
+        {
+            subtitleBody = TryReadSubtitleBody(subtitlesCall);
+        }
+
+        if (string.IsNullOrEmpty(subtitleBody) &&
+            macroCalls.TryGetProperty("track.subtitle.get", out var subtitleCall))
+        {
+            subtitleBody = TryReadSubtitleBody(subtitleCall);
+        }
+
         return true;
     }
 
@@ -186,11 +312,13 @@ public class MusixmatchTrackInfoProvider : ITrackInfoProvider
         out string commontrackId,
         out string trackId,
         out bool hasRichsync,
+        out bool? hasSubtitles,
         out Uri sourceUri)
     {
         commontrackId = null;
         trackId = null;
         hasRichsync = false;
+        hasSubtitles = null;
         sourceUri = null;
 
         if (!root.TryGetProperty("message", out var message) ||
@@ -227,8 +355,8 @@ public class MusixmatchTrackInfoProvider : ITrackInfoProvider
         trackId = chosen.TryGetProperty("track_id", out var trackIdProp)
             ? trackIdProp.GetInt64().ToString()
             : null;
-        hasRichsync = chosen.TryGetProperty("has_richsync", out var hasRichsyncProp) &&
-                      hasRichsyncProp.GetInt32() == 1;
+        hasRichsync = TryReadHasFlag(chosen, "has_richsync") == true;
+        hasSubtitles = TryReadHasFlag(chosen, "has_subtitles");
         if (chosen.TryGetProperty("track_share_url", out var urlProperty) &&
             urlProperty.GetString() is string url)
         {
