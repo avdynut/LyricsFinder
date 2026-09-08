@@ -1,4 +1,4 @@
-using LyricsFinder.Core;
+﻿using LyricsFinder.Core;
 using LyricsFinder.Core.LyricTypes;
 using LyricsProviders;
 using LyricsProviders.DirectoriesProvider;
@@ -106,6 +106,8 @@ namespace Lyrixound.ViewModels
             {
                 SearchInProgress = true;
                 ProviderName = null;
+                ApplyCleanedTrackInfo(trackInfo.Artist, trackInfo.Title);
+                trackInfo = new TrackInfo { Artist = Track.Artist, Title = Track.Title };
                 var foundTrack = await _trackInfoProvider.FindTrackAsync(trackInfo);
 
                 Track.Lyrics = foundTrack?.Lyrics;
@@ -190,8 +192,7 @@ namespace Lyrixound.ViewModels
                 _logger.Debug($"Track changed {_musicWatcher.PlayerId} - {_musicWatcher.PlayerState}");
 
                 PlayerName = _musicWatcher.PlayerId;
-                Track.Artist = track.Artist;
-                Track.Title = track.Title;
+                ApplyCleanedTrackInfo(track.Artist, track.Title);
                 Track.Lyrics = track.Lyrics;
 
                 var searchTask = FindLyricsAsync(track.ToTrackInfo());
@@ -206,9 +207,8 @@ namespace Lyrixound.ViewModels
                 if (recognized != null)
                 {
                     _logger.Info($"Metadata search found no lyrics, trying recognized: {recognized.Artist} - {recognized.Title}");
-                    Track.Artist = recognized.Artist;
-                    Track.Title = recognized.Title;
-                    await FindLyricsAsync(new TrackInfo { Artist = recognized.Artist, Title = recognized.Title });
+                    ApplyCleanedTrackInfo(recognized.Artist, recognized.Title);
+                    await FindLyricsAsync(new TrackInfo { Artist = Track.Artist, Title = Track.Title });
                 }
             }
             catch (Exception ex)
@@ -253,8 +253,15 @@ namespace Lyrixound.ViewModels
 
         private async Task FindLyricsAsync()
         {
+            ApplyCleanedTrackInfo(Track.Artist, Track.Title);
             var trackInfo = new TrackInfo { Artist = Track.Artist, Title = Track.Title };
             await FindLyricsAsync(trackInfo);
+        }
+
+        private void ApplyCleanedTrackInfo(string artist, string title)
+        {
+            Track.Artist = TrackTextCleaner.Clean(artist);
+            Track.Title = TrackTextCleaner.CleanTitle(title, Track.Artist);
         }
 
         private async Task OpenLyricsAsync()
@@ -286,8 +293,7 @@ namespace Lyrixound.ViewModels
             var recognized = await RecognizeFromAudioAsync();
             if (recognized != null)
             {
-                Track.Artist = recognized.Artist;
-                Track.Title = recognized.Title;
+                ApplyCleanedTrackInfo(recognized.Artist, recognized.Title);
                 await FindLyricsAsync();
             }
         }

@@ -32,6 +32,8 @@ namespace LyricsFinder.Core.Tests
         [DataRow("Song Title (Audio)", "Song Title")]
         [DataRow("Song Title (Visualizer)", "Song Title")]
         [DataRow("Song Title (Remastered)", "Song Title")]
+        [DataRow("Song Title ( Official Music Video)", "Song Title")]
+        [DataRow("Song Title Official Music Video", "Song Title")]
         public void Clean_RemovesKnownYouTubeNoiseLabels(string input, string expected)
         {
             Assert.AreEqual(expected, TrackTextCleaner.Clean(input));
@@ -50,7 +52,8 @@ namespace LyricsFinder.Core.Tests
 
         [DataTestMethod]
         [DataRow("Artist Name - Topic", "Artist Name")]
-        [DataRow("ArtistNameVEVO", "ArtistName")]
+        [DataRow("ArtistNameVEVO", "Artist Name")]
+        [DataRow("PhilWickhamVEVO", "Phil Wickham")]
         [DataRow("Artist Name VEVO", "Artist Name")]
         public void Clean_StripsYouTubeArtistSuffixes(string input, string expected)
         {
@@ -80,6 +83,12 @@ namespace LyricsFinder.Core.Tests
         [DataRow("Queen - Bohemian Rhapsody | Channel", "Queen", "Bohemian Rhapsody")]
         [DataRow("A-ha - Take On Me", "A-ha", "Take On Me")]
         [DataRow("Queen - Bohemian Rhapsody", "Queen - Topic", "Bohemian Rhapsody")]
+        [DataRow("Phil Wickham - What An Awesome God (Official Music Video)", "Phil Wickham", "What An Awesome God")]
+        [DataRow("Phil Wickham – What An Awesome God (Official Music Video)", "Phil Wickham", "What An Awesome God")]
+        [DataRow("Phil Wickham- What An Awesome God (Official Music Video)", "Phil Wickham", "What An Awesome God")]
+        [DataRow("Phil Wickham -- What An Awesome God (Official Music Video)", "Phil Wickham", "What An Awesome God")]
+        [DataRow("PHIL WICKHAM - What An Awesome God Official Music Video", "Phil Wickham", "What An Awesome God")]
+        [DataRow("Phil Wickham - What An Awesome God (Official Music Video)", "PhilWickhamVEVO", "What An Awesome God")]
         public void CleanTitle_StripsDuplicatedArtistPrefix(string title, string artist, string expected)
         {
             Assert.AreEqual(expected, TrackTextCleaner.CleanTitle(title, artist));
@@ -94,6 +103,13 @@ namespace LyricsFinder.Core.Tests
         public void CleanTitle_KeepsTitle_WhenArtistIsNotADashPrefix(string title, string artist, string expected)
         {
             Assert.AreEqual(expected, TrackTextCleaner.CleanTitle(title, artist));
+        }
+
+        [TestMethod]
+        public void CleanTitle_StripsPrefix_WhenSpacesAreUnicode()
+        {
+            var title = "Phil Wickham\u00A0-\u2003What An Awesome God (Official Music Video)";
+            Assert.AreEqual("What An Awesome God", TrackTextCleaner.CleanTitle(title, "Phil Wickham"));
         }
     }
 }

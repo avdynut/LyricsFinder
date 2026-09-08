@@ -12,9 +12,13 @@ namespace LyricsFinder.Core
     {
         private static readonly char[] PipeSeparators = { '|', '｜' };
 
-        // Known promo/format labels in () or [], not arbitrary parenthetical titles.
+        private static readonly Regex UnicodeSpaceRegex = new Regex(
+            @"\s",
+            RegexOptions.Compiled);
+
+        // Known promo/format labels in () [] {} or fullwidth brackets.
         private static readonly Regex NoiseLabelRegex = new Regex(
-            @"\s*[\(\[](?:" +
+            @"\s*[\(\[\{（【]\s*(?:" +
             @"official\s*(?:music\s*)?(?:lyric\s*)?(?:video|audio)|" +
             @"(?:music\s*)?video|" +
             @"lyric\s*video|" +
@@ -27,7 +31,11 @@ namespace LyricsFinder.Core
             @"hd|" +
             @"4k|" +
             @"remaster(?:ed)?" +
-            @")[^\)\]]*[\)\]]",
+            @")[^\)\]\}）】]*[\)\]\}）】]",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+
+        private static readonly Regex TrailingNoiseRegex = new Regex(
+            @"\s+(?:official\s*(?:music\s*)?(?:lyric\s*)?(?:video|audio)|lyric\s*video|visualizer|audio\s*only)\s*$",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
         private static readonly Regex TopicSuffixRegex = new Regex(
@@ -38,8 +46,26 @@ namespace LyricsFinder.Core
             @"\s*VEVO\s*$",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
+        // "PhilWickham" / "Maroon5" after a VEVO suffix — not "BTS".
+        private static readonly Regex CamelCaseSplitRegex = new Regex(
+            @"(?<=[\p{Ll}\p{N}])(?=\p{Lu})|(?<=\p{L})(?=\p{N})",
+            RegexOptions.Compiled);
+
         private static readonly Regex MultiSpaceRegex = new Regex(
             @"\s{2,}",
+            RegexOptions.Compiled);
+
+        private static readonly Regex InvisibleCharsRegex = new Regex(
+            @"[\u200B-\u200D\uFEFF\u2060]",
+            RegexOptions.Compiled);
+
+        private static readonly Regex PunctuationRegex = new Regex(
+            @"[^\p{L}\p{N}\s]+",
+            RegexOptions.CultureInvariant | RegexOptions.Compiled);
+
+        // First "Artist - Title" split. Spaces around the dash are required so "X-Ray" stays intact.
+        private static readonly Regex ArtistTitleSplitRegex = new Regex(
+            @"^(.*?)\s*(?:[\-\u2010-\u2015\u2212\uFF0D]|--)+\s+(.*)$",
             RegexOptions.Compiled);
 
         /// <summary>
@@ -52,15 +78,21 @@ namespace LyricsFinder.Core
                 return text;
 
             var original = text;
+            text = InvisibleCharsRegex.Replace(text, string.Empty);
+            text = UnicodeSpaceRegex.Replace(text, " ");
 
             var pipeIndex = text.IndexOfAny(PipeSeparators);
             if (pipeIndex > 0)
                 text = text.Substring(0, pipeIndex);
 
             text = NoiseLabelRegex.Replace(text, string.Empty);
+            text = TrailingNoiseRegex.Replace(text, string.Empty);
             text = TopicSuffixRegex.Replace(text, string.Empty);
+            var hadVevo = VevoSuffixRegex.IsMatch(text);
             text = VevoSuffixRegex.Replace(text, string.Empty);
             text = MultiSpaceRegex.Replace(text, " ").Trim();
+            if (hadVevo && text.IndexOf(' ') < 0)
+                text = CamelCaseSplitRegex.Replace(text, " ");
 
             return string.IsNullOrWhiteSpace(text) ? original.Trim() : text;
         }
@@ -84,17 +116,27 @@ namespace LyricsFinder.Core
 
         private static string StripRedundantArtistPrefix(string title, string artist)
         {
-            if (!title.StartsWith(artist, StringComparison.OrdinalIgnoreCase))
+            var match = ArtistTitleSplitRegex.Match(title);
+            if (!match.Success || !NamesEqual(match.Groups[1].Value, artist))
                 return title;
 
-            var remainder = title.Substring(artist.Length).TrimStart();
-            if (remainder.Length < 2 || !IsDash(remainder[0]) || !char.IsWhiteSpace(remainder[1]))
-                return title;
-
-            var song = remainder.Substring(1).Trim();
+            var song = match.Groups[2].Value.Trim();
             return string.IsNullOrWhiteSpace(song) ? title : song;
         }
 
-        private static bool IsDash(char c) => c == '-' || c == '–' || c == '—';
+        private static bool NamesEqual(string left, string right)
+        {
+            return string.Equals(NormalizeForCompare(left), NormalizeForCompare(right), StringComparison.Ordinal);
+        }
+
+        private static string NormalizeForCompare(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return string.Empty;
+
+            var text = value.Trim().ToLowerInvariant();
+            text = PunctuationRegex.Replace(text, string.Empty);
+            return MultiSpaceRegex.Replace(text, string.Empty).Trim();
+        }
     }
 }
