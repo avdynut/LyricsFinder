@@ -11,6 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 
 namespace Lyrixound.Views
@@ -34,6 +35,9 @@ namespace Lyrixound.Views
         private const int HTBOTTOMLEFT = 16;
         private const int HTBOTTOMRIGHT = 17;
         private const double ResizeBorderThickness = 6;
+
+        private static readonly Duration ShowDuration = TimeSpan.FromSeconds(0.3);
+        private static readonly Duration FadeDuration = TimeSpan.FromSeconds(0.5);
 
         private static readonly Uri FreeIconUri = new Uri("pack://application:,,,/lyrics.ico");
         private static readonly Uri ProIconUri = new Uri("pack://application:,,,/lyrics-pro.ico");
@@ -314,7 +318,7 @@ namespace Lyrixound.Views
             Lyrics.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
             ScrollViewer.SetVerticalScrollBarVisibility(SyncedLyricsList, ScrollBarVisibility.Auto);
             LyricsPanel.Background.Opacity = TextSettings.Background.Opacity = 1;
-            TopPanel.Visibility = Visibility.Visible;
+            ShowTopPanel();
             TextSettings.Visibility = Visibility.Visible;
         }
 
@@ -427,12 +431,12 @@ namespace Lyrixound.Views
             {
                 SetWindowLong(hwnd, GWL_EXSTYLE, extStyle | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE);
                 ApplyDeactivatedVisuals();
-                TopPanel.Visibility = Visibility.Collapsed;
+                HideTopPanel(animate: false);
             }
             else
             {
                 SetWindowLong(hwnd, GWL_EXSTYLE, extStyle & ~WS_EX_TRANSPARENT & ~WS_EX_NOACTIVATE);
-                TopPanel.Visibility = Visibility.Visible;
+                ShowTopPanel();
             }
         }
 
@@ -444,6 +448,56 @@ namespace Lyrixound.Views
             LyricsPanel.Background.Opacity = TextSettings.Background.Opacity = _lyricsSettings.FloatingBackgroundOpacity;
             TextSettings.IsExpanded = false;
             TextSettings.Visibility = Visibility.Collapsed;
+            HideTopPanel();
+        }
+
+        private void ShowTopPanel()
+        {
+            PlaceTopPanelInLayout();
+            TopPanel.Visibility = Visibility.Visible;
+            TopPanel.IsHitTestVisible = true;
+            TopPanel.BeginAnimation(OpacityProperty, new DoubleAnimation(1, ShowDuration));
+        }
+
+        private void HideTopPanel(bool animate = true)
+        {
+            OverlayTopPanel();
+
+            if (!animate)
+            {
+                TopPanel.BeginAnimation(OpacityProperty, null);
+                TopPanel.Opacity = 0;
+                TopPanel.Visibility = Visibility.Collapsed;
+                PlaceTopPanelInLayout();
+                return;
+            }
+
+            var fadeOut = new DoubleAnimation(0, FadeDuration);
+            fadeOut.Completed += (_, _) =>
+            {
+                if (IsActive && !_isClickThrough)
+                {
+                    return;
+                }
+
+                TopPanel.Visibility = Visibility.Collapsed;
+                PlaceTopPanelInLayout();
+            };
+            TopPanel.BeginAnimation(OpacityProperty, fadeOut);
+        }
+
+        private void OverlayTopPanel()
+        {
+            Grid.SetRow(TopPanel, 1);
+            TopPanel.VerticalAlignment = VerticalAlignment.Top;
+            TopPanel.IsHitTestVisible = false;
+        }
+
+        private void PlaceTopPanelInLayout()
+        {
+            Grid.SetRow(TopPanel, 0);
+            TopPanel.VerticalAlignment = VerticalAlignment.Stretch;
+            TopPanel.IsHitTestVisible = true;
         }
 
         private void OnSettingsButtonClick(object sender, RoutedEventArgs e)

@@ -21,19 +21,6 @@
         WindowStyle="None"
         mc:Ignorable="d">
 
-    <Window.Resources>
-        <Storyboard x:Key="ShowBackgroundStoryboard">
-            <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                             To="1"
-                             Duration="0:0:0.3"/>
-        </Storyboard>
-        <Storyboard x:Key="FadeBackgroundStoryboard">
-            <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                             To="0"
-                             Duration="0:0:0.5"/>
-        </Storyboard>
-    </Window.Resources>
-
     <Grid>
         <tb:TaskbarIcon Name="TrayIcon"
                         IconSource="/lyrics.ico"
@@ -71,22 +58,8 @@
 
             <StackPanel Name="TopPanel"
                         Grid.Row="0"
+                        Panel.ZIndex="1"
                         Background="{DynamicResource MaterialDesignPaper}">
-                <StackPanel.Style>
-                    <Style TargetType="StackPanel">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsActive}" Value="True">
-                                <DataTrigger.EnterActions>
-                                    <BeginStoryboard Storyboard="{StaticResource ShowBackgroundStoryboard}"/>
-                                </DataTrigger.EnterActions>
-                                <DataTrigger.ExitActions>
-                                    <BeginStoryboard Storyboard="{StaticResource FadeBackgroundStoryboard}"/>
-                                </DataTrigger.ExitActions>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </StackPanel.Style>
-
                 <Grid Name="TitleBar" MouseLeftButtonDown="OnTitleBarMouseLeftButtonDown">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
