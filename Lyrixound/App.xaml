@@ -20,6 +20,7 @@
                                                IconsDirectory="Icons"/>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
             <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
+            <converters:ByteToOpacityConverter x:Key="ByteToOpacityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 

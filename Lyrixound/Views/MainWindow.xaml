@@ -240,6 +240,7 @@
                                 </TextBlock.Foreground>
                                 <TextBlock.Effect>
                                     <DropShadowEffect BlurRadius="{Binding DataContext.LyricsSettings.BlurRadius, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                      Opacity="{Binding DataContext.LyricsSettings.ShadowColor.A, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource ByteToOpacityConverter}}"
                                                       ShadowDepth="{Binding DataContext.LyricsSettings.ShadowDepth, RelativeSource={RelativeSource AncestorType=Window}}"
                                                       Color="{Binding DataContext.LyricsSettings.ShadowColor, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                 </TextBlock.Effect>
@@ -285,6 +286,7 @@
                     </TextBox.Foreground>
                     <TextBox.Effect>
                         <DropShadowEffect BlurRadius="{Binding LyricsSettings.BlurRadius}"
+                                          Opacity="{Binding LyricsSettings.ShadowColor.A, Converter={StaticResource ByteToOpacityConverter}}"
                                           ShadowDepth="{Binding LyricsSettings.ShadowDepth}"
                                           Color="{Binding LyricsSettings.ShadowColor}"/>
                     </TextBox.Effect>
@@ -293,7 +295,12 @@
 
             <Expander Name="TextSettings"
                       Grid.Row="2"
-                      Padding="10,0">
+                      Padding="10,0"
+                      BorderBrush="#FFA89E9E"
+                      BorderThickness="0,1,0,0">
+                <Expander.Header>
+                    <TextBlock ToolTip="Customize colors, sizes, etc."/>
+                </Expander.Header>
                 <views:LyricsSettingsView DataContext="{Binding LyricsSettings}"/>
             </Expander>
         </Grid>
