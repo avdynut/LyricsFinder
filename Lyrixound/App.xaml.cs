@@ -29,7 +29,7 @@ namespace Lyrixound
     /// </summary>
     public partial class App : PrismApplication
     {
-        public const string HelpUrl = "https://lyrixound.blogspot.com/";
+        public const string HelpUrl = "https://lyrixound.app/";
 
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly string _dataFolder;

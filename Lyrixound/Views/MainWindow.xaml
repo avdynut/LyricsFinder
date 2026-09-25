@@ -27,19 +27,29 @@
                         MenuActivation="RightClick"
                         TrayLeftMouseUp="OnTaskbarIconTrayLeftMouseUp">
             <tb:TaskbarIcon.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Click="OnSettingsButtonClick" Header="Settings"/>
-                    <MenuItem Command="{Binding OpenWebsiteCommand}" Header="Help"/>
+                <ContextMenu FontSize="14">
+                    <MenuItem Margin="0,-10,0,0"
+                              Padding="-25,0,10,0"
+                              Click="OnSettingsButtonClick"
+                              Header="Settings"/>
+                    <MenuItem Padding="-25,0,10,0"
+                              Command="{Binding OpenWebsiteCommand}"
+                              Header="Lyrixound Website"/>
                     <MenuItem Name="SupportAuthorMenuItem"
+                              Padding="-25,0,10,0"
                               Click="OnSupportAuthorClick"
                               Header="Support the author"/>
                     <Separator/>
                     <MenuItem Name="ClickThroughMenuItem"
+                              Padding="-25,0,10,0"
                               Click="OnClickThroughToggle"
                               Header="Click Through"
                               IsCheckable="True"/>
                     <Separator/>
-                    <MenuItem Click="OnExitClick" Header="Exit"/>
+                    <MenuItem Margin="0,0,0,-10"
+                              Padding="-25,0,10,0"
+                              Click="OnExitClick"
+                              Header="Exit"/>
                 </ContextMenu>
             </tb:TaskbarIcon.ContextMenu>
             <tb:TaskbarIcon.TrayToolTip>

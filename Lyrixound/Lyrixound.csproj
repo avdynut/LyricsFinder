@@ -12,7 +12,7 @@
     <Platforms>AnyCPU;x64</Platforms>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Version>1.5.4</Version>
-    <PackageProjectUrl>https://lyrixound.blogspot.com/</PackageProjectUrl>
+    <PackageProjectUrl>https://lyrixound.app/</PackageProjectUrl>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
