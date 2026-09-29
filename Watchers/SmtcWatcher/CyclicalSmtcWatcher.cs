@@ -13,6 +13,8 @@ namespace SmtcWatcher
     /// </summary>
     public class CyclicalSmtcWatcher : MusicWatcher
     {
+        private static readonly TimeSpan ReadTimeout = TimeSpan.FromSeconds(3);
+
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
@@ -31,27 +33,37 @@ namespace SmtcWatcher
         {
             _logger.Debug($"Initialize music watcher with timer {Interval}");
 
-            // Request the session manager once. Requesting it per iteration creates a new
-            // out-of-process COM proxy into NPSMSvc on every tick that is never released,
-            // leaking native RPC threads and handles in both processes.
-            var sessionManager = await GlobalSystemMediaTransportControlsSessionManager.RequestAsync();
+            // Request the session manager once, not per iteration: each request creates an
+            // out-of-process COM proxy into NPSMSvc that is never released. Re-request only
+            // after a failed or hung read, since a broken proxy never recovers.
+            GlobalSystemMediaTransportControlsSessionManager sessionManager = null;
             var token = _cancellationTokenSource.Token;
 
             while (!token.IsCancellationRequested)
             {
-                _currentSession = sessionManager.GetCurrentSession();
-
-                PlayerId = _currentSession?.SourceAppUserModelId;
-
-                if (_currentSession != null)
+                try
                 {
-                    await GetMediaPropertiesAsync();
-                    GetPlaybackInfo();
-                    GetTimeline();
+                    sessionManager ??= await GlobalSystemMediaTransportControlsSessionManager.RequestAsync();
 
-                    //_currentSession.MediaPropertiesChanged += OnCurrentSessionMediaPropertiesChanged;
-                    //_currentSession.PlaybackInfoChanged += OnCurrentSessionPlaybackInfoChanged;
-                    //_currentSession.TimelinePropertiesChanged += OnCurrentSessionTimelinePropertiesChanged;
+                    _currentSession = sessionManager.GetCurrentSession();
+
+                    PlayerId = _currentSession?.SourceAppUserModelId;
+
+                    if (_currentSession != null)
+                    {
+                        await GetMediaPropertiesAsync(token);
+                        GetPlaybackInfo();
+                        GetTimeline();
+                    }
+                }
+                catch (OperationCanceledException) when (token.IsCancellationRequested)
+                {
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    _logger.Warn(ex, "SMTC read failed, requesting a new session manager");
+                    sessionManager = null;
                 }
 
                 try
@@ -67,9 +79,12 @@ namespace SmtcWatcher
             _logger.Debug("Music watcher loop stopped");
         }
 
-        private async Task GetMediaPropertiesAsync()
+        private async Task GetMediaPropertiesAsync(CancellationToken token)
         {
-            if (await _currentSession?.TryGetMediaPropertiesAsync() is GlobalSystemMediaTransportControlsSessionMediaProperties mp)
+            using var timeout = CancellationTokenSource.CreateLinkedTokenSource(token);
+            timeout.CancelAfter(ReadTimeout);
+
+            if (await _currentSession.TryGetMediaPropertiesAsync().AsTask(timeout.Token) is GlobalSystemMediaTransportControlsSessionMediaProperties mp)
             {
                 Track = new Track
                 {
