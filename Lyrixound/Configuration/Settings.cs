@@ -4,7 +4,8 @@ using LyricsProviders.GoogleProvider;
 using LyricsProviders.LrcLib;
 using LyricsProviders.LyricsOvh;
 using LyricsProviders.MusixMatch;
-using nucs.JsonSettings;
+using Nucs.JsonSettings;
+using Nucs.JsonSettings.Autosave;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,6 +13,7 @@ using System.Linq;
 
 namespace Lyrixound.Configuration
 {
+    [Autosave]
     public class Settings : JsonSettings
     {
         private readonly List<Element> _defaultProviders =
@@ -49,7 +51,7 @@ namespace Lyrixound.Configuration
             AfterLoad += OnAfterLoad;
         }
 
-        private void OnAfterLoad()
+        private void OnAfterLoad(JsonSettings settings, bool successfulLoad)
         {
             LyricsProviders = new ObservableCollection<Element>(LyricsProviders.Union(_defaultProviders));
         }

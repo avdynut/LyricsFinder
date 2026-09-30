@@ -1,9 +1,11 @@
-﻿using nucs.JsonSettings;
+﻿using Nucs.JsonSettings;
+using Nucs.JsonSettings.Autosave;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace LyricsProviders.DirectoriesProvider
 {
+    [Autosave]
     public class DirectoriesProviderSettings : JsonSettings
     {
         public override string FileName { get; set; }
@@ -17,7 +19,7 @@ namespace LyricsProviders.DirectoriesProvider
             AfterLoad += OnAfterLoad;
         }
 
-        private void OnAfterLoad()
+        private void OnAfterLoad(JsonSettings settings, bool successfulLoad)
         {
             LyricsDirectories = LyricsDirectories.Distinct().ToList(); // JsonSettings creates double values of the default element
         }

@@ -56,7 +56,7 @@
                      Width="60"
                      Margin="10,0,0,0"
                      md:HintAssist.Hint="sec"
-                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                     Style="{StaticResource FloatingHintTextBox}"
                      Text="{Binding TimeOffsetSeconds, StringFormat=F3, UpdateSourceTrigger=PropertyChanged}"
                      ToolTip="Adjust synced lyrics timing. Positive values move lyrics forward, negative values move them backward."/>
         </Grid>
@@ -92,12 +92,12 @@
         <WrapPanel Margin="10,0">
             <TextBox MinWidth="100"
                      md:HintAssist.Hint="Blur Radius"
-                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                     Style="{StaticResource FloatingHintTextBox}"
                      Text="{Binding BlurRadius, UpdateSourceTrigger=PropertyChanged, Delay=200}"/>
             <TextBox MinWidth="100"
-                     Margin="10,0,0,0"
+                     Margin="10,3,0,6"
                      md:HintAssist.Hint="Shadow Depth"
-                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                     Style="{StaticResource FloatingHintTextBox}"
                      Text="{Binding ShadowDepth, UpdateSourceTrigger=PropertyChanged, Delay=200}"/>
         </WrapPanel>
 

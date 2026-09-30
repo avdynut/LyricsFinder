@@ -253,7 +253,7 @@
                                                         <SolidColorBrush Color="{Binding DataContext.LyricsSettings.ActiveLineBackgroundColor, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                                     </Setter.Value>
                                                 </Setter>
-                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Primary.Foreground}"/>
                                                 <Setter Property="FontWeight" Value="Bold"/>
                                             </DataTrigger>
                                         </Style.Triggers>

@@ -13,7 +13,7 @@
                 <materialDesign:BundledTheme BaseTheme="Light"
                                              PrimaryColor="DeepPurple"
                                              SecondaryColor="Lime"/>
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <converters:NameToIconUriConverter x:Key="NameToIconUriConverter"
                                                Extension="png"
@@ -21,6 +21,12 @@
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
             <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
             <converters:ByteToOpacityConverter x:Key="ByteToOpacityConverter"/>
+            <Style x:Key="FloatingHintTextBox"
+                   TargetType="TextBox"
+                   BasedOn="{StaticResource MaterialDesignFloatingHintTextBox}">
+                <Setter Property="Margin" Value="0,3,0,6"/>
+                <Setter Property="Padding" Value="0,10,0,5"/>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 

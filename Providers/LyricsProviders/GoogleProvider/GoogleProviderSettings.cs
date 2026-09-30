@@ -1,7 +1,9 @@
-﻿using nucs.JsonSettings;
+﻿using Nucs.JsonSettings;
+using Nucs.JsonSettings.Autosave;
 
 namespace LyricsProviders.GoogleProvider
 {
+    [Autosave]
     public class GoogleProviderSettings : JsonSettings
     {
         public override string FileName { get; set; }

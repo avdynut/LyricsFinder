@@ -63,6 +63,9 @@
     <HoursBetweenUpdateChecks>24</HoursBetweenUpdateChecks>
     <PackageCertificateThumbprint>FAE0D6867662EDF6A535255951322CC64F9BFADF</PackageCertificateThumbprint>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+    <!-- This project compiles nothing; Nucs.JsonSettings.Autosave's weave targets arrive here
+         transitively and fail looking for AspectInjector. Lyrixound does its own weaving. -->
+    <AspectInjector_Enabled>false</AspectInjector_Enabled>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <AppxBundle>Always</AppxBundle>
@@ -127,6 +130,9 @@
     <ProjectReference Include="..\Lyrixound\Lyrixound.csproj">
       <SkipGetTargetFrameworkProperties>True</SkipGetTargetFrameworkProperties>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Private.Uri" Version="4.3.2" />
   </ItemGroup>
   <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.targets" />
 </Project>

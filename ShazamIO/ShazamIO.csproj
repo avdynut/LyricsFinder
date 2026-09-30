@@ -16,10 +16,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NAudio" Version="2.2.1" />
-    <PackageReference Include="Polly" Version="8.6.5" />
+    <PackageReference Include="NAudio" Version="3.1.0" />
+    <!-- NAudio 3.x only pulls in Media Foundation for Windows-targeted TFMs; this project is plain net10.0 -->
+    <PackageReference Include="NAudio.Wasapi" Version="3.1.0" />
+    <PackageReference Include="Polly" Version="8.8.0" />
     <PackageReference Include="Polly.Extensions.Http" Version="3.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.12" />
   </ItemGroup>
 
 </Project>

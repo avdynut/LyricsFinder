@@ -27,7 +27,7 @@ public class AudioConverter
         using var outputStream = new MemoryStream();
         var buffer = new byte[resampler.WaveFormat.AverageBytesPerSecond];
         int bytesRead;
-        while ((bytesRead = resampler.Read(buffer, 0, buffer.Length)) > 0)
+        while ((bytesRead = resampler.Read(buffer)) > 0)
         {
             outputStream.Write(buffer, 0, bytesRead);
         }

@@ -18,8 +18,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NLog" Version="4.7.10" />
-    <PackageReference Include="nucs.JsonSettings" Version="1.0.7" />
+    <PackageReference Include="NLog" Version="6.2.1" />
+    <PackageReference Include="Nucs.JsonSettings" Version="2.3.2" />
+    <PackageReference Include="Nucs.JsonSettings.Autosave" Version="2.3.2" />
   </ItemGroup>
 
   <ItemGroup>
