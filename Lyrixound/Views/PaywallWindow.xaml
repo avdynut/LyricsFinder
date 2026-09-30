@@ -15,7 +15,7 @@
 
     <Border Padding="20"
             Background="{DynamicResource MaterialDesignPaper}"
-            BorderBrush="{DynamicResource PrimaryHueMidBrush}"
+            BorderBrush="{DynamicResource MaterialDesign.Brush.Primary}"
             BorderThickness="2"
             CornerRadius="10">
         <Border.Effect>
@@ -38,7 +38,7 @@
                 <md:PackIcon Width="32"
                              Height="32"
                              VerticalAlignment="Center"
-                             Foreground="{DynamicResource PrimaryHueMidBrush}"
+                             Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
                              Kind="GuitarAcoustic"/>
                 <TextBlock Margin="10,0,0,0"
                            VerticalAlignment="Center"

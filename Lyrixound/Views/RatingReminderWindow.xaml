@@ -14,7 +14,7 @@
         mc:Ignorable="d">
 
     <Border Background="{DynamicResource MaterialDesignPaper}"
-            BorderBrush="{DynamicResource PrimaryHueMidBrush}"
+            BorderBrush="{DynamicResource MaterialDesign.Brush.Primary}"
             BorderThickness="2"
             CornerRadius="10"
             Padding="20">
@@ -37,7 +37,7 @@
                 <md:PackIcon Kind="Star"
                             Width="32"
                             Height="32"
-                            Foreground="{DynamicResource PrimaryHueMidBrush}"
+                            Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
                             VerticalAlignment="Center"/>
                 <TextBlock Text="Enjoying Lyrixound?"
                           FontSize="20"

@@ -59,7 +59,7 @@ public class ThemeService
 
         var paletteHelper = new PaletteHelper();
         var theme = paletteHelper.GetTheme();
-        theme.SetBaseTheme(dark ? Theme.Dark : Theme.Light);
+        theme.SetBaseTheme(dark ? BaseTheme.Dark : BaseTheme.Light);
         paletteHelper.SetTheme(theme);
         _appliedDark = dark;
         ThemeChanged?.Invoke(this, EventArgs.Empty);

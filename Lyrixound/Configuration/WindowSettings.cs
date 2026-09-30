@@ -1,8 +1,10 @@
-﻿using nucs.JsonSettings;
+﻿using Nucs.JsonSettings;
+using Nucs.JsonSettings.Autosave;
 using System.Windows;
 
 namespace Lyrixound.Configuration
 {
+    [Autosave]
     public class WindowSettings : JsonSettings
     {
         public override string FileName { get; set; }

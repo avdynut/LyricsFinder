@@ -1,10 +1,12 @@
 using Newtonsoft.Json;
-using nucs.JsonSettings;
+using Nucs.JsonSettings;
+using Nucs.JsonSettings.Autosave;
 using System.Windows;
 using System.Windows.Media;
 
 namespace Lyrixound.Configuration
 {
+    [Autosave]
     public class LyricsSettings : JsonSettings
     {
         public override string FileName { get; set; }
