@@ -82,38 +82,62 @@
                            Margin="2"
                            Source="{Binding PlayerName, Converter={StaticResource NameToIconUriConverter}}"
                            ToolTip="{Binding PlayerName}"/>-->
-                    <Button Height="24"
+                    <Button Width="32"
+                            Height="32"
+                            Margin="2,0"
+                            Padding="0"
                             Click="OnSearchButtonClick"
                             Style="{StaticResource MaterialDesignIconButton}"
                             ToolTip="Search lyrics manually">
-                        <md:PackIcon Kind="Magnify"/>
+                        <md:PackIcon Width="18"
+                                     Height="18"
+                                     Kind="Magnify"/>
                     </Button>
 
-                    <ToggleButton IsChecked="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Topmost}"
+                    <ToggleButton Width="32"
+                                  Height="32"
+                                  Margin="2,0"
+                                  Padding="0"
+                                  IsChecked="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Topmost}"
                                   Style="{StaticResource MaterialDesignSwitchToggleButton}"
                                   ToolTip="Topmost">
-                        <md:PackIcon Kind="Pin" RenderTransformOrigin=".5,.5">
+                        <md:PackIcon Width="18"
+                                     Height="18"
+                                     Kind="Pin"
+                                     RenderTransformOrigin=".5,.5">
                             <md:PackIcon.RenderTransform>
                                 <RotateTransform Angle="45"/>
                             </md:PackIcon.RenderTransform>
                         </md:PackIcon>
                         <md:ToggleButtonAssist.OnContent>
-                            <md:PackIcon Kind="Pin"/>
+                            <md:PackIcon Width="18"
+                                         Height="18"
+                                         Kind="Pin"/>
                         </md:ToggleButtonAssist.OnContent>
                     </ToggleButton>
 
                     <Button Name="ThemeButton"
-                            Height="24"
+                            Width="32"
+                            Height="32"
+                            Margin="2,0"
+                            Padding="0"
                             Click="OnThemeButtonClick"
                             Style="{StaticResource MaterialDesignIconButton}"
                             ToolTip="Dark mode (Pro)">
-                        <md:PackIcon Kind="WeatherNight"/>
+                        <md:PackIcon Width="18"
+                                     Height="18"
+                                     Kind="WeatherNight"/>
                     </Button>
 
-                    <Button Height="24"
+                    <Button Width="32"
+                            Height="32"
+                            Margin="2,0"
+                            Padding="0"
                             Click="OnSettingsButtonClick"
                             Style="{StaticResource MaterialDesignIconButton}">
-                        <md:PackIcon Kind="Settings"/>
+                        <md:PackIcon Width="18"
+                                     Height="18"
+                                     Kind="Settings"/>
                     </Button>
 
                     <Separator Width="2"
@@ -175,7 +199,12 @@
                         ToolTip="Recognize song from system audio"/>
             </Grid>
 
-            <Grid Grid.Row="2" Margin="12,2,12,8">
+            <Grid Name="TrackHeader"
+                  Grid.Row="2"
+                  Margin="12,2,12,8"
+                  Background="Transparent"
+                  MouseEnter="OnLyricsChromeAreaMouseEnter"
+                  MouseLeave="OnLyricsChromeAreaMouseLeave">
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -193,12 +222,13 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Border Width="48"
-                        Height="48"
+                <Border Width="64"
+                        Height="64"
                         Margin="0,0,10,0"
                         VerticalAlignment="Center"
-                        CornerRadius="4">
+                        CornerRadius="5">
                     <Border.Style>
                         <Style TargetType="Border">
                             <Setter Property="Visibility" Value="Visible"/>
@@ -209,58 +239,88 @@
                             </Style.Triggers>
                         </Style>
                     </Border.Style>
-                    <Border.Clip>
-                        <RectangleGeometry RadiusX="4" RadiusY="4" Rect="0,0,48,48"/>
-                    </Border.Clip>
-                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/>
+                    <Border.Background>
+                        <ImageBrush ImageSource="{Binding Thumbnail}" Stretch="UniformToFill"/>
+                    </Border.Background>
                 </Border>
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                <TextBlock FontSize="15"
-                           FontWeight="SemiBold"
-                           Foreground="{DynamicResource MaterialDesignBody}"
-                           Text="{Binding LyricsTitle}"
-                           TextTrimming="CharacterEllipsis"
-                           ToolTip="{Binding LyricsTitle}">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding LyricsTitle}" Value="{x:Null}">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding LyricsTitle}" Value="">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-                <TextBlock Margin="0,1,0,0"
-                           FontSize="13"
-                           Foreground="{DynamicResource MaterialDesignBodyLight}"
-                           Text="{Binding LyricsArtist}"
-                           TextTrimming="CharacterEllipsis"
-                           ToolTip="{Binding LyricsArtist}">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding LyricsArtist}" Value="{x:Null}">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding LyricsArtist}" Value="">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
+                    <TextBlock FontSize="15"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource MaterialDesignBody}"
+                               Text="{Binding LyricsTitle}"
+                               TextTrimming="CharacterEllipsis"
+                               ToolTip="{Binding LyricsTitle}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding LyricsTitle}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding LyricsTitle}" Value="">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBlock Margin="0,1,0,0"
+                               FontSize="13"
+                               Foreground="{DynamicResource MaterialDesignBodyLight}"
+                               Text="{Binding LyricsArtist}"
+                               TextTrimming="CharacterEllipsis"
+                               ToolTip="{Binding LyricsArtist}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding LyricsArtist}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding LyricsArtist}" Value="">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+                <StackPanel Name="LyricsChrome"
+                            Grid.Column="2"
+                            Margin="8,0,0,0"
+                            VerticalAlignment="Center"
+                            IsHitTestVisible="False"
+                            Opacity="0"
+                            Orientation="Horizontal">
+                    <Button Width="36"
+                            Height="36"
+                            Margin="4,0"
+                            Padding="0"
+                            Command="{Binding OpenLyricsCommand}"
+                            Style="{StaticResource MaterialDesignIconButton}"
+                            ToolTip="{Binding ProviderName}">
+                        <Image Width="16"
+                               Height="16"
+                               Source="{Binding ProviderName, Converter={StaticResource NameToIconUriConverter}}"/>
+                    </Button>
+                    <Button Name="LyricsSettingsButton"
+                            Width="36"
+                            Height="36"
+                            Margin="4,0"
+                            Padding="0"
+                            Click="OnLyricsSettingsButtonClick"
+                            Style="{StaticResource MaterialDesignIconButton}"
+                            ToolTip="Customize colors, sizes, etc.">
+                        <md:PackIcon Width="20"
+                                     Height="20"
+                                     Kind="FormatSize"/>
+                    </Button>
                 </StackPanel>
             </Grid>
 
             <Grid Name="LyricsPanel"
                   Grid.Row="3"
                   Background="Transparent"
-                  MouseEnter="OnLyricsPanelMouseEnter"
-                  MouseLeave="OnLyricsPanelMouseLeave">
+                  MouseEnter="OnLyricsChromeAreaMouseEnter"
+                  MouseLeave="OnLyricsChromeAreaMouseLeave">
                 <!-- Synced Lyrics Display -->
                 <ListBox Name="SyncedLyricsList"
                          Background="Transparent"
@@ -283,6 +343,7 @@
                             <Setter Property="Padding" Value="0"/>
                             <Setter Property="Margin" Value="0"/>
                             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            <Setter Property="Width" Value="{Binding ViewportWidth, RelativeSource={RelativeSource AncestorType=ScrollViewer}}"/>
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="ListBoxItem">
@@ -368,28 +429,6 @@
                     </TextBox.Effect>
                 </TextBox>
 
-                <StackPanel Name="LyricsChrome"
-                            Margin="6"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom"
-                            Panel.ZIndex="1"
-                            IsHitTestVisible="False"
-                            Opacity="0"
-                            Orientation="Horizontal">
-                    <Button Height="28"
-                            Command="{Binding OpenLyricsCommand}"
-                            Style="{StaticResource MaterialDesignIconButton}"
-                            ToolTip="{Binding ProviderName}">
-                        <Image Height="16" Source="{Binding ProviderName, Converter={StaticResource NameToIconUriConverter}}"/>
-                    </Button>
-                    <Button Name="LyricsSettingsButton"
-                            Height="28"
-                            Click="OnLyricsSettingsButtonClick"
-                            Style="{StaticResource MaterialDesignIconButton}"
-                            ToolTip="Customize colors, sizes, etc.">
-                        <md:PackIcon Kind="FormatSize"/>
-                    </Button>
-                </StackPanel>
             </Grid>
         </Grid>
     </Grid>

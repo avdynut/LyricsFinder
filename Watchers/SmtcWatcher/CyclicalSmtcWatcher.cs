@@ -86,7 +86,7 @@ namespace SmtcWatcher
 
             if (await _currentSession.TryGetMediaPropertiesAsync().AsTask(timeout.Token) is GlobalSystemMediaTransportControlsSessionMediaProperties mp)
             {
-                Track = new Track
+                var next = new Track
                 {
                     Artist = TrackTextCleaner.Clean(mp.Artist),
                     Title = TrackTextCleaner.CleanTitle(mp.Title, mp.Artist),
@@ -94,6 +94,15 @@ namespace SmtcWatcher
                     Genres = mp.Genres,
                     Thumbnail = mp.Thumbnail
                 };
+
+                if (Track != null && Track.Equals(next))
+                {
+                    RaiseThumbnailChanged(mp.Thumbnail);
+                }
+                else
+                {
+                    Track = next;
+                }
                 //_logger.Debug($"Artist: {mp.Artist}, Title: {mp.Title}, Album: {mp.AlbumTitle}, Genres: {string.Join(";", mp.Genres)}, Type: {mp.PlaybackType}, Thumbnail: {mp.Thumbnail}");
             }
         }
