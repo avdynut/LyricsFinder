@@ -58,7 +58,6 @@ namespace Lyrixound.Views
         private readonly ThemeService _themeService;
         private bool _isClickThrough;
         private bool _titleBarHovered;
-        private bool _lyricsPanelHovered;
         private LyricsSettingsWindow _lyricsSettingsWindow;
 
         public MainWindow(
@@ -322,6 +321,7 @@ namespace Lyrixound.Views
         {
             base.OnActivated(e);
             UpdateChrome();
+            UpdateSearchPanelForContent();
         }
 
         protected override void OnDeactivated(EventArgs e)
@@ -330,6 +330,7 @@ namespace Lyrixound.Views
 
             Lyrics.IsReadOnly = true;
             UpdateChrome();
+            UpdateSearchPanelForContent();
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
@@ -462,23 +463,22 @@ namespace Lyrixound.Views
             UpdateChrome();
         }
 
-        private void OnLyricsPanelMouseEnter(object sender, MouseEventArgs e)
+        private void OnLyricsChromeAreaMouseEnter(object sender, MouseEventArgs e)
         {
-            _lyricsPanelHovered = true;
-            UpdateChrome();
+            Dispatcher.BeginInvoke(() => UpdateChrome(), DispatcherPriority.Input);
         }
 
-        private void OnLyricsPanelMouseLeave(object sender, MouseEventArgs e)
+        private void OnLyricsChromeAreaMouseLeave(object sender, MouseEventArgs e)
         {
-            _lyricsPanelHovered = false;
-            UpdateChrome();
+            Dispatcher.BeginInvoke(() => UpdateChrome(), DispatcherPriority.Input);
         }
 
         private void UpdateChrome(bool animate = true)
         {
             var allowChrome = !_isClickThrough && IsActive;
             SetChromeElementVisible(TitleBarButtons, allowChrome && _titleBarHovered, animate);
-            SetChromeElementVisible(LyricsChrome, allowChrome && _lyricsPanelHovered, animate);
+            var overLyricsChrome = LyricsPanel.IsMouseOver || TrackHeader.IsMouseOver;
+            SetChromeElementVisible(LyricsChrome, allowChrome && overLyricsChrome, animate);
 
             var engaged = allowChrome && IsActive;
             var scrollBars = engaged ? ScrollBarVisibility.Auto : ScrollBarVisibility.Hidden;
@@ -523,6 +523,12 @@ namespace Lyrixound.Views
             if (!Dispatcher.CheckAccess())
             {
                 InvokeOnDispatcher(UpdateSearchPanelForContent);
+                return;
+            }
+
+            if (!IsActive)
+            {
+                SetSearchPanelOpen(false);
                 return;
             }
 

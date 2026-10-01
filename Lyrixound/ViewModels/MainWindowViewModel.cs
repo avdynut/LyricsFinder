@@ -32,6 +32,8 @@ namespace Lyrixound.ViewModels
         private TimeSpan _lastKnownPosition;
         private DateTimeOffset _lastPositionUpdateTime;
         private int _thumbnailGeneration;
+        private int _thumbnailHash;
+        private DateTime _thumbnailRefreshUntilUtc;
 
         public TrackViewModel Track { get; }
 
@@ -116,6 +118,7 @@ namespace Lyrixound.ViewModels
             _audioRecognitionService = new AudioRecognitionService();
 
             _musicWatcher.TrackChanged += OnWatcherTrackChanged;
+            _musicWatcher.ThumbnailChanged += OnThumbnailChanged;
             _musicWatcher.TrackProgressChanged += OnTrackProgressChanged;
             _musicWatcher.PlayerStateChanged += OnPlayerStateChanged;
 
@@ -298,17 +301,27 @@ namespace Lyrixound.ViewModels
             await FindLyricsAsync(trackInfo);
         }
 
+        private void OnThumbnailChanged(object thumbnail)
+        {
+            if (thumbnail == null || DateTime.UtcNow > _thumbnailRefreshUntilUtc)
+                return;
+
+            _ = LoadThumbnailAsync(thumbnail, _thumbnailGeneration, keepCurrent: true);
+        }
+
         private void LoadThumbnail(object thumbnail)
         {
+            _thumbnailRefreshUntilUtc = DateTime.UtcNow.AddSeconds(10);
+            _thumbnailHash = 0;
             var generation = ++_thumbnailGeneration;
             SetThumbnail(null);
             if (thumbnail != null)
             {
-                _ = LoadThumbnailAsync(thumbnail, generation);
+                _ = LoadThumbnailAsync(thumbnail, generation, keepCurrent: false);
             }
         }
 
-        private async Task LoadThumbnailAsync(object thumbnail, int generation)
+        private async Task LoadThumbnailAsync(object thumbnail, int generation, bool keepCurrent)
         {
             byte[] bytes = null;
             try
@@ -320,10 +333,41 @@ namespace Lyrixound.ViewModels
                 _logger.Debug(ex, "Could not load track thumbnail");
             }
 
-            if (generation == _thumbnailGeneration)
-            {
-                SetThumbnail(bytes);
-            }
+            if (generation != _thumbnailGeneration)
+                return;
+
+            var hash = HashBytes(bytes);
+            if (keepCurrent && hash == _thumbnailHash)
+                return;
+
+            var appIcon = bytes != null && LooksLikeAppIcon(bytes);
+            _thumbnailHash = hash;
+            if (keepCurrent && !appIcon)
+                _thumbnailRefreshUntilUtc = DateTime.MinValue;
+
+            SetThumbnail(appIcon ? null : bytes);
+        }
+
+        private static bool LooksLikeAppIcon(byte[] bytes)
+        {
+            var dispatcher = Application.Current?.Dispatcher;
+            if (dispatcher != null && !dispatcher.CheckAccess())
+                return dispatcher.Invoke(() => ThumbnailImageLoader.LooksLikeAppIcon(bytes));
+
+            return ThumbnailImageLoader.LooksLikeAppIcon(bytes);
+        }
+
+        private static int HashBytes(byte[] bytes)
+        {
+            if (bytes == null || bytes.Length == 0)
+                return 0;
+
+            var hash = bytes.Length;
+            var step = Math.Max(1, bytes.Length / 64);
+            for (var i = 0; i < bytes.Length; i += step)
+                hash = unchecked(hash * 31 + bytes[i]);
+
+            return hash;
         }
 
         private void SetThumbnail(byte[] bytes)
@@ -417,6 +461,7 @@ namespace Lyrixound.ViewModels
             if (_musicWatcher != null)
             {
                 _musicWatcher.TrackChanged -= OnWatcherTrackChanged;
+                _musicWatcher.ThumbnailChanged -= OnThumbnailChanged;
                 _musicWatcher.TrackProgressChanged -= OnTrackProgressChanged;
                 _musicWatcher.PlayerStateChanged -= OnPlayerStateChanged;
                 _musicWatcher.Dispose();

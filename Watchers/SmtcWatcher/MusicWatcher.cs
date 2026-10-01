@@ -98,6 +98,16 @@ namespace SmtcWatcher
         public event EventHandler<Track> TrackChanged;
 
         /// <summary>
+        /// Occurs when the same track reports a new thumbnail.
+        /// </summary>
+        public event Action<object> ThumbnailChanged;
+
+        protected void RaiseThumbnailChanged(object thumbnail)
+        {
+            ThumbnailChanged?.Invoke(thumbnail);
+        }
+
+        /// <summary>
         /// Occurs when time progress changed.
         /// </summary>
         public event Action<TimeSpan, DateTimeOffset> TrackProgressChanged;
