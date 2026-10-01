@@ -7,7 +7,6 @@
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:prism="http://prismlibrary.com/"
         xmlns:tb="http://www.hardcodet.net/taskbar"
-        xmlns:views="clr-namespace:Lyrixound.Views"
         xmlns:vm="clr-namespace:Lyrixound.ViewModels"
         Title="{x:Static local:App.AppName}"
         d:DataContext="{d:DesignInstance vm:MainWindowViewModel}"
@@ -29,25 +28,25 @@
             <tb:TaskbarIcon.ContextMenu>
                 <ContextMenu FontSize="14">
                     <MenuItem Margin="0,-10,0,0"
-                              Padding="-25,0,10,0"
+                              Padding="10,0,10,0"
                               Click="OnSettingsButtonClick"
                               Header="Settings"/>
-                    <MenuItem Padding="-25,0,10,0"
+                    <MenuItem Padding="10,0,10,0"
                               Command="{Binding OpenWebsiteCommand}"
                               Header="Lyrixound Website"/>
                     <MenuItem Name="SupportAuthorMenuItem"
-                              Padding="-25,0,10,0"
+                              Padding="10,0,10,0"
                               Click="OnSupportAuthorClick"
                               Header="Support the author"/>
                     <Separator/>
                     <MenuItem Name="ClickThroughMenuItem"
-                              Padding="-25,0,10,0"
+                              Padding="10,0,10,0"
                               Click="OnClickThroughToggle"
                               Header="Click Through"
                               IsCheckable="True"/>
                     <Separator/>
                     <MenuItem Margin="0,0,0,-10"
-                              Padding="-25,0,10,0"
+                              Padding="10,0,10,0"
                               Click="OnExitClick"
                               Header="Exit"/>
                 </ContextMenu>
@@ -59,132 +58,171 @@
             </tb:TaskbarIcon.TrayToolTip>
         </tb:TaskbarIcon>
 
-        <Grid>
+        <Grid Name="ContentRoot">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <StackPanel Name="TopPanel"
-                        Grid.Row="0"
-                        Panel.ZIndex="1"
-                        Background="{DynamicResource MaterialDesignPaper}">
-                <Grid Name="TitleBar" MouseLeftButtonDown="OnTitleBarMouseLeftButtonDown">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0"
-                            Height="24"
-                            Command="{Binding OpenWebsiteCommand}"
-                            Style="{StaticResource MaterialDesignIconButton}">
-                        <Image Name="AppIconImage"
-                               Height="16"
-                               Source="/lyrics.ico"
-                               ToolTip="Open Lyrixound website"/>
+            <Grid Name="TitleBar"
+                  Grid.Row="0"
+                  MinHeight="28"
+                  Background="Transparent"
+                  MouseEnter="OnTitleBarMouseEnter"
+                  MouseLeave="OnTitleBarMouseLeave"
+                  MouseLeftButtonDown="OnTitleBarMouseLeftButtonDown">
+                <StackPanel Name="TitleBarButtons"
+                            HorizontalAlignment="Right"
+                            IsHitTestVisible="False"
+                            Opacity="0"
+                            Orientation="Horizontal">
+                    <!--<Image Height="16"
+                           Margin="2"
+                           Source="{Binding PlayerName, Converter={StaticResource NameToIconUriConverter}}"
+                           ToolTip="{Binding PlayerName}"/>-->
+                    <Button Height="24"
+                            Click="OnSearchButtonClick"
+                            Style="{StaticResource MaterialDesignIconButton}"
+                            ToolTip="Search lyrics manually">
+                        <md:PackIcon Kind="Magnify"/>
                     </Button>
-                    <StackPanel Grid.Column="1"
-                                HorizontalAlignment="Right"
-                                Orientation="Horizontal">
-                        <!--<Image Height="16"
-                               Margin="2"
-                               Source="{Binding PlayerName, Converter={StaticResource NameToIconUriConverter}}"
-                               ToolTip="{Binding PlayerName}"/>-->
-                        <Button Height="24"
-                                Command="{Binding OpenLyricsCommand}"
-                                Style="{StaticResource MaterialDesignIconButton}">
-                            <Image Height="16"
-                                   Source="{Binding ProviderName, Converter={StaticResource NameToIconUriConverter}}"
-                                   ToolTip="{Binding ProviderName}"/>
-                        </Button>
 
-                        <Separator Width="2"
-                                   Height="16"
-                                   Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
+                    <ToggleButton IsChecked="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Topmost}"
+                                  Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                  ToolTip="Topmost">
+                        <md:PackIcon Kind="Pin" RenderTransformOrigin=".5,.5">
+                            <md:PackIcon.RenderTransform>
+                                <RotateTransform Angle="45"/>
+                            </md:PackIcon.RenderTransform>
+                        </md:PackIcon>
+                        <md:ToggleButtonAssist.OnContent>
+                            <md:PackIcon Kind="Pin"/>
+                        </md:ToggleButtonAssist.OnContent>
+                    </ToggleButton>
 
-                        <ToggleButton IsChecked="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Topmost}"
-                                      Style="{StaticResource MaterialDesignSwitchToggleButton}"
-                                      ToolTip="Topmost">
-                            <md:PackIcon Kind="Pin" RenderTransformOrigin=".5,.5">
-                                <md:PackIcon.RenderTransform>
-                                    <RotateTransform Angle="45"/>
-                                </md:PackIcon.RenderTransform>
-                            </md:PackIcon>
-                            <md:ToggleButtonAssist.OnContent>
-                                <md:PackIcon Kind="Pin"/>
-                            </md:ToggleButtonAssist.OnContent>
-                        </ToggleButton>
+                    <Button Name="ThemeButton"
+                            Height="24"
+                            Click="OnThemeButtonClick"
+                            Style="{StaticResource MaterialDesignIconButton}"
+                            ToolTip="Dark mode (Pro)">
+                        <md:PackIcon Kind="WeatherNight"/>
+                    </Button>
 
-                        <Button Height="24"
-                                Click="OnSettingsButtonClick"
-                                Style="{StaticResource MaterialDesignIconButton}">
-                            <md:PackIcon Kind="Settings"/>
-                        </Button>
+                    <Button Height="24"
+                            Click="OnSettingsButtonClick"
+                            Style="{StaticResource MaterialDesignIconButton}">
+                        <md:PackIcon Kind="Settings"/>
+                    </Button>
 
-                        <Button Name="ThemeButton"
-                                Height="24"
-                                Click="OnThemeButtonClick"
-                                Style="{StaticResource MaterialDesignIconButton}"
-                                ToolTip="Dark mode (Pro)">
-                            <md:PackIcon Kind="WeatherNight"/>
-                        </Button>
+                    <Separator Width="2"
+                               Height="16"
+                               Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
 
-                        <Separator Width="2"
-                                   Height="16"
-                                   Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
+                    <Button Padding="8,4"
+                            Click="OnMinimizeButtonClick"
+                            Content="{md:PackIcon WindowMinimize}"
+                            Style="{DynamicResource MaterialDesignFlatButton}"/>
+                    <Button Name="MaximizeButton"
+                            Padding="8,4"
+                            Click="OnMaximizeButtonClick"
+                            Content="{md:PackIcon WindowMaximize}"
+                            Style="{DynamicResource MaterialDesignFlatButton}"/>
+                    <Button Padding="8,4"
+                            Click="OnExitClick"
+                            Content="{md:PackIcon WindowClose}"
+                            Style="{DynamicResource MaterialDesignFlatButton}"/>
+                </StackPanel>
+            </Grid>
 
-                        <Button Padding="8,4"
-                                Click="OnMinimizeButtonClick"
-                                Content="{md:PackIcon WindowMinimize}"
-                                Style="{DynamicResource MaterialDesignFlatButton}"/>
-                        <Button Name="MaximizeButton"
-                                Padding="8,4"
-                                Click="OnMaximizeButtonClick"
-                                Content="{md:PackIcon WindowMaximize}"
-                                Style="{DynamicResource MaterialDesignFlatButton}"/>
-                        <Button Padding="8,4"
-                                Click="OnExitClick"
-                                Content="{md:PackIcon WindowClose}"
-                                Style="{DynamicResource MaterialDesignFlatButton}"/>
-                    </StackPanel>
-                </Grid>
+            <Grid Name="SearchPanel"
+                  Grid.Row="1"
+                  Margin="10,0,10,10"
+                  KeyDown="OnSearchPanelKeyDown"
+                  Visibility="Visible">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <UniformGrid Grid.Column="0" Rows="2">
+                    <TextBox Name="SearchTitleBox"
+                             md:HintAssist.Hint="Title"
+                             Text="{Binding Track.Title, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBox md:HintAssist.Hint="Artist" Text="{Binding Track.Artist, UpdateSourceTrigger=PropertyChanged}"/>
+                </UniformGrid>
+                <Button Grid.Column="1"
+                        Height="50"
+                        Margin="6,0,0,0"
+                        md:ButtonProgressAssist.IsIndeterminate="True"
+                        md:ButtonProgressAssist.IsIndicatorVisible="{Binding SearchInProgress}"
+                        Command="{Binding FindLyricsCommand}"
+                        Content="{md:PackIcon Kind=Search,
+                                              Size=24}"
+                        IsDefault="True"
+                        Style="{DynamicResource MaterialDesignRaisedLightButton}"
+                        ToolTip="Search for lyrics"/>
+                <Button Grid.Column="2"
+                        Height="50"
+                        Margin="6,0,0,0"
+                        md:ButtonProgressAssist.IsIndeterminate="True"
+                        md:ButtonProgressAssist.IsIndicatorVisible="{Binding RecognizeInProgress}"
+                        Command="{Binding RecognizeSongCommand}"
+                        Content="{md:PackIcon Kind=Microphone,
+                                              Size=24}"
+                        Style="{DynamicResource MaterialDesignRaisedButton}"
+                        ToolTip="Recognize song from system audio"/>
+            </Grid>
 
-                <Grid Name="SearchPanel" Margin="10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <UniformGrid Grid.Column="0" Rows="2">
-                        <TextBox md:HintAssist.Hint="Title" Text="{Binding Track.Title, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBox md:HintAssist.Hint="Artist" Text="{Binding Track.Artist, UpdateSourceTrigger=PropertyChanged}"/>
-                    </UniformGrid>
-                    <Button Grid.Column="1"
-                            Height="50"
-                            Margin="6,0,0,0"
-                            md:ButtonProgressAssist.IsIndeterminate="True"
-                            md:ButtonProgressAssist.IsIndicatorVisible="{Binding SearchInProgress}"
-                            Command="{Binding FindLyricsCommand}"
-                            Content="{md:PackIcon Kind=Search,
-                                                  Size=24}"
-                            IsDefault="True"
-                            Style="{DynamicResource MaterialDesignRaisedLightButton}"
-                            ToolTip="Search for lyrics"/>
-                    <Button Grid.Column="2"
-                            Height="50"
-                            Margin="6,0,0,0"
-                            md:ButtonProgressAssist.IsIndeterminate="True"
-                            md:ButtonProgressAssist.IsIndicatorVisible="{Binding RecognizeInProgress}"
-                            Command="{Binding RecognizeSongCommand}"
-                            Content="{md:PackIcon Kind=Microphone,
-                                                  Size=24}"
-                            Style="{DynamicResource MaterialDesignRaisedButton}"
-                            ToolTip="Recognize song from system audio"/>
-                </Grid>
+            <StackPanel Grid.Row="2"
+                        Margin="12,2,12,8"
+                        Visibility="{Binding HasLyricsIdentity, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <TextBlock FontSize="15"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource MaterialDesignBody}"
+                           Text="{Binding LyricsTitle}"
+                           TextTrimming="CharacterEllipsis"
+                           ToolTip="{Binding LyricsTitle}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding LyricsTitle}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding LyricsTitle}" Value="">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <TextBlock Margin="0,1,0,0"
+                           FontSize="13"
+                           Foreground="{DynamicResource MaterialDesignBodyLight}"
+                           Text="{Binding LyricsArtist}"
+                           TextTrimming="CharacterEllipsis"
+                           ToolTip="{Binding LyricsArtist}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding LyricsArtist}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding LyricsArtist}" Value="">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
             </StackPanel>
 
-            <Grid Name="LyricsPanel" Grid.Row="1">
+            <Grid Name="LyricsPanel"
+                  Grid.Row="3"
+                  Background="Transparent"
+                  MouseEnter="OnLyricsPanelMouseEnter"
+                  MouseLeave="OnLyricsPanelMouseLeave">
                 <!-- Synced Lyrics Display -->
                 <ListBox Name="SyncedLyricsList"
                          Background="Transparent"
@@ -291,18 +329,30 @@
                                           Color="{Binding LyricsSettings.ShadowColor}"/>
                     </TextBox.Effect>
                 </TextBox>
-            </Grid>
 
-            <Expander Name="TextSettings"
-                      Grid.Row="2"
-                      Padding="10,0"
-                      BorderBrush="#FFA89E9E"
-                      BorderThickness="0,1,0,0">
-                <Expander.Header>
-                    <TextBlock ToolTip="Customize colors, sizes, etc."/>
-                </Expander.Header>
-                <views:LyricsSettingsView DataContext="{Binding LyricsSettings}"/>
-            </Expander>
+                <StackPanel Name="LyricsChrome"
+                            Margin="6"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Bottom"
+                            Panel.ZIndex="1"
+                            IsHitTestVisible="False"
+                            Opacity="0"
+                            Orientation="Horizontal">
+                    <Button Height="28"
+                            Command="{Binding OpenLyricsCommand}"
+                            Style="{StaticResource MaterialDesignIconButton}"
+                            ToolTip="{Binding ProviderName}">
+                        <Image Height="16" Source="{Binding ProviderName, Converter={StaticResource NameToIconUriConverter}}"/>
+                    </Button>
+                    <Button Name="LyricsSettingsButton"
+                            Height="28"
+                            Click="OnLyricsSettingsButtonClick"
+                            Style="{StaticResource MaterialDesignIconButton}"
+                            ToolTip="Customize colors, sizes, etc.">
+                        <md:PackIcon Kind="FormatSize"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
         </Grid>
     </Grid>
 
