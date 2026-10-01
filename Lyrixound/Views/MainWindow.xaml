@@ -175,9 +175,46 @@
                         ToolTip="Recognize song from system audio"/>
             </Grid>
 
-            <StackPanel Grid.Row="2"
-                        Margin="12,2,12,8"
-                        Visibility="{Binding HasLyricsIdentity, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid Grid.Row="2" Margin="12,2,12,8">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding HasLyricsIdentity}" Value="True"/>
+                                    <Condition Binding="{Binding IsActive, RelativeSource={RelativeSource AncestorType=Window}}" Value="True"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Width="48"
+                        Height="48"
+                        Margin="0,0,10,0"
+                        VerticalAlignment="Center"
+                        CornerRadius="4">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Thumbnail}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Border.Clip>
+                        <RectangleGeometry RadiusX="4" RadiusY="4" Rect="0,0,48,48"/>
+                    </Border.Clip>
+                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/>
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
                 <TextBlock FontSize="15"
                            FontWeight="SemiBold"
                            Foreground="{DynamicResource MaterialDesignBody}"
@@ -216,7 +253,8 @@
                         </Style>
                     </TextBlock.Style>
                 </TextBlock>
-            </StackPanel>
+                </StackPanel>
+            </Grid>
 
             <Grid Name="LyricsPanel"
                   Grid.Row="3"

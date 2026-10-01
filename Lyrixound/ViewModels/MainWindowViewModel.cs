@@ -11,7 +11,11 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.IO;
+using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Windows.System;
 
@@ -27,6 +31,7 @@ namespace Lyrixound.ViewModels
         private readonly AudioRecognitionService _audioRecognitionService;
         private TimeSpan _lastKnownPosition;
         private DateTimeOffset _lastPositionUpdateTime;
+        private int _thumbnailGeneration;
 
         public TrackViewModel Track { get; }
 
@@ -54,6 +59,13 @@ namespace Lyrixound.ViewModels
 
         public bool HasLyricsIdentity =>
             !string.IsNullOrWhiteSpace(LyricsTitle) || !string.IsNullOrWhiteSpace(LyricsArtist);
+
+        private ImageSource _thumbnail;
+        public ImageSource Thumbnail
+        {
+            get => _thumbnail;
+            private set => SetProperty(ref _thumbnail, value);
+        }
 
         private bool _searchInProgress;
         public bool SearchInProgress
@@ -221,6 +233,7 @@ namespace Lyrixound.ViewModels
                 ApplyCleanedTrackInfo(track.Artist, track.Title);
                 Track.Lyrics = track.Lyrics;
                 SetLyricsIdentity(null);
+                LoadThumbnail(track.Thumbnail);
 
                 var searchTask = FindLyricsAsync(track.ToTrackInfo());
                 var recognizeTask = RecognizeFromAudioAsync();
@@ -283,6 +296,65 @@ namespace Lyrixound.ViewModels
             ApplyCleanedTrackInfo(Track.Artist, Track.Title);
             var trackInfo = new TrackInfo { Artist = Track.Artist, Title = Track.Title };
             await FindLyricsAsync(trackInfo);
+        }
+
+        private void LoadThumbnail(object thumbnail)
+        {
+            var generation = ++_thumbnailGeneration;
+            SetThumbnail(null);
+            if (thumbnail != null)
+            {
+                _ = LoadThumbnailAsync(thumbnail, generation);
+            }
+        }
+
+        private async Task LoadThumbnailAsync(object thumbnail, int generation)
+        {
+            byte[] bytes = null;
+            try
+            {
+                bytes = await ThumbnailImageLoader.LoadBytesAsync(thumbnail);
+            }
+            catch (Exception ex)
+            {
+                _logger.Debug(ex, "Could not load track thumbnail");
+            }
+
+            if (generation == _thumbnailGeneration)
+            {
+                SetThumbnail(bytes);
+            }
+        }
+
+        private void SetThumbnail(byte[] bytes)
+        {
+            void Apply()
+            {
+                Thumbnail = CreateThumbnail(bytes);
+            }
+
+            var dispatcher = Application.Current?.Dispatcher;
+            if (dispatcher != null && !dispatcher.CheckAccess())
+            {
+                dispatcher.Invoke(Apply);
+                return;
+            }
+
+            Apply();
+        }
+
+        private static ImageSource CreateThumbnail(byte[] bytes)
+        {
+            if (bytes == null || bytes.Length == 0)
+                return null;
+
+            var image = new BitmapImage();
+            image.BeginInit();
+            image.CacheOption = BitmapCacheOption.OnLoad;
+            image.StreamSource = new MemoryStream(bytes);
+            image.EndInit();
+            image.Freeze();
+            return image;
         }
 
         private void SetLyricsIdentity(Track foundTrack)

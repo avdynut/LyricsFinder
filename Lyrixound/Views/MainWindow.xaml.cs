@@ -520,6 +520,12 @@ namespace Lyrixound.Views
 
         private void UpdateSearchPanelForContent()
         {
+            if (!Dispatcher.CheckAccess())
+            {
+                InvokeOnDispatcher(UpdateSearchPanelForContent);
+                return;
+            }
+
             if (_isClickThrough || DataContext is not ViewModels.MainWindowViewModel viewModel)
             {
                 return;
