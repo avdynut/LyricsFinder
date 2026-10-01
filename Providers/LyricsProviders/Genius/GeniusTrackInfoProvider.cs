@@ -46,6 +46,10 @@ public class GeniusTrackInfoProvider : ITrackInfoProvider
             }
 
             _logger.Debug("Matched Genius song '{0}' by '{1}'", matchedTitle, matchedArtist);
+            if (!string.IsNullOrWhiteSpace(matchedTitle))
+                track.Title = matchedTitle;
+            if (!string.IsNullOrWhiteSpace(matchedArtist))
+                track.Artist = matchedArtist;
             track.Lyrics = new UnsyncedLyric(lyricsText) { Source = new Uri(songUrl) };
         }
         catch (Exception ex)

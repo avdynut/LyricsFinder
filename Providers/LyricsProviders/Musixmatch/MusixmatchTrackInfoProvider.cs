@@ -31,10 +31,12 @@ public class MusixmatchTrackInfoProvider : ITrackInfoProvider
             Uri sourceUri;
             string lyricsFromMacro;
             string subtitleFromMacro;
+            string matchedTitle;
+            string matchedArtist;
 
             using (var macroDoc = await MusixmatchAPI.GetMacroSubtitlesAsync(trackInfo.Artist, trackInfo.Title))
             {
-                if (TryReadMatchedTrack(macroDoc.RootElement, out commontrackId, out mxmTrackId, out hasRichsync, out hasSubtitles, out sourceUri, out lyricsFromMacro, out subtitleFromMacro))
+                if (TryReadMatchedTrack(macroDoc.RootElement, out commontrackId, out mxmTrackId, out hasRichsync, out hasSubtitles, out sourceUri, out lyricsFromMacro, out subtitleFromMacro, out matchedTitle, out matchedArtist))
                 {
                     // Matched via macro.
                 }
@@ -43,12 +45,17 @@ public class MusixmatchTrackInfoProvider : ITrackInfoProvider
                     lyricsFromMacro = null;
                     subtitleFromMacro = null;
                     using var searchDoc = await MusixmatchAPI.SearchTracksAsync($"{trackInfo.Artist} {trackInfo.Title}");
-                    if (!TryPickBestSearchTrack(searchDoc.RootElement, trackInfo, out commontrackId, out mxmTrackId, out hasRichsync, out hasSubtitles, out sourceUri))
+                    if (!TryPickBestSearchTrack(searchDoc.RootElement, trackInfo, out commontrackId, out mxmTrackId, out hasRichsync, out hasSubtitles, out sourceUri, out matchedTitle, out matchedArtist))
                     {
                         throw new Exception("Musixmatch search did not match the requested track.");
                     }
                 }
             }
+
+            if (!string.IsNullOrWhiteSpace(matchedTitle))
+                track.Title = matchedTitle;
+            if (!string.IsNullOrWhiteSpace(matchedArtist))
+                track.Artist = matchedArtist;
 
             if (hasRichsync)
             {
@@ -245,7 +252,9 @@ public class MusixmatchTrackInfoProvider : ITrackInfoProvider
         out bool? hasSubtitles,
         out Uri sourceUri,
         out string lyricsBody,
-        out string subtitleBody)
+        out string subtitleBody,
+        out string matchedTitle,
+        out string matchedArtist)
     {
         commontrackId = null;
         trackId = null;
@@ -254,6 +263,8 @@ public class MusixmatchTrackInfoProvider : ITrackInfoProvider
         sourceUri = null;
         lyricsBody = null;
         subtitleBody = null;
+        matchedTitle = null;
+        matchedArtist = null;
 
         if (!root.TryGetProperty("message", out var message) ||
             !message.TryGetProperty("body", out var body) ||
@@ -278,6 +289,8 @@ public class MusixmatchTrackInfoProvider : ITrackInfoProvider
         commontrackId = trackProperty.GetProperty("commontrack_id").GetInt64().ToString();
         if (trackProperty.TryGetProperty("track_id", out var trackIdProp))
             trackId = trackIdProp.GetInt64().ToString();
+        matchedTitle = trackProperty.TryGetProperty("track_name", out var titleProp) ? titleProp.GetString() : null;
+        matchedArtist = trackProperty.TryGetProperty("artist_name", out var artistProp) ? artistProp.GetString() : null;
 
         hasRichsync = TryReadHasFlag(trackProperty, "has_richsync") == true;
         hasSubtitles = TryReadHasFlag(trackProperty, "has_subtitles");
@@ -313,13 +326,17 @@ public class MusixmatchTrackInfoProvider : ITrackInfoProvider
         out string trackId,
         out bool hasRichsync,
         out bool? hasSubtitles,
-        out Uri sourceUri)
+        out Uri sourceUri,
+        out string matchedTitle,
+        out string matchedArtist)
     {
         commontrackId = null;
         trackId = null;
         hasRichsync = false;
         hasSubtitles = null;
         sourceUri = null;
+        matchedTitle = null;
+        matchedArtist = null;
 
         if (!root.TryGetProperty("message", out var message) ||
             !message.TryGetProperty("body", out var body) ||
@@ -351,6 +368,8 @@ public class MusixmatchTrackInfoProvider : ITrackInfoProvider
         if (bestTrack is not JsonElement chosen)
             return false;
 
+        matchedTitle = chosen.TryGetProperty("track_name", out var chosenTitle) ? chosenTitle.GetString() : null;
+        matchedArtist = chosen.TryGetProperty("artist_name", out var chosenArtist) ? chosenArtist.GetString() : null;
         commontrackId = chosen.GetProperty("commontrack_id").GetInt64().ToString();
         trackId = chosen.TryGetProperty("track_id", out var trackIdProp)
             ? trackIdProp.GetInt64().ToString()

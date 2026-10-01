@@ -21,18 +21,20 @@ public class LrcLibTrackInfoProvider : ITrackInfoProvider
         try
         {
             using var searchDoc = await LrcLibAPI.SearchLyricsByFields(trackInfo.Title, trackInfo.Artist);
-            var lyrics = PickBestLyrics(searchDoc.RootElement, trackInfo);
+            var lyrics = PickBestLyrics(searchDoc.RootElement, trackInfo, out var matchedTitle, out var matchedArtist);
             if (lyrics != null)
             {
+                ApplyMatchedIdentity(track, matchedTitle, matchedArtist);
                 track.Lyrics = lyrics;
                 return track;
             }
 
             var combinedQuery = $"{trackInfo.Artist} {trackInfo.Title}";
             using var generalDoc = await LrcLibAPI.SearchLyrics(combinedQuery);
-            lyrics = PickBestLyrics(generalDoc.RootElement, trackInfo);
+            lyrics = PickBestLyrics(generalDoc.RootElement, trackInfo, out matchedTitle, out matchedArtist);
             if (lyrics != null)
             {
+                ApplyMatchedIdentity(track, matchedTitle, matchedArtist);
                 track.Lyrics = lyrics;
                 return track;
             }
@@ -50,6 +52,18 @@ public class LrcLibTrackInfoProvider : ITrackInfoProvider
 
     internal static ILyric PickBestLyrics(JsonElement searchResults, TrackInfo trackInfo)
     {
+        return PickBestLyrics(searchResults, trackInfo, out _, out _);
+    }
+
+    internal static ILyric PickBestLyrics(
+        JsonElement searchResults,
+        TrackInfo trackInfo,
+        out string matchedTitle,
+        out string matchedArtist)
+    {
+        matchedTitle = null;
+        matchedArtist = null;
+
         if (searchResults.ValueKind != JsonValueKind.Array)
             return null;
 
@@ -75,10 +89,20 @@ public class LrcLibTrackInfoProvider : ITrackInfoProvider
                 best = lyrics;
                 bestScore = score;
                 bestIsSynced = isSynced;
+                matchedTitle = resultTitle;
+                matchedArtist = resultArtist;
             }
         }
 
         return best;
+    }
+
+    private static void ApplyMatchedIdentity(Track track, string title, string artist)
+    {
+        if (!string.IsNullOrWhiteSpace(title))
+            track.Title = title;
+        if (!string.IsNullOrWhiteSpace(artist))
+            track.Artist = artist;
     }
 
     private static ILyric ExtractLyricsFromResult(JsonElement result)

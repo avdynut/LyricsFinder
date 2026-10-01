@@ -30,6 +30,31 @@ namespace Lyrixound.ViewModels
 
         public TrackViewModel Track { get; }
 
+        private string _lyricsTitle;
+        public string LyricsTitle
+        {
+            get => _lyricsTitle;
+            private set
+            {
+                if (SetProperty(ref _lyricsTitle, value))
+                    RaisePropertyChanged(nameof(HasLyricsIdentity));
+            }
+        }
+
+        private string _lyricsArtist;
+        public string LyricsArtist
+        {
+            get => _lyricsArtist;
+            private set
+            {
+                if (SetProperty(ref _lyricsArtist, value))
+                    RaisePropertyChanged(nameof(HasLyricsIdentity));
+            }
+        }
+
+        public bool HasLyricsIdentity =>
+            !string.IsNullOrWhiteSpace(LyricsTitle) || !string.IsNullOrWhiteSpace(LyricsArtist);
+
         private bool _searchInProgress;
         public bool SearchInProgress
         {
@@ -111,6 +136,7 @@ namespace Lyrixound.ViewModels
                 var foundTrack = await _trackInfoProvider.FindTrackAsync(trackInfo);
 
                 Track.Lyrics = foundTrack?.Lyrics;
+                SetLyricsIdentity(foundTrack);
                 if (Track.Lyrics?.Text?.Length > 0)
                 {
                     _logger.Debug($"Found lyrics for {foundTrack}");
@@ -194,6 +220,7 @@ namespace Lyrixound.ViewModels
                 PlayerName = _musicWatcher.PlayerId;
                 ApplyCleanedTrackInfo(track.Artist, track.Title);
                 Track.Lyrics = track.Lyrics;
+                SetLyricsIdentity(null);
 
                 var searchTask = FindLyricsAsync(track.ToTrackInfo());
                 var recognizeTask = RecognizeFromAudioAsync();
@@ -256,6 +283,19 @@ namespace Lyrixound.ViewModels
             ApplyCleanedTrackInfo(Track.Artist, Track.Title);
             var trackInfo = new TrackInfo { Artist = Track.Artist, Title = Track.Title };
             await FindLyricsAsync(trackInfo);
+        }
+
+        private void SetLyricsIdentity(Track foundTrack)
+        {
+            if (foundTrack?.Lyrics?.Text?.Length > 0)
+            {
+                LyricsTitle = foundTrack.Title;
+                LyricsArtist = foundTrack.Artist;
+                return;
+            }
+
+            LyricsTitle = null;
+            LyricsArtist = null;
         }
 
         private void ApplyCleanedTrackInfo(string artist, string title)

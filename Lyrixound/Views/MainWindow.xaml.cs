@@ -13,6 +13,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace Lyrixound.Views
 {
@@ -56,6 +57,9 @@ namespace Lyrixound.Views
         private readonly ILicenseAnalytics _licenseAnalytics;
         private readonly ThemeService _themeService;
         private bool _isClickThrough;
+        private bool _titleBarHovered;
+        private bool _lyricsPanelHovered;
+        private LyricsSettingsWindow _lyricsSettingsWindow;
 
         public MainWindow(
             WindowSettings settings,
@@ -73,7 +77,17 @@ namespace Lyrixound.Views
 
             _licenseService.EntitlementChanged += OnEntitlementChanged;
             _themeService.ThemeChanged += OnThemeChanged;
-            Loaded += (_, _) => ApplyProUi();
+            Loaded += (_, _) =>
+            {
+                ApplyProUi();
+                if (DataContext is ViewModels.MainWindowViewModel viewModel)
+                {
+                    viewModel.PropertyChanged += OnViewModelPropertyChanged;
+                    viewModel.Track.PropertyChanged += OnTrackPropertyChanged;
+                }
+
+                UpdateSearchPanelForContent();
+            };
         }
 
         private void OnEntitlementChanged(object sender, EventArgs e) => InvokeOnDispatcher(ApplyProUi);
@@ -114,10 +128,6 @@ namespace Lyrixound.Views
             Title = isPro ? "LyrixoundPro" : App.AppName;
             Icon = image;
             TrayIcon.IconSource = image;
-            if (AppIconImage != null)
-            {
-                AppIconImage.Source = image;
-            }
 
             if (TrayTooltipLabel != null)
             {
@@ -226,9 +236,9 @@ namespace Lyrixound.Views
                 : (Color)ColorConverter.ConvertFromString("#FFFAFAFA");
             var opacity = _lyricsPanelBrush?.Opacity ?? 1;
             _lyricsPanelBrush = new SolidColorBrush(color) { Opacity = opacity };
-            if (LyricsPanel != null && TextSettings != null)
+            if (ContentRoot != null)
             {
-                LyricsPanel.Background = TextSettings.Background = _lyricsPanelBrush;
+                ContentRoot.Background = _lyricsPanelBrush;
             }
         }
 
@@ -311,22 +321,15 @@ namespace Lyrixound.Views
         protected override void OnActivated(EventArgs e)
         {
             base.OnActivated(e);
-
-            if (_isClickThrough)
-                return;
-
-            Lyrics.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-            ScrollViewer.SetVerticalScrollBarVisibility(SyncedLyricsList, ScrollBarVisibility.Auto);
-            LyricsPanel.Background.Opacity = TextSettings.Background.Opacity = 1;
-            ShowTopPanel();
-            TextSettings.Visibility = Visibility.Visible;
+            UpdateChrome();
         }
 
         protected override void OnDeactivated(EventArgs e)
         {
             base.OnDeactivated(e);
 
-            ApplyDeactivatedVisuals();
+            Lyrics.IsReadOnly = true;
+            UpdateChrome();
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
@@ -348,6 +351,11 @@ namespace Lyrixound.Views
             TrayIcon.Dispose();
             _licenseService.EntitlementChanged -= OnEntitlementChanged;
             _themeService.ThemeChanged -= OnThemeChanged;
+            if (DataContext is ViewModels.MainWindowViewModel viewModel)
+            {
+                viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+                viewModel.Track.PropertyChanged -= OnTrackPropertyChanged;
+            }
 
             _settings.Topmost = Topmost;
             _settings.Save();
@@ -430,74 +438,157 @@ namespace Lyrixound.Views
             if (_isClickThrough)
             {
                 SetWindowLong(hwnd, GWL_EXSTYLE, extStyle | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE);
-                ApplyDeactivatedVisuals();
-                HideTopPanel(animate: false);
+                Lyrics.IsReadOnly = true;
+                SetSearchPanelOpen(false);
+                UpdateChrome(animate: false);
             }
             else
             {
                 SetWindowLong(hwnd, GWL_EXSTYLE, extStyle & ~WS_EX_TRANSPARENT & ~WS_EX_NOACTIVATE);
-                ShowTopPanel();
+                UpdateChrome();
+                UpdateSearchPanelForContent();
             }
         }
 
-        private void ApplyDeactivatedVisuals()
+        private void OnTitleBarMouseEnter(object sender, MouseEventArgs e)
         {
-            Lyrics.IsReadOnly = true;
-            Lyrics.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
-            ScrollViewer.SetVerticalScrollBarVisibility(SyncedLyricsList, ScrollBarVisibility.Hidden);
-            LyricsPanel.Background.Opacity = TextSettings.Background.Opacity = _lyricsSettings.FloatingBackgroundOpacity;
-            TextSettings.IsExpanded = false;
-            TextSettings.Visibility = Visibility.Collapsed;
-            HideTopPanel();
+            _titleBarHovered = true;
+            UpdateChrome();
         }
 
-        private void ShowTopPanel()
+        private void OnTitleBarMouseLeave(object sender, MouseEventArgs e)
         {
-            PlaceTopPanelInLayout();
-            TopPanel.Visibility = Visibility.Visible;
-            TopPanel.IsHitTestVisible = true;
-            TopPanel.BeginAnimation(OpacityProperty, new DoubleAnimation(1, ShowDuration));
+            _titleBarHovered = false;
+            UpdateChrome();
         }
 
-        private void HideTopPanel(bool animate = true)
+        private void OnLyricsPanelMouseEnter(object sender, MouseEventArgs e)
         {
-            OverlayTopPanel();
+            _lyricsPanelHovered = true;
+            UpdateChrome();
+        }
 
-            if (!animate)
+        private void OnLyricsPanelMouseLeave(object sender, MouseEventArgs e)
+        {
+            _lyricsPanelHovered = false;
+            UpdateChrome();
+        }
+
+        private void UpdateChrome(bool animate = true)
+        {
+            var allowChrome = !_isClickThrough && IsActive;
+            SetChromeElementVisible(TitleBarButtons, allowChrome && _titleBarHovered, animate);
+            SetChromeElementVisible(LyricsChrome, allowChrome && _lyricsPanelHovered, animate);
+
+            var engaged = allowChrome && IsActive;
+            var scrollBars = engaged ? ScrollBarVisibility.Auto : ScrollBarVisibility.Hidden;
+            Lyrics.VerticalScrollBarVisibility = scrollBars;
+            ScrollViewer.SetVerticalScrollBarVisibility(SyncedLyricsList, scrollBars);
+            ContentRoot.Background.Opacity = engaged ? 1 : _lyricsSettings.FloatingBackgroundOpacity;
+        }
+
+        private static void SetChromeElementVisible(UIElement element, bool visible, bool animate)
+        {
+            element.IsHitTestVisible = visible;
+            var target = visible ? 1.0 : 0.0;
+            if (animate)
             {
-                TopPanel.BeginAnimation(OpacityProperty, null);
-                TopPanel.Opacity = 0;
-                TopPanel.Visibility = Visibility.Collapsed;
-                PlaceTopPanelInLayout();
+                element.BeginAnimation(OpacityProperty, new DoubleAnimation(target, visible ? ShowDuration : FadeDuration));
+            }
+            else
+            {
+                element.BeginAnimation(OpacityProperty, null);
+                element.Opacity = target;
+            }
+        }
+
+        private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ViewModels.MainWindowViewModel.SearchInProgress))
+            {
+                UpdateSearchPanelForContent();
+            }
+        }
+
+        private void OnTrackPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ViewModels.TrackViewModel.Lyrics))
+            {
+                UpdateSearchPanelForContent();
+            }
+        }
+
+        private void UpdateSearchPanelForContent()
+        {
+            if (_isClickThrough || DataContext is not ViewModels.MainWindowViewModel viewModel)
+            {
                 return;
             }
 
-            var fadeOut = new DoubleAnimation(0, FadeDuration);
-            fadeOut.Completed += (_, _) =>
+            if (viewModel.SearchInProgress)
             {
-                if (IsActive && !_isClickThrough)
-                {
-                    return;
-                }
+                return;
+            }
 
-                TopPanel.Visibility = Visibility.Collapsed;
-                PlaceTopPanelInLayout();
+            SetSearchPanelOpen(!(viewModel.Track.Lyrics?.Text?.Length > 0));
+        }
+
+        private void OnSearchButtonClick(object sender, RoutedEventArgs e)
+        {
+            var open = SearchPanel.Visibility != Visibility.Visible;
+            SetSearchPanelOpen(open);
+            if (open)
+            {
+                Activate();
+                Dispatcher.BeginInvoke(() => SearchTitleBox.Focus(), DispatcherPriority.Input);
+            }
+        }
+
+        private void SetSearchPanelOpen(bool isOpen)
+        {
+            SearchPanel.Visibility = isOpen ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void OnSearchPanelKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Escape)
+                return;
+
+            SetSearchPanelOpen(false);
+            e.Handled = true;
+        }
+
+        private void OnLyricsSettingsButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (_lyricsSettingsWindow != null)
+            {
+                _lyricsSettingsWindow.Activate();
+                return;
+            }
+
+            if (DataContext is not ViewModels.MainWindowViewModel { LyricsSettings: var lyricsSettings })
+                return;
+
+            _lyricsSettingsWindow = new LyricsSettingsWindow(_themeService)
+            {
+                Owner = this,
+                DataContext = lyricsSettings
             };
-            TopPanel.BeginAnimation(OpacityProperty, fadeOut);
+            lyricsSettings.PropertyChanged += OnLyricsSettingsPropertyChanged;
+            _lyricsSettingsWindow.Closed += (_, _) =>
+            {
+                lyricsSettings.PropertyChanged -= OnLyricsSettingsPropertyChanged;
+                _lyricsSettingsWindow = null;
+            };
+            _lyricsSettingsWindow.Show();
         }
 
-        private void OverlayTopPanel()
+        private void OnLyricsSettingsPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            Grid.SetRow(TopPanel, 1);
-            TopPanel.VerticalAlignment = VerticalAlignment.Top;
-            TopPanel.IsHitTestVisible = false;
-        }
-
-        private void PlaceTopPanelInLayout()
-        {
-            Grid.SetRow(TopPanel, 0);
-            TopPanel.VerticalAlignment = VerticalAlignment.Stretch;
-            TopPanel.IsHitTestVisible = true;
+            if (e.PropertyName == nameof(LyricsSettings.FloatingBackgroundOpacity))
+            {
+                UpdateChrome(animate: false);
+            }
         }
 
         private void OnSettingsButtonClick(object sender, RoutedEventArgs e)
