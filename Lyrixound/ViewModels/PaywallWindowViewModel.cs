@@ -32,8 +32,6 @@ public class PaywallWindowViewModel : BindableBase
 
     public event Action<bool> RequestClose;
 
-    public string PriceDisplay => ProConstants.ProPriceDisplay;
-
     public string SupportEmail => ProConstants.SupportEmail;
 
     public string StatusMessage

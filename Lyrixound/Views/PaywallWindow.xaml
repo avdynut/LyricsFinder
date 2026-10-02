@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         Width="530"
-        Height="380"
         AllowsTransparency="True"
         Background="Transparent"
         ResizeMode="NoResize"
+        SizeToContent="Height"
         WindowStartupLocation="CenterOwner"
         WindowStyle="None"
         mc:Ignorable="d">
@@ -67,10 +67,6 @@
                 <TextBlock FontSize="13"
                            Text="• The main features remain free"
                            TextWrapping="Wrap"/>
-                <TextBlock Margin="0,14,0,0"
-                           FontSize="14"
-                           FontWeight="SemiBold"
-                           Text="{Binding PriceDisplay}"/>
                 <TextBlock Margin="0,8,0,0"
                            FontSize="12"
                            Foreground="{DynamicResource MaterialDesignBodyLight}"
@@ -113,7 +109,7 @@
                                      Height="18"
                                      Margin="0,0,5,0"
                                      Kind="Heart"/>
-                        <TextBlock Text="SUPPORT THE AUTHOR"/>
+                        <TextBlock Text="GET LYRIXOUND PRO"/>
                     </StackPanel>
                 </Button>
                 <Button Padding="20,8"

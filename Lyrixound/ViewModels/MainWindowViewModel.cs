@@ -11,7 +11,6 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -34,6 +33,10 @@ namespace Lyrixound.ViewModels
         private int _thumbnailGeneration;
         private int _thumbnailHash;
         private DateTime _thumbnailRefreshUntilUtc;
+        private ImageSource _playingThumbnail;
+        private bool _showPlayingThumbnail = true;
+        private string _playingArtist;
+        private string _playingTitle;
 
         public TrackViewModel Track { get; }
 
@@ -127,7 +130,7 @@ namespace Lyrixound.ViewModels
             _progressTimer.Tick += OnProgressTimerTick;
 
             FindLyricsCommand = new DelegateCommand(async () => await FindLyricsAsync(), CanFindLyrics)
-                .ObservesProperty(() => Track.Artist).ObservesProperty(() => Track.Title).ObservesProperty(() => SearchInProgress).ObservesProperty(() => RecognizeInProgress);
+                .ObservesProperty(() => SearchInProgress).ObservesProperty(() => RecognizeInProgress);
 
             OpenLyricsCommand = new DelegateCommand(async () => await OpenLyricsAsync(), () => Track.Lyrics?.Source != null)
                 .ObservesProperty(() => Track.Lyrics);
@@ -138,7 +141,35 @@ namespace Lyrixound.ViewModels
                 .ObservesProperty(() => RecognizeInProgress).ObservesProperty(() => SearchInProgress);
         }
 
-        private bool CanFindLyrics() => !string.IsNullOrEmpty(Track.Title) && !SearchInProgress && !RecognizeInProgress;
+        private bool CanFindLyrics() => !SearchInProgress && !RecognizeInProgress;
+
+        public async Task DetectCurrentTrackAsync()
+        {
+            try
+            {
+                if (SearchInProgress || RecognizeInProgress)
+                    return;
+
+                var track = _musicWatcher.Track;
+                if (string.IsNullOrWhiteSpace(track?.Title))
+                {
+                    _logger.Debug("No current track in media controls");
+                    return;
+                }
+
+                _logger.Debug($"Detected current track {track.Artist} - {track.Title}");
+                PlayerName = _musicWatcher.PlayerId;
+                ApplyCleanedTrackInfo(track.Artist, track.Title);
+                RememberPlayingTrack();
+                SetShowPlayingThumbnail(true);
+                LoadThumbnail(track.Thumbnail);
+                await FindLyricsAsync(track.ToTrackInfo());
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error detecting current track");
+            }
+        }
 
         private async Task FindLyricsAsync(TrackInfo trackInfo)
         {
@@ -234,6 +265,8 @@ namespace Lyrixound.ViewModels
 
                 PlayerName = _musicWatcher.PlayerId;
                 ApplyCleanedTrackInfo(track.Artist, track.Title);
+                RememberPlayingTrack();
+                SetShowPlayingThumbnail(true);
                 Track.Lyrics = track.Lyrics;
                 SetLyricsIdentity(null);
                 LoadThumbnail(track.Thumbnail);
@@ -251,6 +284,7 @@ namespace Lyrixound.ViewModels
                 {
                     _logger.Info($"Metadata search found no lyrics, trying recognized: {recognized.Artist} - {recognized.Title}");
                     ApplyCleanedTrackInfo(recognized.Artist, recognized.Title);
+                    RememberPlayingTrack();
                     await FindLyricsAsync(new TrackInfo { Artist = Track.Artist, Title = Track.Title });
                 }
             }
@@ -296,9 +330,55 @@ namespace Lyrixound.ViewModels
 
         private async Task FindLyricsAsync()
         {
+            if (string.IsNullOrWhiteSpace(Track.Title))
+            {
+                await DetectCurrentTrackAsync();
+                return;
+            }
+
             ApplyCleanedTrackInfo(Track.Artist, Track.Title);
             var trackInfo = new TrackInfo { Artist = Track.Artist, Title = Track.Title };
             await FindLyricsAsync(trackInfo);
+            SetShowPlayingThumbnail(IsPlayingTrack(trackInfo) || !(Track.Lyrics?.Text?.Length > 0));
+        }
+
+        private void RememberPlayingTrack()
+        {
+            _playingArtist = Track.Artist;
+            _playingTitle = Track.Title;
+        }
+
+        private bool IsPlayingTrack(TrackInfo trackInfo)
+        {
+            static bool Overlaps(string a, string b) =>
+                a.Contains(b, StringComparison.OrdinalIgnoreCase) || b.Contains(a, StringComparison.OrdinalIgnoreCase);
+
+            var title = trackInfo.Title?.Trim();
+            var playingTitle = _playingTitle?.Trim();
+            if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(playingTitle) || !Overlaps(title, playingTitle))
+                return false;
+
+            var artist = trackInfo.Artist?.Trim();
+            var playingArtist = _playingArtist?.Trim();
+            return string.IsNullOrEmpty(artist) || string.IsNullOrEmpty(playingArtist) || Overlaps(artist, playingArtist);
+        }
+
+        private void SetShowPlayingThumbnail(bool show)
+        {
+            void Apply()
+            {
+                _showPlayingThumbnail = show;
+                Thumbnail = show ? _playingThumbnail : null;
+            }
+
+            var dispatcher = Application.Current?.Dispatcher;
+            if (dispatcher != null && !dispatcher.CheckAccess())
+            {
+                dispatcher.Invoke(Apply);
+                return;
+            }
+
+            Apply();
         }
 
         private void OnThumbnailChanged(object thumbnail)
@@ -374,7 +454,9 @@ namespace Lyrixound.ViewModels
         {
             void Apply()
             {
-                Thumbnail = CreateThumbnail(bytes);
+                _playingThumbnail = CreateThumbnail(bytes);
+                if (_showPlayingThumbnail)
+                    Thumbnail = _playingThumbnail;
             }
 
             var dispatcher = Application.Current?.Dispatcher;
@@ -410,8 +492,8 @@ namespace Lyrixound.ViewModels
                 return;
             }
 
-            LyricsTitle = null;
-            LyricsArtist = null;
+            LyricsTitle = string.IsNullOrWhiteSpace(_playingTitle) ? null : _playingTitle;
+            LyricsArtist = string.IsNullOrWhiteSpace(_playingArtist) ? null : _playingArtist;
         }
 
         private void ApplyCleanedTrackInfo(string artist, string title)
@@ -424,11 +506,21 @@ namespace Lyrixound.ViewModels
         {
             try
             {
-                await Launcher.LaunchUriAsync(Track.Lyrics.Source);
+                var source = Track.Lyrics?.Source;
+                if (source == null)
+                    return;
+
+                if (source.IsFile)
+                {
+                    FileExplorer.SelectFile(source.LocalPath);
+                    return;
+                }
+
+                await Launcher.LaunchUriAsync(source);
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, $"Cannot open lyrics {Track.Lyrics.Source}");
+                _logger.Error(ex, $"Cannot open lyrics {Track.Lyrics?.Source}");
             }
         }
 
