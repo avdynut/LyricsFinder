@@ -1,0 +1,70 @@
+﻿<UserControl x:Class="Lyrixound.Views.RepeatStepper"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             x:Name="Root"
+             d:DesignWidth="160"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <Style x:Key="IconRepeatButton" TargetType="RepeatButton">
+            <Setter Property="Width" Value="36"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Margin" Value="2,0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Delay" Value="300"/>
+            <Setter Property="Interval" Value="60"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RepeatButton">
+                        <Border Width="36"
+                                Height="36"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="18">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource MaterialDesignDivider}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource MaterialDesign.Brush.Primary}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Primary.Foreground}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <StackPanel Orientation="Horizontal">
+        <RepeatButton Click="OnDecreaseClick"
+                      Style="{StaticResource IconRepeatButton}"
+                      ToolTip="{Binding DecreaseToolTip, ElementName=Root}">
+            <md:PackIcon Width="20"
+                         Height="20"
+                         Kind="Minus"/>
+        </RepeatButton>
+        <TextBox Name="ValueBox"
+                 Width="25"
+                 Margin="2,0"
+                 VerticalAlignment="Center"
+                 md:HintAssist.Hint="{Binding Hint, ElementName=Root}"
+                 LostFocus="OnValueLostFocus"
+                 Style="{StaticResource FloatingHintTextBox}"
+                 TextAlignment="Center"
+                 ToolTip="{Binding ValueToolTip, ElementName=Root}"/>
+        <RepeatButton Click="OnIncreaseClick"
+                      Style="{StaticResource IconRepeatButton}"
+                      ToolTip="{Binding IncreaseToolTip, ElementName=Root}">
+            <md:PackIcon Width="20"
+                         Height="20"
+                         Kind="Plus"/>
+        </RepeatButton>
+    </StackPanel>
+</UserControl>

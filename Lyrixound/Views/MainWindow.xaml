@@ -7,6 +7,7 @@
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:prism="http://prismlibrary.com/"
         xmlns:tb="http://www.hardcodet.net/taskbar"
+        xmlns:views="clr-namespace:Lyrixound.Views"
         xmlns:vm="clr-namespace:Lyrixound.ViewModels"
         Title="{x:Static local:App.AppName}"
         d:DataContext="{d:DesignInstance vm:MainWindowViewModel}"
@@ -449,62 +450,15 @@
                             CornerRadius="8"
                             IsHitTestVisible="False"
                             Visibility="{Binding Track.HasSyncedLyrics, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                            <StackPanel.Resources>
-                                <Style x:Key="TimeOffsetRepeatButton" TargetType="RepeatButton">
-                                    <Setter Property="Width" Value="36"/>
-                                    <Setter Property="Height" Value="36"/>
-                                    <Setter Property="Margin" Value="2,0"/>
-                                    <Setter Property="Padding" Value="0"/>
-                                    <Setter Property="Delay" Value="300"/>
-                                    <Setter Property="Interval" Value="60"/>
-                                    <Setter Property="Background" Value="Transparent"/>
-                                    <Setter Property="BorderThickness" Value="0"/>
-                                    <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="RepeatButton">
-                                                <Border Width="36"
-                                                        Height="36"
-                                                        Background="{TemplateBinding Background}"
-                                                        CornerRadius="18">
-                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                </Border>
-                                                <ControlTemplate.Triggers>
-                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Background" Value="{DynamicResource MaterialDesignDivider}"/>
-                                                    </Trigger>
-                                                    <Trigger Property="IsPressed" Value="True">
-                                                        <Setter Property="Background" Value="{DynamicResource MaterialDesign.Brush.Primary}"/>
-                                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Primary.Foreground}"/>
-                                                    </Trigger>
-                                                </ControlTemplate.Triggers>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </StackPanel.Resources>
-                            <RepeatButton Click="OnTimeOffsetDecreaseClick"
-                                          Style="{StaticResource TimeOffsetRepeatButton}"
-                                          ToolTip="Move lyrics backward by 0.1 seconds">
-                                <md:PackIcon Width="20"
-                                             Height="20"
-                                             Kind="Minus"/>
-                            </RepeatButton>
-                            <TextBox Margin="2,0"
-                                     VerticalAlignment="Center"
-                                     md:HintAssist.Hint=" sec"
-                                     Style="{StaticResource FloatingHintTextBox}"
-                                     Text="{Binding LyricsSettings.TimeOffsetSeconds, StringFormat=F1, UpdateSourceTrigger=LostFocus}"
-                                     ToolTip="Synced lyrics offset, in seconds. Positive values move lyrics forward."/>
-                            <RepeatButton Click="OnTimeOffsetIncreaseClick"
-                                          Style="{StaticResource TimeOffsetRepeatButton}"
-                                          ToolTip="Move lyrics forward by 0.1 seconds">
-                                <md:PackIcon Width="20"
-                                             Height="20"
-                                             Kind="Plus"/>
-                            </RepeatButton>
-                        </StackPanel>
+                        <views:RepeatStepper HorizontalAlignment="Center"
+                                             DecreaseToolTip="Move lyrics backward by 0.1 seconds"
+                                             Hint=" sec"
+                                             IncreaseToolTip="Move lyrics forward by 0.1 seconds"
+                                             Maximum="10"
+                                             Minimum="-10"
+                                             Step="0.1"
+                                             ValueToolTip="Synced lyrics offset, in seconds. Positive values move lyrics forward."
+                                             Value="{Binding LyricsSettings.TimeOffsetSeconds}"/>
                     </Border>
 
                 </Grid>
