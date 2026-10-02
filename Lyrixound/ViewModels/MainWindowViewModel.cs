@@ -37,6 +37,7 @@ namespace Lyrixound.ViewModels
         private bool _showPlayingThumbnail = true;
         private string _playingArtist;
         private string _playingTitle;
+        private int _trackSession;
 
         public TrackViewModel Track { get; }
 
@@ -64,6 +65,12 @@ namespace Lyrixound.ViewModels
 
         public bool HasLyricsIdentity =>
             !string.IsNullOrWhiteSpace(LyricsTitle) || !string.IsNullOrWhiteSpace(LyricsArtist);
+
+        public int TrackSession
+        {
+            get => _trackSession;
+            private set => SetProperty(ref _trackSession, value);
+        }
 
         private ImageSource _thumbnail;
         public ImageSource Thumbnail
@@ -263,6 +270,7 @@ namespace Lyrixound.ViewModels
             {
                 _logger.Debug($"Track changed {_musicWatcher.PlayerId} - {_musicWatcher.PlayerState}");
 
+                TrackSession++;
                 PlayerName = _musicWatcher.PlayerId;
                 ApplyCleanedTrackInfo(track.Artist, track.Title);
                 RememberPlayingTrack();

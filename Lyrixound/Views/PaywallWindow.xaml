@@ -9,7 +9,6 @@
         Background="Transparent"
         ResizeMode="NoResize"
         SizeToContent="Height"
-        WindowStartupLocation="CenterOwner"
         WindowStyle="None"
         mc:Ignorable="d">
 
