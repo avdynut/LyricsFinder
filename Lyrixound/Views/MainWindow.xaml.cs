@@ -491,7 +491,7 @@ namespace Lyrixound.Views
             var scrollBars = engaged ? ScrollBarVisibility.Auto : ScrollBarVisibility.Hidden;
             Lyrics.VerticalScrollBarVisibility = scrollBars;
             ScrollViewer.SetVerticalScrollBarVisibility(SyncedLyricsList, scrollBars);
-            ContentRoot.Background.Opacity = engaged ? 1 : _lyricsSettings.FloatingBackgroundOpacity;
+            ContentRoot.Background.Opacity = engaged ? 1 : Math.Round(Math.Clamp(_lyricsSettings.FloatingBackgroundOpacity, 0, 1), 1);
         }
 
         private static void SetChromeElementVisible(UIElement element, bool visible, bool animate)
@@ -604,19 +604,6 @@ namespace Lyrixound.Views
             _searchPanelDismissed = true;
             SetSearchPanelOpen(false);
             e.Handled = true;
-        }
-
-        private void OnTimeOffsetDecreaseClick(object sender, RoutedEventArgs e) => AdjustTimeOffset(-0.1);
-
-        private void OnTimeOffsetIncreaseClick(object sender, RoutedEventArgs e) => AdjustTimeOffset(0.1);
-
-        private void AdjustTimeOffset(double delta)
-        {
-            if (DataContext is not ViewModels.MainWindowViewModel viewModel)
-                return;
-
-            var settings = viewModel.LyricsSettings;
-            settings.TimeOffsetSeconds = Math.Round(settings.TimeOffsetSeconds + delta, 1);
         }
 
         private void OnLyricsSettingsButtonClick(object sender, RoutedEventArgs e)

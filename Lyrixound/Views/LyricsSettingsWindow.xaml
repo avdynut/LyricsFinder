@@ -13,87 +13,228 @@
         prism:ViewModelLocator.AutoWireViewModel="True"
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
+        ResizeMode="NoResize"
         ShowInTaskbar="False"
         SizeToContent="Height"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         mc:Ignorable="d">
 
-    <StackPanel Margin="16,12">
-        <TextBlock Margin="0"
-                   Style="{StaticResource MaterialDesignBody2TextBlock}"
-                   Text="Font Size"/>
-        <Slider IsMoveToPointEnabled="True"
-                Maximum="200"
-                Minimum="7"
-                Style="{DynamicResource MaterialDesignDiscreteSlider}"
-                ToolTip="{Binding FontSize}"
-                Value="{Binding FontSize}"/>
+    <Window.Resources>
+        <Style x:Key="SectionHeader" TargetType="TextBlock">
+            <Setter Property="Margin" Value="4,14,0,6"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBodyLight}"/>
+        </Style>
+        <Style x:Key="SectionCard" TargetType="Border">
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignDivider}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+        <Style x:Key="PresetButton" TargetType="Button">
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Margin" Value="0,0,8,8"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignDivider}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Chrome"
+                                Padding="{TemplateBinding Padding}"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource MaterialDesignDivider}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Chrome" Property="Opacity" Value="0.7"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
 
-        <TextBlock Margin="0,5,0,0"
-                   Style="{StaticResource MaterialDesignBody2TextBlock}"
-                   Text="Floating Background Opacity"/>
-        <Slider IsMoveToPointEnabled="True"
-                Maximum="1"
-                Minimum="0"
-                SmallChange="0.01"
-                Style="{DynamicResource MaterialDesignDiscreteSlider}"
-                TickFrequency="0.01"
-                ToolTip="{Binding FloatingBackgroundOpacity, StringFormat=F2}"
-                Value="{Binding FloatingBackgroundOpacity, StringFormat=F2}"/>
+    <StackPanel Margin="5">
+        <TextBlock Margin="4,0,0,6"
+                   Style="{StaticResource SectionHeader}"
+                   Text="Presets"/>
+        <ItemsControl Margin="0,0,0,4" ItemsSource="{Binding Presets}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Button Command="{Binding DataContext.ApplyPresetCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                            CommandParameter="{Binding}"
+                            Style="{StaticResource PresetButton}"
+                            ToolTip="Apply this text style">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="10"
+                                     Height="10"
+                                     Margin="0,0,8,0"
+                                     VerticalAlignment="Center"
+                                     Fill="{Binding TextBrush}"/>
+                            <TextBlock VerticalAlignment="Center"
+                                       FontFamily="{Binding FontFamily}"
+                                       FontSize="15"
+                                       FontStyle="{Binding FontStyle}"
+                                       FontWeight="{Binding FontWeight}"
+                                       Foreground="{DynamicResource MaterialDesignBody}"
+                                       Text="{Binding Name}"/>
+                        </StackPanel>
+                    </Button>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
 
-        <ToolBar Margin="0,10,0,0" Style="{DynamicResource MaterialDesignToolBar}">
-            <ListBox ItemsSource="{Binding TextAlignments}"
-                     SelectedValue="{Binding TextAlignment}"
-                     SelectedValuePath="Key"
-                     Style="{StaticResource MaterialDesignToolToggleListBox}">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <md:PackIcon Kind="{Binding Value}"/>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+        <TextBlock Style="{StaticResource SectionHeader}" Text="Text"/>
+        <Border Style="{StaticResource SectionCard}">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Margin="0,4"
+                               VerticalAlignment="Center"
+                               Style="{StaticResource MaterialDesignBody2TextBlock}"
+                               Text="Font Size"/>
+                    <local:RepeatStepper Grid.Column="1"
+                                         DecimalPlaces="0"
+                                         DecreaseToolTip="Decrease font size"
+                                         IncreaseToolTip="Increase font size"
+                                         Maximum="200"
+                                         Minimum="7"
+                                         Step="1"
+                                         Value="{Binding FontSize}"/>
+                </Grid>
 
-            <Separator/>
+                <ComboBox Margin="0,8,0,0"
+                          ItemsSource="{Binding Source={x:Static Fonts.SystemFontFamilies}}"
+                          SelectedItem="{Binding FontFamily}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock FontFamily="{Binding}" Text="{Binding Source}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
 
-            <ListBox SelectionMode="Multiple" Style="{StaticResource MaterialDesignToolToggleFlatListBox}">
-                <ListBoxItem IsSelected="{Binding IsBold}">
-                    <md:PackIcon Kind="FormatBold"/>
-                </ListBoxItem>
-                <ListBoxItem IsSelected="{Binding IsItalic}">
-                    <md:PackIcon Kind="FormatItalic"/>
-                </ListBoxItem>
-            </ListBox>
+                <WrapPanel Margin="0,10,0,8">
+                    <ListBox ItemsSource="{Binding TextAlignments}"
+                             SelectedValue="{Binding TextAlignment}"
+                             SelectedValuePath="Key"
+                             Style="{StaticResource MaterialDesignToolToggleListBox}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <md:PackIcon Kind="{Binding Value}"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
 
-            <Separator/>
-        </ToolBar>
+                    <ListBox Margin="20,0"
+                             HorizontalAlignment="Right"
+                             md:ListBoxAssist.CanUserToggleSelectedItem="True"
+                             SelectionMode="Multiple"
+                             Style="{StaticResource MaterialDesignToolToggleFlatListBox}">
+                        <ListBoxItem IsSelected="{Binding IsBold, Mode=TwoWay}">
+                            <md:PackIcon Kind="FormatBold"/>
+                        </ListBoxItem>
+                        <ListBoxItem IsSelected="{Binding IsItalic, Mode=TwoWay}">
+                            <md:PackIcon Kind="FormatItalic"/>
+                        </ListBoxItem>
+                    </ListBox>
+                </WrapPanel>
 
-        <ComboBox Margin="10"
-                  ItemsSource="{Binding Source={x:Static Fonts.SystemFontFamilies}}"
-                  SelectedItem="{Binding FontFamily}"/>
+                <local:ColorEdit Hint="Text Color" Color="{Binding TextColor}"/>
+            </StackPanel>
+        </Border>
 
-        <WrapPanel Margin="10,0">
-            <TextBox MinWidth="100"
-                     md:HintAssist.Hint="Blur Radius"
-                     Style="{StaticResource FloatingHintTextBox}"
-                     Text="{Binding BlurRadius, UpdateSourceTrigger=PropertyChanged, Delay=200}"/>
-            <TextBox MinWidth="100"
-                     Margin="10,3,0,6"
-                     md:HintAssist.Hint="Shadow Depth"
-                     Style="{StaticResource FloatingHintTextBox}"
-                     Text="{Binding ShadowDepth, UpdateSourceTrigger=PropertyChanged, Delay=200}"/>
-        </WrapPanel>
+        <TextBlock Style="{StaticResource SectionHeader}" Text="Shadow"/>
+        <Border Style="{StaticResource SectionCard}">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0"
+                               Margin="0,4"
+                               VerticalAlignment="Center"
+                               Style="{StaticResource MaterialDesignBody2TextBlock}"
+                               Text="Blur Radius"/>
+                    <local:RepeatStepper Grid.Row="0"
+                                         Grid.Column="1"
+                                         DecimalPlaces="0"
+                                         DecreaseToolTip="Decrease blur radius"
+                                         IncreaseToolTip="Increase blur radius"
+                                         Maximum="100"
+                                         Minimum="0"
+                                         Step="1"
+                                         Value="{Binding BlurRadius}"/>
+                    <TextBlock Grid.Row="1"
+                               Margin="0,4"
+                               VerticalAlignment="Center"
+                               Style="{StaticResource MaterialDesignBody2TextBlock}"
+                               Text="Shadow Depth"/>
+                    <local:RepeatStepper Grid.Row="1"
+                                         Grid.Column="1"
+                                         DecimalPlaces="0"
+                                         DecreaseToolTip="Decrease shadow depth"
+                                         IncreaseToolTip="Increase shadow depth"
+                                         Maximum="20"
+                                         Minimum="0"
+                                         Step="1"
+                                         Value="{Binding ShadowDepth}"/>
+                </Grid>
+                <local:ColorEdit Margin="0,8,0,0"
+                                 Hint="Shadow Color"
+                                 Color="{Binding ShadowColor}"/>
+            </StackPanel>
+        </Border>
 
-        <WrapPanel Margin="10,0,10,10">
-            <local:ColorEdit Margin="0,0,10,0"
-                             Hint="Text Color"
-                             Color="{Binding TextColor}"/>
-            <local:ColorEdit Margin="0,0,10,0"
-                             Hint="Shadow Color"
-                             Color="{Binding ShadowColor}"/>
-            <local:ColorEdit Hint="Active Line Background"
-                             ToolTip="Active Line Background"
-                             Color="{Binding ActiveLineBackgroundColor}"/>
-        </WrapPanel>
+        <TextBlock Style="{StaticResource SectionHeader}" Text="Background"/>
+        <Border Style="{StaticResource SectionCard}">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Margin="0,4"
+                               VerticalAlignment="Center"
+                               Style="{StaticResource MaterialDesignBody2TextBlock}"
+                               Text="Opacity"/>
+                    <local:RepeatStepper Grid.Column="1"
+                                         DecreaseToolTip="Decrease background opacity"
+                                         IncreaseToolTip="Increase background opacity"
+                                         Maximum="1"
+                                         Minimum="0"
+                                         Step="0.1"
+                                         Value="{Binding FloatingBackgroundOpacity}"/>
+                </Grid>
+                <local:ColorEdit Margin="0,8,0,0"
+                                 Hint="Active Line Background"
+                                 ToolTip="Active Line Background"
+                                 Color="{Binding ActiveLineBackgroundColor}"/>
+            </StackPanel>
+        </Border>
 
     </StackPanel>
 </Window>
