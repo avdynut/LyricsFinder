@@ -58,6 +58,7 @@ namespace Lyrixound.Views
         private readonly ThemeService _themeService;
         private bool _isClickThrough;
         private bool _titleBarHovered;
+        private bool _searchPanelDismissed;
         private LyricsSettingsWindow _lyricsSettingsWindow;
 
         public MainWindow(
@@ -86,6 +87,10 @@ namespace Lyrixound.Views
                 }
 
                 UpdateSearchPanelForContent();
+            };
+            ContentRoot.SizeChanged += (_, e) =>
+            {
+                ContentRoot.Clip = new RectangleGeometry(new Rect(e.NewSize), 8, 8);
             };
         }
 
@@ -479,6 +484,8 @@ namespace Lyrixound.Views
             SetChromeElementVisible(TitleBarButtons, allowChrome && _titleBarHovered, animate);
             var overLyricsChrome = LyricsPanel.IsMouseOver || TrackHeader.IsMouseOver;
             SetChromeElementVisible(LyricsChrome, allowChrome && overLyricsChrome, animate);
+            var hasSyncedLyrics = DataContext is ViewModels.MainWindowViewModel viewModel && viewModel.Track.HasSyncedLyrics;
+            SetChromeElementVisible(TimeOffsetBar, allowChrome && LyricsPanel.IsMouseOver && hasSyncedLyrics, animate);
 
             var engaged = allowChrome && IsActive;
             var scrollBars = engaged ? ScrollBarVisibility.Auto : ScrollBarVisibility.Hidden;
@@ -504,7 +511,13 @@ namespace Lyrixound.Views
 
         private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(ViewModels.MainWindowViewModel.SearchInProgress))
+            if (e.PropertyName == nameof(ViewModels.MainWindowViewModel.TrackSession))
+            {
+                _searchPanelDismissed = false;
+            }
+
+            if (e.PropertyName is nameof(ViewModels.MainWindowViewModel.SearchInProgress)
+                or nameof(ViewModels.MainWindowViewModel.TrackSession))
             {
                 UpdateSearchPanelForContent();
             }
@@ -515,6 +528,11 @@ namespace Lyrixound.Views
             if (e.PropertyName == nameof(ViewModels.TrackViewModel.Lyrics))
             {
                 UpdateSearchPanelForContent();
+            }
+
+            if (e.PropertyName == nameof(ViewModels.TrackViewModel.HasSyncedLyrics))
+            {
+                UpdateChrome();
             }
         }
 
@@ -528,6 +546,7 @@ namespace Lyrixound.Views
 
             if (!IsActive)
             {
+                _searchPanelDismissed = false;
                 SetSearchPanelOpen(false);
                 return;
             }
@@ -542,12 +561,23 @@ namespace Lyrixound.Views
                 return;
             }
 
-            SetSearchPanelOpen(!(viewModel.Track.Lyrics?.Text?.Length > 0));
+            if (viewModel.Track.Lyrics?.Text?.Length > 0)
+            {
+                _searchPanelDismissed = false;
+                SetSearchPanelOpen(false);
+                return;
+            }
+
+            if (_searchPanelDismissed)
+                return;
+
+            SetSearchPanelOpen(true);
         }
 
         private void OnSearchButtonClick(object sender, RoutedEventArgs e)
         {
             var open = SearchPanel.Visibility != Visibility.Visible;
+            _searchPanelDismissed = !open;
             SetSearchPanelOpen(open);
             if (open)
             {
@@ -571,8 +601,22 @@ namespace Lyrixound.Views
             if (e.Key != Key.Escape)
                 return;
 
+            _searchPanelDismissed = true;
             SetSearchPanelOpen(false);
             e.Handled = true;
+        }
+
+        private void OnTimeOffsetDecreaseClick(object sender, RoutedEventArgs e) => AdjustTimeOffset(-0.1);
+
+        private void OnTimeOffsetIncreaseClick(object sender, RoutedEventArgs e) => AdjustTimeOffset(0.1);
+
+        private void AdjustTimeOffset(double delta)
+        {
+            if (DataContext is not ViewModels.MainWindowViewModel viewModel)
+                return;
+
+            var settings = viewModel.LyricsSettings;
+            settings.TimeOffsetSeconds = Math.Round(settings.TimeOffsetSeconds + delta, 1);
         }
 
         private void OnLyricsSettingsButtonClick(object sender, RoutedEventArgs e)

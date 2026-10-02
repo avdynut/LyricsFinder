@@ -58,391 +58,458 @@
             </tb:TaskbarIcon.TrayToolTip>
         </tb:TaskbarIcon>
 
-        <Grid Name="ContentRoot">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+        <Border Name="ContentRoot" CornerRadius="8">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-            <Grid Name="TitleBar"
-                  Grid.Row="0"
-                  MinHeight="28"
-                  Background="Transparent"
-                  MouseEnter="OnTitleBarMouseEnter"
-                  MouseLeave="OnTitleBarMouseLeave"
-                  MouseLeftButtonDown="OnTitleBarMouseLeftButtonDown">
-                <StackPanel Name="TitleBarButtons"
-                            HorizontalAlignment="Right"
-                            IsHitTestVisible="False"
-                            Opacity="0"
-                            Orientation="Horizontal">
-                    <!--<Image Height="16"
+                <Grid Name="TitleBar"
+                      Grid.Row="0"
+                      MinHeight="28"
+                      Background="Transparent"
+                      MouseEnter="OnTitleBarMouseEnter"
+                      MouseLeave="OnTitleBarMouseLeave"
+                      MouseLeftButtonDown="OnTitleBarMouseLeftButtonDown">
+                    <StackPanel Name="TitleBarButtons"
+                                HorizontalAlignment="Right"
+                                IsHitTestVisible="False"
+                                Opacity="0"
+                                Orientation="Horizontal">
+                        <!--<Image Height="16"
                            Margin="2"
                            Source="{Binding PlayerName, Converter={StaticResource NameToIconUriConverter}}"
                            ToolTip="{Binding PlayerName}"/>-->
-                    <Button Width="32"
-                            Height="32"
-                            Margin="2,0"
-                            Padding="0"
-                            Click="OnSearchButtonClick"
-                            Style="{StaticResource MaterialDesignIconButton}"
-                            ToolTip="Search lyrics manually">
-                        <md:PackIcon Width="18"
-                                     Height="18"
-                                     Kind="Magnify"/>
-                    </Button>
-
-                    <ToggleButton Width="32"
-                                  Height="32"
-                                  Margin="2,0"
-                                  Padding="0"
-                                  IsChecked="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Topmost}"
-                                  Style="{StaticResource MaterialDesignSwitchToggleButton}"
-                                  ToolTip="Topmost">
-                        <md:PackIcon Width="18"
-                                     Height="18"
-                                     Kind="Pin"
-                                     RenderTransformOrigin=".5,.5">
-                            <md:PackIcon.RenderTransform>
-                                <RotateTransform Angle="45"/>
-                            </md:PackIcon.RenderTransform>
-                        </md:PackIcon>
-                        <md:ToggleButtonAssist.OnContent>
+                        <Button Width="32"
+                                Height="32"
+                                Margin="2,0"
+                                Padding="0"
+                                Click="OnSearchButtonClick"
+                                Style="{StaticResource MaterialDesignIconButton}"
+                                ToolTip="Search lyrics manually">
                             <md:PackIcon Width="18"
                                          Height="18"
-                                         Kind="Pin"/>
-                        </md:ToggleButtonAssist.OnContent>
-                    </ToggleButton>
+                                         Kind="Magnify"/>
+                        </Button>
 
-                    <Button Name="ThemeButton"
-                            Width="32"
-                            Height="32"
-                            Margin="2,0"
-                            Padding="0"
-                            Click="OnThemeButtonClick"
-                            Style="{StaticResource MaterialDesignIconButton}"
-                            ToolTip="Dark mode 👑">
-                        <md:PackIcon Width="18"
-                                     Height="18"
-                                     Kind="WeatherNight"/>
-                    </Button>
+                        <ToggleButton Width="32"
+                                      Height="32"
+                                      Margin="2,0"
+                                      Padding="0"
+                                      IsChecked="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Topmost}"
+                                      Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                      ToolTip="Topmost">
+                            <md:PackIcon Width="18"
+                                         Height="18"
+                                         Kind="Pin"
+                                         RenderTransformOrigin=".5,.5">
+                                <md:PackIcon.RenderTransform>
+                                    <RotateTransform Angle="45"/>
+                                </md:PackIcon.RenderTransform>
+                            </md:PackIcon>
+                            <md:ToggleButtonAssist.OnContent>
+                                <md:PackIcon Width="18"
+                                             Height="18"
+                                             Kind="Pin"/>
+                            </md:ToggleButtonAssist.OnContent>
+                        </ToggleButton>
 
-                    <Button Width="32"
-                            Height="32"
-                            Margin="2,0"
-                            Padding="0"
-                            Click="OnSettingsButtonClick"
-                            Style="{StaticResource MaterialDesignIconButton}"
-                            ToolTip="Settings">
-                        <md:PackIcon Width="18"
-                                     Height="18"
-                                     Kind="Settings"/>
-                    </Button>
+                        <Button Name="ThemeButton"
+                                Width="32"
+                                Height="32"
+                                Margin="2,0"
+                                Padding="0"
+                                Click="OnThemeButtonClick"
+                                Style="{StaticResource MaterialDesignIconButton}"
+                                ToolTip="Dark mode 👑">
+                            <md:PackIcon Width="18"
+                                         Height="18"
+                                         Kind="WeatherNight"/>
+                        </Button>
 
-                    <Separator Width="2"
-                               Height="16"
-                               Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
+                        <Button Width="32"
+                                Height="32"
+                                Margin="2,0"
+                                Padding="0"
+                                Click="OnSettingsButtonClick"
+                                Style="{StaticResource MaterialDesignIconButton}"
+                                ToolTip="Settings">
+                            <md:PackIcon Width="18"
+                                         Height="18"
+                                         Kind="Settings"/>
+                        </Button>
 
-                    <Button Padding="8,4"
-                            Click="OnMinimizeButtonClick"
-                            Content="{md:PackIcon WindowMinimize}"
-                            Style="{DynamicResource MaterialDesignFlatButton}"/>
-                    <Button Name="MaximizeButton"
-                            Padding="8,4"
-                            Click="OnMaximizeButtonClick"
-                            Content="{md:PackIcon WindowMaximize}"
-                            Style="{DynamicResource MaterialDesignFlatButton}"/>
-                    <Button Padding="8,4"
-                            Click="OnExitClick"
-                            Content="{md:PackIcon WindowClose}"
-                            Style="{DynamicResource MaterialDesignFlatButton}"/>
-                </StackPanel>
-            </Grid>
+                        <Separator Width="2"
+                                   Height="16"
+                                   Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
 
-            <Grid Name="SearchPanel"
-                  Grid.Row="1"
-                  Margin="10,0,10,10"
-                  KeyDown="OnSearchPanelKeyDown"
-                  Visibility="Visible">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <UniformGrid Grid.Column="0" Rows="2">
-                    <TextBox Name="SearchTitleBox"
-                             md:HintAssist.Hint="Title"
-                             Text="{Binding Track.Title, UpdateSourceTrigger=PropertyChanged}"/>
-                    <TextBox md:HintAssist.Hint="Artist" Text="{Binding Track.Artist, UpdateSourceTrigger=PropertyChanged}"/>
-                </UniformGrid>
-                <Button Grid.Column="1"
-                        Height="50"
-                        Margin="6,0,0,0"
-                        md:ButtonProgressAssist.IsIndeterminate="True"
-                        md:ButtonProgressAssist.IsIndicatorVisible="{Binding SearchInProgress}"
-                        Command="{Binding FindLyricsCommand}"
-                        Content="{md:PackIcon Kind=Search,
-                                              Size=24}"
-                        IsDefault="True"
-                        Style="{DynamicResource MaterialDesignRaisedLightButton}"
-                        ToolTip="Search for lyrics"/>
-                <Button Grid.Column="2"
-                        Height="50"
-                        Margin="6,0,0,0"
-                        md:ButtonProgressAssist.IsIndeterminate="True"
-                        md:ButtonProgressAssist.IsIndicatorVisible="{Binding RecognizeInProgress}"
-                        Command="{Binding RecognizeSongCommand}"
-                        Content="{md:PackIcon Kind=Microphone,
-                                              Size=24}"
-                        Style="{DynamicResource MaterialDesignRaisedButton}"
-                        ToolTip="Recognize song from system audio"/>
-            </Grid>
+                        <Button Padding="8,4"
+                                Click="OnMinimizeButtonClick"
+                                Content="{md:PackIcon WindowMinimize}"
+                                Style="{DynamicResource MaterialDesignFlatButton}"/>
+                        <Button Name="MaximizeButton"
+                                Padding="8,4"
+                                Click="OnMaximizeButtonClick"
+                                Content="{md:PackIcon WindowMaximize}"
+                                Style="{DynamicResource MaterialDesignFlatButton}"/>
+                        <Button Padding="8,4"
+                                Click="OnExitClick"
+                                Content="{md:PackIcon WindowClose}"
+                                Style="{DynamicResource MaterialDesignFlatButton}"/>
+                    </StackPanel>
+                </Grid>
 
-            <Grid Name="TrackHeader"
-                  Grid.Row="2"
-                  Margin="12,2,12,8"
-                  Background="Transparent"
-                  MouseEnter="OnLyricsChromeAreaMouseEnter"
-                  MouseLeave="OnLyricsChromeAreaMouseLeave">
-                <Grid.Style>
-                    <Style TargetType="Grid">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <MultiDataTrigger>
-                                <MultiDataTrigger.Conditions>
-                                    <Condition Binding="{Binding HasLyricsIdentity}" Value="True"/>
-                                    <Condition Binding="{Binding IsActive, RelativeSource={RelativeSource AncestorType=Window}}" Value="True"/>
-                                </MultiDataTrigger.Conditions>
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </MultiDataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Grid.Style>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <Border Width="64"
-                        Height="64"
-                        Margin="0,0,10,0"
-                        VerticalAlignment="Center"
-                        CornerRadius="5">
-                    <Border.Style>
-                        <Style TargetType="Border">
-                            <Setter Property="Visibility" Value="Visible"/>
+                <Grid Name="SearchPanel"
+                      Grid.Row="1"
+                      Margin="10,0,10,10"
+                      KeyDown="OnSearchPanelKeyDown"
+                      Visibility="Visible">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <UniformGrid Grid.Column="0" Rows="2">
+                        <TextBox Name="SearchTitleBox"
+                                 md:HintAssist.Hint="Title"
+                                 Text="{Binding Track.Title, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox md:HintAssist.Hint="Artist" Text="{Binding Track.Artist, UpdateSourceTrigger=PropertyChanged}"/>
+                    </UniformGrid>
+                    <Button Grid.Column="1"
+                            Height="50"
+                            Margin="6,0,0,0"
+                            md:ButtonProgressAssist.IsIndeterminate="True"
+                            md:ButtonProgressAssist.IsIndicatorVisible="{Binding SearchInProgress}"
+                            Command="{Binding FindLyricsCommand}"
+                            Content="{md:PackIcon Kind=Search,
+                                                  Size=24}"
+                            IsDefault="True"
+                            Style="{DynamicResource MaterialDesignRaisedLightButton}"
+                            ToolTip="Search for lyrics"/>
+                    <Button Grid.Column="2"
+                            Height="50"
+                            Margin="6,0,0,0"
+                            md:ButtonProgressAssist.IsIndeterminate="True"
+                            md:ButtonProgressAssist.IsIndicatorVisible="{Binding RecognizeInProgress}"
+                            Command="{Binding RecognizeSongCommand}"
+                            Content="{md:PackIcon Kind=Microphone,
+                                                  Size=24}"
+                            Style="{DynamicResource MaterialDesignRaisedButton}"
+                            ToolTip="Recognize song from system audio"/>
+                </Grid>
+
+                <Grid Name="TrackHeader"
+                      Grid.Row="2"
+                      Margin="12,2,12,8"
+                      Background="Transparent"
+                      MouseEnter="OnLyricsChromeAreaMouseEnter"
+                      MouseLeave="OnLyricsChromeAreaMouseLeave">
+                    <Grid.Style>
+                        <Style TargetType="Grid">
+                            <Setter Property="Visibility" Value="Collapsed"/>
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding Thumbnail}" Value="{x:Null}">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </DataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding HasLyricsIdentity}" Value="True"/>
+                                        <Condition Binding="{Binding IsActive, RelativeSource={RelativeSource AncestorType=Window}}" Value="True"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </MultiDataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </Border.Style>
-                    <Border.Background>
-                        <ImageBrush ImageSource="{Binding Thumbnail}" Stretch="UniformToFill"/>
-                    </Border.Background>
-                </Border>
-                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock FontSize="15"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource MaterialDesignBody}"
-                               Text="{Binding LyricsTitle}"
-                               TextTrimming="CharacterEllipsis"
-                               ToolTip="{Binding LyricsTitle}">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding LyricsTitle}" Value="{x:Null}">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding LyricsTitle}" Value="">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                    <TextBlock Margin="0,1,0,0"
-                               FontSize="13"
-                               Foreground="{DynamicResource MaterialDesignBodyLight}"
-                               Text="{Binding LyricsArtist}"
-                               TextTrimming="CharacterEllipsis"
-                               ToolTip="{Binding LyricsArtist}">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding LyricsArtist}" Value="{x:Null}">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding LyricsArtist}" Value="">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                </StackPanel>
-                <StackPanel Name="LyricsChrome"
-                            Grid.Column="2"
-                            Margin="8,0,0,0"
+                    </Grid.Style>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Width="64"
+                            Height="64"
+                            Margin="0,0,10,0"
                             VerticalAlignment="Center"
-                            IsHitTestVisible="False"
-                            Opacity="0"
-                            Orientation="Horizontal">
-                    <Button Width="36"
-                            Height="36"
-                            Margin="4,0"
-                            Padding="0"
-                            Command="{Binding OpenLyricsCommand}"
-                            Style="{StaticResource MaterialDesignIconButton}"
-                            ToolTip="Open the source">
-                        <Image Width="16"
-                               Height="16"
-                               Source="{Binding ProviderName, Converter={StaticResource NameToIconUriConverter}}"/>
-                    </Button>
-                    <Button Name="LyricsSettingsButton"
-                            Width="36"
-                            Height="36"
-                            Margin="4,0"
-                            Padding="0"
-                            Click="OnLyricsSettingsButtonClick"
-                            ToolTip="Customize colors, sizes, etc.">
-                        <Button.Style>
-                            <Style BasedOn="{StaticResource MaterialDesignIconButton}" TargetType="Button">
+                            CornerRadius="5">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Visibility" Value="Visible"/>
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Track.Lyrics.Text, FallbackValue={x:Null}}" Value="{x:Null}">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Track.Lyrics.Text, FallbackValue={x:Null}}" Value="">
+                                    <DataTrigger Binding="{Binding Thumbnail}" Value="{x:Null}">
                                         <Setter Property="Visibility" Value="Collapsed"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
-                        </Button.Style>
-                        <md:PackIcon Width="20"
-                                     Height="20"
-                                     Kind="FormatSize"/>
-                    </Button>
-                </StackPanel>
-            </Grid>
+                        </Border.Style>
+                        <Border.Background>
+                            <ImageBrush ImageSource="{Binding Thumbnail}" Stretch="UniformToFill"/>
+                        </Border.Background>
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock FontSize="15"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource MaterialDesignBody}"
+                                   Text="{Binding LyricsTitle}"
+                                   TextTrimming="CharacterEllipsis"
+                                   ToolTip="{Binding LyricsTitle}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding LyricsTitle}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding LyricsTitle}" Value="">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Margin="0,1,0,0"
+                                   FontSize="13"
+                                   Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                   Text="{Binding LyricsArtist}"
+                                   TextTrimming="CharacterEllipsis"
+                                   ToolTip="{Binding LyricsArtist}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding LyricsArtist}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding LyricsArtist}" Value="">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Name="LyricsChrome"
+                                Grid.Column="2"
+                                Margin="8,0,0,0"
+                                VerticalAlignment="Center"
+                                IsHitTestVisible="False"
+                                Opacity="0"
+                                Orientation="Horizontal">
+                        <Button Width="36"
+                                Height="36"
+                                Margin="4,0"
+                                Padding="0"
+                                Command="{Binding OpenLyricsCommand}"
+                                Style="{StaticResource MaterialDesignIconButton}"
+                                ToolTip="Open the source">
+                            <Image Width="16"
+                                   Height="16"
+                                   Source="{Binding ProviderName, Converter={StaticResource NameToIconUriConverter}}"/>
+                        </Button>
+                        <Button Name="LyricsSettingsButton"
+                                Width="36"
+                                Height="36"
+                                Margin="4,0"
+                                Padding="0"
+                                Click="OnLyricsSettingsButtonClick"
+                                ToolTip="Customize colors, sizes, etc.">
+                            <Button.Style>
+                                <Style BasedOn="{StaticResource MaterialDesignIconButton}" TargetType="Button">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Track.Lyrics.Text, FallbackValue={x:Null}}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Track.Lyrics.Text, FallbackValue={x:Null}}" Value="">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <md:PackIcon Width="20"
+                                         Height="20"
+                                         Kind="FormatSize"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
 
-            <Grid Name="LyricsPanel"
-                  Grid.Row="3"
-                  Background="Transparent"
-                  MouseEnter="OnLyricsChromeAreaMouseEnter"
-                  MouseLeave="OnLyricsChromeAreaMouseLeave">
-                <!-- Synced Lyrics Display -->
-                <ListBox Name="SyncedLyricsList"
-                         Background="Transparent"
-                         BorderThickness="0"
-                         Focusable="False"
-                         ItemsSource="{Binding Track.LyricLines}"
-                         ScrollViewer.CanContentScroll="True"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"
-                         SelectedItem="{Binding Track.CurrentLine, Mode=OneWay}"
-                         SelectionChanged="OnSyncedLyricsSelectionChanged"
-                         SelectionMode="Single"
-                         SizeChanged="OnSyncedLyricsListSizeChanged"
-                         VirtualizingPanel.ScrollUnit="Pixel"
-                         Visibility="{Binding Track.HasSyncedLyrics, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <ListBox.ItemContainerStyle>
-                        <Style TargetType="ListBoxItem">
-                            <Setter Property="Background" Value="Transparent"/>
-                            <Setter Property="BorderThickness" Value="0"/>
-                            <Setter Property="Padding" Value="0"/>
-                            <Setter Property="Margin" Value="0"/>
-                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                            <Setter Property="Width" Value="{Binding ViewportWidth, RelativeSource={RelativeSource AncestorType=ScrollViewer}}"/>
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="ListBoxItem">
-                                        <Border Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}">
-                                            <ContentPresenter/>
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                            <Style.Triggers>
-                                <Trigger Property="IsSelected" Value="True">
+                <Grid Name="LyricsPanel"
+                      Grid.Row="3"
+                      Background="Transparent"
+                      MouseEnter="OnLyricsChromeAreaMouseEnter"
+                      MouseLeave="OnLyricsChromeAreaMouseLeave">
+                    <!-- Synced Lyrics Display -->
+                    <ListBox Name="SyncedLyricsList"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             Focusable="False"
+                             ItemsSource="{Binding Track.LyricLines}"
+                             ScrollViewer.CanContentScroll="True"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             SelectedItem="{Binding Track.CurrentLine, Mode=OneWay}"
+                             SelectionChanged="OnSyncedLyricsSelectionChanged"
+                             SelectionMode="Single"
+                             SizeChanged="OnSyncedLyricsListSizeChanged"
+                             VirtualizingPanel.ScrollUnit="Pixel"
+                             Visibility="{Binding Track.HasSyncedLyrics, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Margin" Value="0"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="Width" Value="{Binding ViewportWidth, RelativeSource={RelativeSource AncestorType=ScrollViewer}}"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <Border Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}">
+                                                <ContentPresenter/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Name="LyricLine"
+                                           Margin="0"
+                                           Padding="10,8"
+                                           FontFamily="{Binding DataContext.LyricsSettings.FontFamily, RelativeSource={RelativeSource AncestorType=Window}}"
+                                           FontSize="{Binding DataContext.LyricsSettings.FontSize, RelativeSource={RelativeSource AncestorType=Window}}"
+                                           FontStyle="{Binding DataContext.LyricsSettings.FontStyle, RelativeSource={RelativeSource AncestorType=Window}}"
+                                           FontWeight="{Binding DataContext.LyricsSettings.FontWeight, RelativeSource={RelativeSource AncestorType=Window}}"
+                                           Text="{Binding Text}"
+                                           TextAlignment="{Binding DataContext.LyricsSettings.TextAlignment, RelativeSource={RelativeSource AncestorType=Window}}"
+                                           TextWrapping="Wrap">
+                                    <TextBlock.Foreground>
+                                        <SolidColorBrush Color="{Binding DataContext.LyricsSettings.TextColor, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                    </TextBlock.Foreground>
+                                    <TextBlock.Effect>
+                                        <DropShadowEffect BlurRadius="{Binding DataContext.LyricsSettings.BlurRadius, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                          Opacity="{Binding DataContext.LyricsSettings.ShadowColor.A, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource ByteToOpacityConverter}}"
+                                                          ShadowDepth="{Binding DataContext.LyricsSettings.ShadowDepth, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                          Color="{Binding DataContext.LyricsSettings.ShadowColor, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                    </TextBlock.Effect>
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                    <Setter Property="Background">
+                                                        <Setter.Value>
+                                                            <SolidColorBrush Color="{Binding DataContext.LyricsSettings.ActiveLineBackgroundColor, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Primary.Foreground}"/>
+                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <!-- Unsynced Lyrics Display (Original) -->
+                    <TextBox Name="Lyrics"
+                             AcceptsReturn="True"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             FontFamily="{Binding LyricsSettings.FontFamily}"
+                             FontSize="{Binding LyricsSettings.FontSize}"
+                             FontStyle="{Binding LyricsSettings.FontStyle}"
+                             FontWeight="{Binding LyricsSettings.FontWeight}"
+                             IsReadOnly="True"
+                             MouseDoubleClick="OnLyricsMouseDoubleClick"
+                             Style="{x:Null}"
+                             Text="{Binding Track.Lyrics.Text}"
+                             TextAlignment="{Binding LyricsSettings.TextAlignment}"
+                             TextWrapping="Wrap"
+                             Visibility="{Binding Track.HasSyncedLyrics, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
+                             VerticalScrollBarVisibility="Auto">
+                        <TextBox.Foreground>
+                            <SolidColorBrush Color="{Binding LyricsSettings.TextColor}"/>
+                        </TextBox.Foreground>
+                        <TextBox.Effect>
+                            <DropShadowEffect BlurRadius="{Binding LyricsSettings.BlurRadius}"
+                                              Opacity="{Binding LyricsSettings.ShadowColor.A, Converter={StaticResource ByteToOpacityConverter}}"
+                                              ShadowDepth="{Binding LyricsSettings.ShadowDepth}"
+                                              Color="{Binding LyricsSettings.ShadowColor}"/>
+                        </TextBox.Effect>
+                    </TextBox>
+
+                    <Border Name="TimeOffsetBar"
+                            Padding="4,2"
+                            VerticalAlignment="Bottom"
+                            Background="{DynamicResource MaterialDesignPaper}"
+                            CornerRadius="8"
+                            IsHitTestVisible="False"
+                            Visibility="{Binding Track.HasSyncedLyrics, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                            <StackPanel.Resources>
+                                <Style x:Key="TimeOffsetRepeatButton" TargetType="RepeatButton">
+                                    <Setter Property="Width" Value="36"/>
+                                    <Setter Property="Height" Value="36"/>
+                                    <Setter Property="Margin" Value="2,0"/>
+                                    <Setter Property="Padding" Value="0"/>
+                                    <Setter Property="Delay" Value="300"/>
+                                    <Setter Property="Interval" Value="60"/>
                                     <Setter Property="Background" Value="Transparent"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ListBox.ItemContainerStyle>
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Name="LyricLine"
-                                       Margin="0"
-                                       Padding="10,8"
-                                       FontFamily="{Binding DataContext.LyricsSettings.FontFamily, RelativeSource={RelativeSource AncestorType=Window}}"
-                                       FontSize="{Binding DataContext.LyricsSettings.FontSize, RelativeSource={RelativeSource AncestorType=Window}}"
-                                       FontStyle="{Binding DataContext.LyricsSettings.FontStyle, RelativeSource={RelativeSource AncestorType=Window}}"
-                                       FontWeight="{Binding DataContext.LyricsSettings.FontWeight, RelativeSource={RelativeSource AncestorType=Window}}"
-                                       Text="{Binding Text}"
-                                       TextAlignment="{Binding DataContext.LyricsSettings.TextAlignment, RelativeSource={RelativeSource AncestorType=Window}}"
-                                       TextWrapping="Wrap">
-                                <TextBlock.Foreground>
-                                    <SolidColorBrush Color="{Binding DataContext.LyricsSettings.TextColor, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                                </TextBlock.Foreground>
-                                <TextBlock.Effect>
-                                    <DropShadowEffect BlurRadius="{Binding DataContext.LyricsSettings.BlurRadius, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                      Opacity="{Binding DataContext.LyricsSettings.ShadowColor.A, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource ByteToOpacityConverter}}"
-                                                      ShadowDepth="{Binding DataContext.LyricsSettings.ShadowDepth, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                      Color="{Binding DataContext.LyricsSettings.ShadowColor, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                                </TextBlock.Effect>
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                                <Setter Property="Background">
-                                                    <Setter.Value>
-                                                        <SolidColorBrush Color="{Binding DataContext.LyricsSettings.ActiveLineBackgroundColor, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                                                    </Setter.Value>
-                                                </Setter>
-                                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Primary.Foreground}"/>
-                                                <Setter Property="FontWeight" Value="Bold"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="RepeatButton">
+                                                <Border Width="36"
+                                                        Height="36"
+                                                        Background="{TemplateBinding Background}"
+                                                        CornerRadius="18">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource MaterialDesignDivider}"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsPressed" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource MaterialDesign.Brush.Primary}"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Primary.Foreground}"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </StackPanel.Resources>
+                            <RepeatButton Click="OnTimeOffsetDecreaseClick"
+                                          Style="{StaticResource TimeOffsetRepeatButton}"
+                                          ToolTip="Move lyrics backward by 0.1 seconds">
+                                <md:PackIcon Width="20"
+                                             Height="20"
+                                             Kind="Minus"/>
+                            </RepeatButton>
+                            <TextBox Margin="2,0"
+                                     VerticalAlignment="Center"
+                                     md:HintAssist.Hint=" sec"
+                                     Style="{StaticResource FloatingHintTextBox}"
+                                     Text="{Binding LyricsSettings.TimeOffsetSeconds, StringFormat=F1, UpdateSourceTrigger=LostFocus}"
+                                     ToolTip="Synced lyrics offset, in seconds. Positive values move lyrics forward."/>
+                            <RepeatButton Click="OnTimeOffsetIncreaseClick"
+                                          Style="{StaticResource TimeOffsetRepeatButton}"
+                                          ToolTip="Move lyrics forward by 0.1 seconds">
+                                <md:PackIcon Width="20"
+                                             Height="20"
+                                             Kind="Plus"/>
+                            </RepeatButton>
+                        </StackPanel>
+                    </Border>
 
-                <!-- Unsynced Lyrics Display (Original) -->
-                <TextBox Name="Lyrics"
-                         AcceptsReturn="True"
-                         Background="Transparent"
-                         BorderThickness="0"
-                         FontFamily="{Binding LyricsSettings.FontFamily}"
-                         FontSize="{Binding LyricsSettings.FontSize}"
-                         FontStyle="{Binding LyricsSettings.FontStyle}"
-                         FontWeight="{Binding LyricsSettings.FontWeight}"
-                         IsReadOnly="True"
-                         MouseDoubleClick="OnLyricsMouseDoubleClick"
-                         Style="{x:Null}"
-                         Text="{Binding Track.Lyrics.Text}"
-                         TextAlignment="{Binding LyricsSettings.TextAlignment}"
-                         TextWrapping="Wrap"
-                         Visibility="{Binding Track.HasSyncedLyrics, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
-                         VerticalScrollBarVisibility="Auto">
-                    <TextBox.Foreground>
-                        <SolidColorBrush Color="{Binding LyricsSettings.TextColor}"/>
-                    </TextBox.Foreground>
-                    <TextBox.Effect>
-                        <DropShadowEffect BlurRadius="{Binding LyricsSettings.BlurRadius}"
-                                          Opacity="{Binding LyricsSettings.ShadowColor.A, Converter={StaticResource ByteToOpacityConverter}}"
-                                          ShadowDepth="{Binding LyricsSettings.ShadowDepth}"
-                                          Color="{Binding LyricsSettings.ShadowColor}"/>
-                    </TextBox.Effect>
-                </TextBox>
-
+                </Grid>
             </Grid>
-        </Grid>
+        </Border>
     </Grid>
 
 </Window>

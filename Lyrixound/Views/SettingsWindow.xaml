@@ -16,7 +16,6 @@
         ResizeMode="NoResize"
         SizeToContent="Height"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-        WindowStartupLocation="CenterOwner"
         mc:Ignorable="d">
 
     <Window.Resources>

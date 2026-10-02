@@ -1,4 +1,4 @@
-using Lyrixound.Configuration;
+﻿using Lyrixound.Configuration;
 using MaterialDesignThemes.Wpf;
 using Prism.Mvvm;
 using System;
@@ -116,10 +116,10 @@ namespace Lyrixound.ViewModels
 
         public double TimeOffsetSeconds
         {
-            get => Math.Round(_lyricsSettings.TimeOffsetSeconds, 3);
+            get => Math.Round(_lyricsSettings.TimeOffsetSeconds, 1);
             set
             {
-                _lyricsSettings.TimeOffsetSeconds = value;
+                _lyricsSettings.TimeOffsetSeconds = Math.Round(Math.Clamp(value, -10, 10), 1);
                 RaisePropertyChanged();
             }
         }

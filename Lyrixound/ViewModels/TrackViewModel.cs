@@ -115,7 +115,7 @@ namespace Lyrixound.ViewModels
 
             // Find the line that should be active based on current position
             // Apply user-configured time offset for synced lyrics
-            var timeOffset = TimeSpan.FromSeconds(_lyricsSettings.TimeOffsetSeconds);
+            var timeOffset = TimeSpan.FromSeconds(Math.Round(_lyricsSettings.TimeOffsetSeconds, 1));
             var effectivePosition = CurrentPosition + timeOffset;
 
             LyricLineViewModel activeLine = null;

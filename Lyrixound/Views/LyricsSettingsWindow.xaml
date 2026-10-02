@@ -4,17 +4,96 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:Lyrixound.Views"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:prism="http://prismlibrary.com/"
         xmlns:vm="clr-namespace:Lyrixound.ViewModels"
-        Title="Lyrics appearance"
-        Width="420"
-        Height="300"
+        Title="Lyrics Appearance"
+        Width="460"
         d:DataContext="{d:DesignInstance vm:LyricsSettingsViewModel}"
+        prism:ViewModelLocator.AutoWireViewModel="True"
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
         ShowInTaskbar="False"
+        SizeToContent="Height"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-        WindowStartupLocation="CenterOwner"
         mc:Ignorable="d">
 
-    <local:LyricsSettingsView Margin="16,12" DataContext="{Binding}"/>
+    <StackPanel Margin="16,12">
+        <TextBlock Margin="0"
+                   Style="{StaticResource MaterialDesignBody2TextBlock}"
+                   Text="Font Size"/>
+        <Slider IsMoveToPointEnabled="True"
+                Maximum="200"
+                Minimum="7"
+                Style="{DynamicResource MaterialDesignDiscreteSlider}"
+                ToolTip="{Binding FontSize}"
+                Value="{Binding FontSize}"/>
+
+        <TextBlock Margin="0,5,0,0"
+                   Style="{StaticResource MaterialDesignBody2TextBlock}"
+                   Text="Floating Background Opacity"/>
+        <Slider IsMoveToPointEnabled="True"
+                Maximum="1"
+                Minimum="0"
+                SmallChange="0.01"
+                Style="{DynamicResource MaterialDesignDiscreteSlider}"
+                TickFrequency="0.01"
+                ToolTip="{Binding FloatingBackgroundOpacity, StringFormat=F2}"
+                Value="{Binding FloatingBackgroundOpacity, StringFormat=F2}"/>
+
+        <ToolBar Margin="0,10,0,0" Style="{DynamicResource MaterialDesignToolBar}">
+            <ListBox ItemsSource="{Binding TextAlignments}"
+                     SelectedValue="{Binding TextAlignment}"
+                     SelectedValuePath="Key"
+                     Style="{StaticResource MaterialDesignToolToggleListBox}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <md:PackIcon Kind="{Binding Value}"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <Separator/>
+
+            <ListBox SelectionMode="Multiple" Style="{StaticResource MaterialDesignToolToggleFlatListBox}">
+                <ListBoxItem IsSelected="{Binding IsBold}">
+                    <md:PackIcon Kind="FormatBold"/>
+                </ListBoxItem>
+                <ListBoxItem IsSelected="{Binding IsItalic}">
+                    <md:PackIcon Kind="FormatItalic"/>
+                </ListBoxItem>
+            </ListBox>
+
+            <Separator/>
+        </ToolBar>
+
+        <ComboBox Margin="10"
+                  ItemsSource="{Binding Source={x:Static Fonts.SystemFontFamilies}}"
+                  SelectedItem="{Binding FontFamily}"/>
+
+        <WrapPanel Margin="10,0">
+            <TextBox MinWidth="100"
+                     md:HintAssist.Hint="Blur Radius"
+                     Style="{StaticResource FloatingHintTextBox}"
+                     Text="{Binding BlurRadius, UpdateSourceTrigger=PropertyChanged, Delay=200}"/>
+            <TextBox MinWidth="100"
+                     Margin="10,3,0,6"
+                     md:HintAssist.Hint="Shadow Depth"
+                     Style="{StaticResource FloatingHintTextBox}"
+                     Text="{Binding ShadowDepth, UpdateSourceTrigger=PropertyChanged, Delay=200}"/>
+        </WrapPanel>
+
+        <WrapPanel Margin="10,0,10,10">
+            <local:ColorEdit Margin="0,0,10,0"
+                             Hint="Text Color"
+                             Color="{Binding TextColor}"/>
+            <local:ColorEdit Margin="0,0,10,0"
+                             Hint="Shadow Color"
+                             Color="{Binding ShadowColor}"/>
+            <local:ColorEdit Hint="Active Line Background"
+                             ToolTip="Active Line Background"
+                             Color="{Binding ActiveLineBackgroundColor}"/>
+        </WrapPanel>
+
+    </StackPanel>
 </Window>
