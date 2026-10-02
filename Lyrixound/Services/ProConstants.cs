@@ -16,7 +16,5 @@ internal static class ProConstants
     /// </summary>
     public const string ProStoreId = "9NB91P434L55";
 
-    public const string ProPriceDisplay = "€4.99 one-time purchase";
-
     public const string SupportEmail = "a.arekhva@gmail.com";
 }

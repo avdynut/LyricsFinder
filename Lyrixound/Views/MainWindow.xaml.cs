@@ -255,7 +255,7 @@ namespace Lyrixound.Views
             };
             ThemeButton.ToolTip = isDark
                 ? "Light mode"
-                : _licenseService.IsPro ? "Dark mode" : "Dark mode (Pro)";
+                : _licenseService.IsPro ? "Dark mode" : "Dark mode 👑";
         }
 
         protected override void OnSourceInitialized(EventArgs e)
@@ -553,6 +553,11 @@ namespace Lyrixound.Views
             {
                 Activate();
                 Dispatcher.BeginInvoke(() => SearchTitleBox.Focus(), DispatcherPriority.Input);
+            }
+
+            if (DataContext is ViewModels.MainWindowViewModel viewModel && !(viewModel.Track.Lyrics?.Text?.Length > 0))
+            {
+                _ = viewModel.DetectCurrentTrackAsync();
             }
         }
 

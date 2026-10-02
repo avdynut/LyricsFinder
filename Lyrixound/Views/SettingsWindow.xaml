@@ -9,13 +9,13 @@
         xmlns:prism="http://prismlibrary.com/"
         xmlns:vm="clr-namespace:Lyrixound.ViewModels"
         Width="400"
-        Height="360"
         d:DataContext="{d:DesignInstance vm:SettingsWindowViewModel}"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
-        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         ResizeMode="NoResize"
+        SizeToContent="Height"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         WindowStartupLocation="CenterOwner"
         mc:Ignorable="d">
 
@@ -26,11 +26,11 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <CheckBox md:CheckBoxAssist.CheckBoxSize="30" IsChecked="{Binding IsEnabled}">
+                <CheckBox md:CheckBoxAssist.CheckBoxSize="20" IsChecked="{Binding IsEnabled}">
                     <CheckBox.Content>
                         <StackPanel Orientation="Horizontal">
-                            <Image Width="32"
-                                   Height="32"
+                            <Image Width="24"
+                                   Height="24"
                                    Source="{Binding Name, Converter={StaticResource NameToIconUriConverter}}"/>
                             <TextBlock Margin="4,0"
                                        VerticalAlignment="Center"
@@ -93,32 +93,29 @@
                 <TextBox md:HintAssist.Hint="File Name Pattern"
                          Style="{StaticResource FloatingHintTextBox}"
                          Text="{Binding FileNamePattern, UpdateSourceTrigger=PropertyChanged, Delay=200}"/>
-                <TextBox md:HintAssist.Hint="Check Interval, s"
+                <!--<TextBox md:HintAssist.Hint="Check Interval, s"
                          Style="{StaticResource FloatingHintTextBox}"
-                         Text="{Binding CheckInterval, UpdateSourceTrigger=PropertyChanged, Delay=200}"/>
+                         Text="{Binding CheckInterval, UpdateSourceTrigger=PropertyChanged, Delay=200}"/>-->
                 <CheckBox Margin="0,10"
                           Command="{Binding ChangeRunAtStartupCommand}"
                           Content="Run at startup"
                           IsChecked="{Binding RunAtStartup}"/>
-                <StackPanel Margin="0,4,0,0" Orientation="Horizontal">
-                    <CheckBox Content="Dark mode"
-                              IsChecked="{Binding IsDarkTheme}"/>
-                    <TextBlock Margin="8,0,0,0"
-                               VerticalAlignment="Center"
-                               Foreground="{DynamicResource MaterialDesignBodyLight}"
-                               Text="Pro"
-                               Visibility="{Binding IsPro, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
-                </StackPanel>
+                <CheckBox Margin="0,4,0,0"
+                          Content="Dark mode 👑"
+                          IsChecked="{Binding IsDarkTheme}"/>
             </StackPanel>
         </TabItem>
 
         <TabItem Header="Providers">
-            <ListBox dd:DragDrop.IsDragSource="True"
-                     dd:DragDrop.IsDropTarget="True"
-                     Background="Transparent"
-                     BorderThickness="0"
-                     ItemTemplate="{StaticResource CheckIconItemTemplate}"
-                     ItemsSource="{Binding Settings.LyricsProviders}"/>
+            <StackPanel>
+                <TextBlock Margin="0,0,0,5" Text="Drag to change the order of lyrics sources."/>
+                <ListBox dd:DragDrop.IsDragSource="True"
+                         dd:DragDrop.IsDropTarget="True"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         ItemTemplate="{StaticResource CheckIconItemTemplate}"
+                         ItemsSource="{Binding Settings.LyricsProviders}"/>
+            </StackPanel>
         </TabItem>
 
         <TabItem Header="Pro">
@@ -130,7 +127,7 @@
                 <TextBlock Margin="0,8,0,16"
                            FontSize="12"
                            Foreground="{DynamicResource MaterialDesignBodyLight}"
-                           Text="Purchase Pro to support the author. Includes priority support and Light/Dark mode. Exclusive Pro features will be added in future updates (modern UI, etc.). The main features remain free."
+                           Text="Purchase Pro to support the author. Includes priority support and Dark mode. Exclusive Pro features will be added in future updates (modern UI, etc.). The main features remain free."
                            TextWrapping="Wrap"
                            Visibility="{Binding IsPro, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
                 <TextBlock Margin="0,8,0,16"
@@ -148,7 +145,7 @@
                         Padding="12,6"
                         HorizontalAlignment="Left"
                         Command="{Binding UnlockProCommand}"
-                        Content="Support the author"
+                        Content="Get Lyrixound Pro"
                         Style="{StaticResource MaterialDesignRaisedButton}"
                         Visibility="{Binding IsPro, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
                 <!--<Button Padding="12,6"
