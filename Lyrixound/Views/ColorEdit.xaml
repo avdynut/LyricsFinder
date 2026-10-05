@@ -75,7 +75,6 @@
                 </Button.Template>
             </Button>
             <TextBox x:Name="HexBox"
-                     Width="85"
                      VerticalAlignment="Center"
                      md:HintAssist.Hint="{Binding Hint, ElementName=Root}"
                      LostFocus="OnHexLostFocus"
