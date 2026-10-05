@@ -147,6 +147,25 @@
                         Content="Get Lyrixound Pro"
                         Style="{StaticResource MaterialDesignRaisedButton}"
                         Visibility="{Binding IsPro, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                <TextBlock Margin="0,8,0,8"
+                           FontSize="12"
+                           Foreground="{DynamicResource MaterialDesignBodyLight}"
+                           Text="If you like Lyrixound, please rate it in the Microsoft Store. Your feedback helps the app reach more people."
+                           TextWrapping="Wrap"/>
+                <Button Margin="0,0,0,8"
+                        Padding="12,6"
+                        HorizontalAlignment="Left"
+                        Command="{Binding RateAppCommand}"
+                        Style="{StaticResource MaterialDesignOutlinedButton}">
+                    <StackPanel Orientation="Horizontal">
+                        <md:PackIcon Width="18"
+                                     Height="18"
+                                     Margin="0,0,8,0"
+                                     VerticalAlignment="Center"
+                                     Kind="Star"/>
+                        <TextBlock VerticalAlignment="Center" Text="Rate in the Microsoft Store"/>
+                    </StackPanel>
+                </Button>
                 <!--<Button Padding="12,6"
                         HorizontalAlignment="Left"
                         Command="{Binding RestorePurchasesCommand}"

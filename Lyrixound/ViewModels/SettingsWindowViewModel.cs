@@ -47,6 +47,7 @@ namespace Lyrixound.ViewModels
             UnlockProCommand = new DelegateCommand(ShowPaywall);
             RestorePurchasesCommand = new DelegateCommand(async () => await RestorePurchasesAsync());
             OpenSupportEmailCommand = new DelegateCommand(OpenSupportEmail);
+            RateAppCommand = new DelegateCommand(RateApp);
         }
 
         public Settings Settings { get; }
@@ -146,6 +147,7 @@ namespace Lyrixound.ViewModels
         public ICommand UnlockProCommand { get; }
         public ICommand RestorePurchasesCommand { get; }
         public ICommand OpenSupportEmailCommand { get; }
+        public ICommand RateAppCommand { get; }
 
         private void OnClosing()
         {
@@ -225,6 +227,25 @@ namespace Lyrixound.ViewModels
             RaisePropertyChanged(nameof(IsPro));
             RaisePropertyChanged(nameof(ProStatusText));
             RaisePropertyChanged(nameof(IsDarkTheme));
+        }
+
+        private void RateApp()
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = $"ms-windows-store://review/?ProductId={ProConstants.StoreAppId}",
+                    UseShellExecute = true
+                });
+
+                Settings.DontShowRatingReminder = true;
+                Settings.Save();
+            }
+            catch (Exception ex)
+            {
+                _logger.Warn(ex, "Failed to open the Microsoft Store review page");
+            }
         }
 
         private static void OpenSupportEmail()
