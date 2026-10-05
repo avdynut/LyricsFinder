@@ -1,9 +1,11 @@
 ﻿using Lyrixound.Configuration;
+using Lyrixound.Services;
 using MaterialDesignThemes.Wpf;
 using Prism.Commands;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -13,6 +15,8 @@ namespace Lyrixound.ViewModels
     public class LyricsSettingsViewModel : BindableBase
     {
         private readonly LyricsSettings _lyricsSettings;
+        private readonly ThemeService _themeService;
+        private bool _applyingPreset;
 
         public double FontSize
         {
@@ -21,6 +25,7 @@ namespace Lyrixound.ViewModels
             {
                 _lyricsSettings.FontSize = Math.Round(Math.Clamp(value, 7, 200), 0);
                 RaisePropertyChanged();
+                UpdateSelectedPreset();
             }
         }
 
@@ -32,6 +37,7 @@ namespace Lyrixound.ViewModels
                 _lyricsSettings.IsItalic = value;
                 RaisePropertyChanged();
                 RaisePropertyChanged(nameof(FontStyle));
+                UpdateSelectedPreset();
             }
         }
 
@@ -43,6 +49,7 @@ namespace Lyrixound.ViewModels
                 _lyricsSettings.IsBold = value;
                 RaisePropertyChanged();
                 RaisePropertyChanged(nameof(FontWeight));
+                UpdateSelectedPreset();
             }
         }
 
@@ -53,6 +60,7 @@ namespace Lyrixound.ViewModels
             {
                 _lyricsSettings.FontFamily = value;
                 RaisePropertyChanged();
+                UpdateSelectedPreset();
             }
         }
 
@@ -63,6 +71,7 @@ namespace Lyrixound.ViewModels
             {
                 _lyricsSettings.TextAlignment = value;
                 RaisePropertyChanged();
+                UpdateSelectedPreset();
             }
         }
 
@@ -73,6 +82,7 @@ namespace Lyrixound.ViewModels
             {
                 _lyricsSettings.TextColor = value;
                 RaisePropertyChanged();
+                UpdateSelectedPreset();
             }
         }
 
@@ -83,6 +93,7 @@ namespace Lyrixound.ViewModels
             {
                 _lyricsSettings.ShadowColor = value;
                 RaisePropertyChanged();
+                UpdateSelectedPreset();
             }
         }
 
@@ -93,6 +104,7 @@ namespace Lyrixound.ViewModels
             {
                 _lyricsSettings.ActiveLineBackgroundColor = value;
                 RaisePropertyChanged();
+                UpdateSelectedPreset();
             }
         }
 
@@ -103,6 +115,7 @@ namespace Lyrixound.ViewModels
             {
                 _lyricsSettings.ShadowDepth = Math.Round(Math.Clamp(value, -20, 20), 0);
                 RaisePropertyChanged();
+                UpdateSelectedPreset();
             }
         }
 
@@ -113,6 +126,7 @@ namespace Lyrixound.ViewModels
             {
                 _lyricsSettings.BlurRadius = Math.Round(Math.Clamp(value, 0, 100), 0);
                 RaisePropertyChanged();
+                UpdateSelectedPreset();
             }
         }
 
@@ -133,6 +147,7 @@ namespace Lyrixound.ViewModels
             {
                 _lyricsSettings.FloatingBackgroundOpacity = Math.Round(Math.Clamp(value, 0, 1), 1);
                 RaisePropertyChanged();
+                UpdateSelectedPreset();
             }
         }
 
@@ -141,10 +156,11 @@ namespace Lyrixound.ViewModels
 
         public IReadOnlyList<LyricsStylePreset> Presets { get; } =
         [
-            new LyricsStylePreset("Classic", "Segoe UI", 18, bold: true, italic: false, TextAlignment.Center, "#FFE6E6FF", "#FF000000", 1, 5, "#00000000", 0),
-            new LyricsStylePreset("Glow", "Segoe UI", 18, bold: true, italic: false, TextAlignment.Center, "#FFFFFFFF", "#FF7C4DFF", 0, 16, "#FF311B92", 0.4),
+            new LyricsStylePreset("Classic", "Segoe UI", 18, bold: true, italic: false, TextAlignment.Center, "#FF000000", "#00000000", 0, 0, "#00000000", 0.4, useThemeTextColor: true),
+            new LyricsStylePreset("Glow", "Segoe UI", 18, bold: true, italic: false, TextAlignment.Center, "#FFFFFFFF", "#FF7C4DFF", 0, 16, "#418571DE", 0.4),
             new LyricsStylePreset("Soft", "Georgia", 22, bold: false, italic: true, TextAlignment.Center, "#FFFFF8E1", "#FF5D4037", 1, 6, "#FF8D6E63", 0.3),
-            new LyricsStylePreset("Poster", "Impact", 32, bold: false, italic: false, TextAlignment.Center, "#FFFFFFFF", "#FF000000", 3, 0, "#FFD50000", 0.5),
+            new LyricsStylePreset("Poster", "Impact", 32, bold: false, italic: false, TextAlignment.Center, "#FFFFFFFF", "#FF000000", 3, 0, "#8FEB2424", 0.5),
+            new LyricsStylePreset("Neon", "Consolas", 20, bold: false, italic: false, TextAlignment.Left, "#FF69F0AE", "#FF00E5FF", 0, 14, "#E60A7D69", 0.5),
         ];
 
         public ICommand ApplyPresetCommand { get; }
@@ -157,10 +173,61 @@ namespace Lyrixound.ViewModels
             //{ TextAlignment.Justify, PackIconKind.FormatAlignJustify }
         };
 
-        public LyricsSettingsViewModel(LyricsSettings lyricsSettings)
+        public LyricsSettingsViewModel(LyricsSettings lyricsSettings, ThemeService themeService)
         {
             _lyricsSettings = lyricsSettings;
+            _themeService = themeService;
             ApplyPresetCommand = new DelegateCommand<LyricsStylePreset>(ApplyPreset);
+            _themeService.ThemeChanged += (_, _) => OnThemeChanged();
+            ApplyThemeToPresets();
+            ApplySavedPreset();
+        }
+
+        private void ApplySavedPreset()
+        {
+            if (_lyricsSettings.PresetName == "Custom")
+            {
+                UpdateSelectedPreset();
+                return;
+            }
+
+            var preset = Presets.FirstOrDefault(item => item.Name == _lyricsSettings.PresetName)
+                ?? Presets.First(item => item.Name == "Classic");
+            ApplyPreset(preset);
+        }
+
+        private void OnThemeChanged()
+        {
+            var classicSelected = Presets.First(preset => preset.Name == "Classic").IsSelected;
+            ApplyThemeToPresets();
+            if (classicSelected)
+                TextColor = Presets.First(preset => preset.Name == "Classic").TextColor;
+
+            UpdateSelectedPreset();
+        }
+
+        private void ApplyThemeToPresets()
+        {
+            foreach (var preset in Presets)
+                preset.ApplyTheme();
+        }
+
+        private void UpdateSelectedPreset()
+        {
+            if (_applyingPreset)
+                return;
+
+            LyricsStylePreset selected = null;
+            foreach (var preset in Presets)
+            {
+                preset.IsSelected = preset.Matches(this);
+                if (preset.IsSelected)
+                    selected = preset;
+            }
+
+            var name = selected?.Name ?? "Custom";
+            if (_lyricsSettings.PresetName != name)
+                _lyricsSettings.PresetName = name;
         }
 
         private void ApplyPreset(LyricsStylePreset preset)
@@ -168,17 +235,27 @@ namespace Lyrixound.ViewModels
             if (preset == null)
                 return;
 
-            FontFamily = preset.FontFamily;
-            FontSize = preset.FontSize;
-            IsBold = preset.IsBold;
-            IsItalic = preset.IsItalic;
-            TextAlignment = preset.TextAlignment;
-            TextColor = preset.TextColor;
-            ShadowColor = preset.ShadowColor;
-            ShadowDepth = preset.ShadowDepth;
-            BlurRadius = preset.BlurRadius;
-            ActiveLineBackgroundColor = preset.ActiveLineBackgroundColor;
-            FloatingBackgroundOpacity = preset.BackgroundOpacity;
+            _applyingPreset = true;
+            try
+            {
+                FontFamily = preset.FontFamily;
+                FontSize = preset.FontSize;
+                IsBold = preset.IsBold;
+                IsItalic = preset.IsItalic;
+                TextAlignment = preset.TextAlignment;
+                TextColor = preset.TextColor;
+                ShadowColor = preset.ShadowColor;
+                ShadowDepth = preset.ShadowDepth;
+                BlurRadius = preset.BlurRadius;
+                ActiveLineBackgroundColor = preset.ActiveLineBackgroundColor;
+                FloatingBackgroundOpacity = preset.BackgroundOpacity;
+            }
+            finally
+            {
+                _applyingPreset = false;
+            }
+
+            UpdateSelectedPreset();
         }
     }
 }

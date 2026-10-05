@@ -33,6 +33,9 @@
                               Click="OnSettingsButtonClick"
                               Header="Settings"/>
                     <MenuItem Padding="10,0,10,0"
+                              Click="OnLyricsSettingsButtonClick"
+                              Header="Lyrics Appearance"/>
+                    <MenuItem Padding="10,0,10,0"
                               Command="{Binding OpenWebsiteCommand}"
                               Header="Lyrixound Website"/>
                     <MenuItem Name="SupportAuthorMenuItem"

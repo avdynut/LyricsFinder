@@ -55,6 +55,11 @@
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource MaterialDesignDivider}"/>
                             </Trigger>
+                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="Transparent"/>
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource MaterialDesign.Brush.Primary}"/>
+                                <Setter TargetName="Chrome" Property="BorderThickness" Value="2"/>
+                            </DataTrigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="Chrome" Property="Opacity" Value="0.7"/>
                             </Trigger>
