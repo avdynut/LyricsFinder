@@ -63,20 +63,24 @@
                         <ControlTemplate TargetType="TabItem">
                             <Border Name="TabItem"
                                     Padding="{TemplateBinding Padding}"
-                                    Background="{DynamicResource MaterialDesignChipBackground}"
                                     CornerRadius="5,5,0,0">
-                                <TextBlock x:Name="Header"
-                                           Foreground="{TemplateBinding Foreground}"
-                                           Text="{TemplateBinding Header}"/>
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="{DynamicResource MaterialDesignChipBackground}"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="{DynamicResource MaterialDesignFlatButtonRipple}"/>
+                                            </Trigger>
+                                            <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource TemplatedParent}}" Value="True">
+                                                <Setter Property="Background" Value="{DynamicResource MaterialDesign.Brush.ListBoxItem.Selected}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <ContentPresenter ContentSource="Header"
+                                                  RecognizesAccessKey="True"
+                                                  TextBlock.Foreground="{TemplateBinding Foreground}"/>
                             </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter TargetName="TabItem" Property="Background" Value="{DynamicResource MaterialDesign.Brush.ListBoxItem.Selected}"/>
-                                </Trigger>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="TabItem" Property="Background" Value="{DynamicResource MaterialDesignFlatButtonRipple}"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
@@ -117,7 +121,21 @@
             </StackPanel>
         </TabItem>
 
-        <TabItem Header="Pro">
+        <TabItem>
+            <TabItem.Header>
+                <TextBlock>
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Text" Value="Pro"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding DataContext.IsPro, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                                    <Setter Property="Text" Value="About"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </TabItem.Header>
             <StackPanel Margin="0,8,0,0">
                 <TextBlock FontSize="14"
                            FontWeight="SemiBold"
