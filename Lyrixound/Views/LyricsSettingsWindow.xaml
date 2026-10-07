@@ -8,7 +8,7 @@
         xmlns:prism="http://prismlibrary.com/"
         xmlns:vm="clr-namespace:Lyrixound.ViewModels"
         Title="Lyrics Appearance"
-        Width="460"
+        Width="520"
         d:DataContext="{d:DesignInstance vm:LyricsSettingsViewModel}"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Background="{DynamicResource MaterialDesignPaper}"
@@ -99,6 +99,10 @@
                                        FontWeight="{Binding FontWeight}"
                                        Foreground="{DynamicResource MaterialDesignBody}"
                                        Text="{Binding Name}"/>
+                            <TextBlock Margin="4,0,0,0"
+                                       VerticalAlignment="Center"
+                                       Text="👑"
+                                       Visibility="{Binding ShowProBadge, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                         </StackPanel>
                     </Button>
                 </DataTemplate>

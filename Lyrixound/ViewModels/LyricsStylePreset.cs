@@ -19,9 +19,11 @@ public sealed class LyricsStylePreset : INotifyPropertyChanged
         double blurRadius,
         string activeLineBackgroundColor,
         double backgroundOpacity,
-        bool useThemeTextColor = false)
+        bool useThemeTextColor = false,
+        bool requiresPro = false)
     {
         Name = name;
+        RequiresPro = requiresPro;
         FontFamily = new FontFamily(fontFamily);
         FontSize = fontSize;
         IsBold = bold;
@@ -38,6 +40,23 @@ public sealed class LyricsStylePreset : INotifyPropertyChanged
     }
 
     public string Name { get; }
+    public bool RequiresPro { get; }
+
+    private bool _showProBadge;
+    public bool ShowProBadge
+    {
+        get => _showProBadge;
+        private set
+        {
+            if (_showProBadge == value)
+                return;
+
+            _showProBadge = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ShowProBadge)));
+        }
+    }
+
+    public void SetProUnlocked(bool isPro) => ShowProBadge = RequiresPro && !isPro;
     public FontFamily FontFamily { get; }
     public double FontSize { get; }
     public bool IsBold { get; }

@@ -1,5 +1,6 @@
 ﻿using Lyrixound.Configuration;
 using Lyrixound.Services;
+using Lyrixound.Views;
 using MaterialDesignThemes.Wpf;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -16,6 +17,8 @@ namespace Lyrixound.ViewModels
     {
         private readonly LyricsSettings _lyricsSettings;
         private readonly ThemeService _themeService;
+        private readonly ILicenseService _licenseService;
+        private readonly ILicenseAnalytics _licenseAnalytics;
         private bool _applyingPreset;
 
         public double FontSize
@@ -158,9 +161,9 @@ namespace Lyrixound.ViewModels
         [
             new LyricsStylePreset("Classic", "Segoe UI", 18, bold: true, italic: false, TextAlignment.Center, "#FF000000", "#00000000", 0, 0, "#00000000", 0.4, useThemeTextColor: true),
             new LyricsStylePreset("Glow", "Segoe UI", 18, bold: true, italic: false, TextAlignment.Center, "#FFFFFFFF", "#FF7C4DFF", 0, 16, "#418571DE", 0.4),
-            new LyricsStylePreset("Soft", "Georgia", 22, bold: false, italic: true, TextAlignment.Center, "#FFFFF8E1", "#FF5D4037", 1, 6, "#FF8D6E63", 0.3),
-            new LyricsStylePreset("Poster", "Impact", 32, bold: false, italic: false, TextAlignment.Center, "#FFFFFFFF", "#FF000000", 3, 0, "#8FEB2424", 0.5),
-            new LyricsStylePreset("Neon", "Consolas", 20, bold: false, italic: false, TextAlignment.Left, "#FF69F0AE", "#FF00E5FF", 0, 14, "#E60A7D69", 0.5),
+            new LyricsStylePreset("Soft", "Georgia", 22, bold: false, italic: true, TextAlignment.Center, "#FFFFF8E1", "#FF5D4037", 1, 6, "#FF8D6E63", 0.3, requiresPro: true),
+            new LyricsStylePreset("Poster", "Impact", 32, bold: false, italic: false, TextAlignment.Center, "#FFFFFFFF", "#FF000000", 3, 0, "#8FEB2424", 0.5, requiresPro: true),
+            new LyricsStylePreset("Neon", "Consolas", 20, bold: false, italic: false, TextAlignment.Left, "#FF69F0AE", "#FF00E5FF", 0, 14, "#E60A7D69", 0.5, requiresPro: true),
         ];
 
         public ICommand ApplyPresetCommand { get; }
@@ -173,13 +176,21 @@ namespace Lyrixound.ViewModels
             //{ TextAlignment.Justify, PackIconKind.FormatAlignJustify }
         };
 
-        public LyricsSettingsViewModel(LyricsSettings lyricsSettings, ThemeService themeService)
+        public LyricsSettingsViewModel(
+            LyricsSettings lyricsSettings,
+            ThemeService themeService,
+            ILicenseService licenseService,
+            ILicenseAnalytics licenseAnalytics)
         {
             _lyricsSettings = lyricsSettings;
             _themeService = themeService;
+            _licenseService = licenseService;
+            _licenseAnalytics = licenseAnalytics;
             ApplyPresetCommand = new DelegateCommand<LyricsStylePreset>(ApplyPreset);
             _themeService.ThemeChanged += (_, _) => OnThemeChanged();
+            _licenseService.EntitlementChanged += (_, _) => OnEntitlementChanged();
             ApplyThemeToPresets();
+            RefreshProBadges();
             ApplySavedPreset();
         }
 
@@ -193,7 +204,34 @@ namespace Lyrixound.ViewModels
 
             var preset = Presets.FirstOrDefault(item => item.Name == _lyricsSettings.PresetName)
                 ?? Presets.First(item => item.Name == "Classic");
+            if (preset.RequiresPro && !_licenseService.IsPro)
+                preset = Presets.First(item => item.Name == "Classic");
+
             ApplyPreset(preset);
+        }
+
+        private void OnEntitlementChanged()
+        {
+            var dispatcher = Application.Current?.Dispatcher;
+            if (dispatcher != null && !dispatcher.CheckAccess())
+            {
+                dispatcher.Invoke(OnEntitlementChanged);
+                return;
+            }
+
+            RefreshProBadges();
+            if (_licenseService.IsPro || _applyingPreset)
+                return;
+
+            var selected = Presets.FirstOrDefault(preset => preset.IsSelected);
+            if (selected?.RequiresPro == true)
+                ApplyPreset(Presets.First(preset => preset.Name == "Classic"));
+        }
+
+        private void RefreshProBadges()
+        {
+            foreach (var preset in Presets)
+                preset.SetProUnlocked(_licenseService.IsPro);
         }
 
         private void OnThemeChanged()
@@ -226,6 +264,9 @@ namespace Lyrixound.ViewModels
             }
 
             var name = selected?.Name ?? "Custom";
+            if (selected?.RequiresPro == true && !_licenseService.IsPro)
+                name = "Custom";
+
             if (_lyricsSettings.PresetName != name)
                 _lyricsSettings.PresetName = name;
         }
@@ -234,6 +275,16 @@ namespace Lyrixound.ViewModels
         {
             if (preset == null)
                 return;
+
+            if (preset.RequiresPro && !_licenseService.IsPro)
+            {
+                var owner = Application.Current?.Windows.OfType<Window>().FirstOrDefault(window => window.IsActive)
+                    ?? Application.Current?.MainWindow;
+                PaywallWindow.Show(owner, _licenseService, _licenseAnalytics, "preset");
+                RefreshProBadges();
+                if (!_licenseService.IsPro)
+                    return;
+            }
 
             _applyingPreset = true;
             try
