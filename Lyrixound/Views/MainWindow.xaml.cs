@@ -725,7 +725,7 @@ namespace Lyrixound.Views
         private void OnSettingsButtonClick(object sender, RoutedEventArgs e)
         {
             var settingsWindow = new SettingsWindow(_themeService) { Owner = this };
-            settingsWindow.ShowDialog();
+            settingsWindow.Show();
             ApplyProUi();
         }
 
