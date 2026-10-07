@@ -18,6 +18,7 @@ using SmtcWatcher;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Threading;
@@ -89,20 +90,18 @@ namespace Lyrixound
                 .Register<ITrackInfoProvider, LyricsOvhTrackInfoProvider>(LyricsOvhTrackInfoProvider.Name)
                 .Register<ITrackInfoProvider, GoogleTrackInfoProvider>(GoogleTrackInfoProvider.Name);
 
-            var lyricsProviders = new List<ITrackInfoProvider>();
+            var providersByName = new Dictionary<string, ITrackInfoProvider>();
             foreach (var provider in settings.LyricsProviders)
             {
-                if (provider.IsEnabled && containerRegistry.IsRegistered<ITrackInfoProvider>(provider.Name))
-                {
-                    lyricsProviders.Add(Container.Resolve<ITrackInfoProvider>(provider.Name));
-                }
+                if (containerRegistry.IsRegistered<ITrackInfoProvider>(provider.Name))
+                    providersByName[provider.Name] = Container.Resolve<ITrackInfoProvider>(provider.Name);
             }
 
             containerRegistry
                 //.Register<MusicWatcher, SystemMediaWatcher>()
                 .RegisterInstance(new CyclicalSmtcWatcher(settings.CheckInterval))
                 //.RegisterInstance(new NpsmWatcher(settings.CheckInterval))
-                .RegisterInstance(new MultiTrackInfoProvider(lyricsProviders));
+                .RegisterInstance(new MultiTrackInfoProvider(() => ActiveProviders(settings, providersByName)));
         }
 
         protected override Window CreateShell()
@@ -161,6 +160,20 @@ namespace Lyrixound
 
                 return JsonSettings.Load<T>(filePath).EnableAutosave();
             }
+        }
+
+        private static List<ITrackInfoProvider> ActiveProviders(
+            Settings settings,
+            Dictionary<string, ITrackInfoProvider> providersByName)
+        {
+            var active = new List<ITrackInfoProvider>();
+            foreach (var provider in settings.LyricsProviders.ToArray())
+            {
+                if (provider.IsEnabled && providersByName.TryGetValue(provider.Name, out var implementation))
+                    active.Add(implementation);
+            }
+
+            return active;
         }
 
         private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)

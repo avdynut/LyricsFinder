@@ -3,6 +3,7 @@ using LyricsFinder.Core.LyricTypes;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace LyricsProviders
@@ -11,8 +12,10 @@ namespace LyricsProviders
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
+        private readonly Func<IEnumerable<ITrackInfoProvider>> _lyricsProviders;
+
         public string DisplayName => "Multi";
-        public IEnumerable<ITrackInfoProvider> LyricsProviders { get; }
+        public IEnumerable<ITrackInfoProvider> LyricsProviders => _lyricsProviders();
 
         public ITrackInfoProvider CurrentProvider { get; private set; }
 
@@ -23,7 +26,7 @@ namespace LyricsProviders
             Track unsyncedFallback = null;
             ITrackInfoProvider unsyncedProvider = null;
 
-            foreach (var provider in LyricsProviders)
+            foreach (var provider in _lyricsProviders().ToList())
             {
                 var track = await provider.FindTrackAsync(trackInfo);
 
@@ -53,8 +56,13 @@ namespace LyricsProviders
         }
 
         public MultiTrackInfoProvider(IEnumerable<ITrackInfoProvider> lyricsProviders)
+            : this(lyricsProviders == null ? null : () => lyricsProviders)
         {
-            LyricsProviders = lyricsProviders ?? throw new ArgumentNullException(nameof(lyricsProviders));
+        }
+
+        public MultiTrackInfoProvider(Func<IEnumerable<ITrackInfoProvider>> lyricsProviders)
+        {
+            _lyricsProviders = lyricsProviders ?? throw new ArgumentNullException(nameof(lyricsProviders));
         }
     }
 }
