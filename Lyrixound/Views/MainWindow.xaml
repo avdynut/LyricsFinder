@@ -46,7 +46,7 @@
                     <MenuItem Name="ClickThroughMenuItem"
                               Padding="10,0,10,0"
                               Click="OnClickThroughToggle"
-                              Header="Click Through"
+                              Header="Click Through 👑"
                               IsCheckable="True"/>
                     <Separator/>
                     <MenuItem Margin="0,0,0,-10"
