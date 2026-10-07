@@ -56,8 +56,100 @@
                 </ContextMenu>
             </tb:TaskbarIcon.ContextMenu>
             <tb:TaskbarIcon.TrayToolTip>
-                <Border Background="{DynamicResource MaterialDesignPaper}">
-                    <Label Name="TrayTooltipLabel" Content="{x:Static local:App.AppNameWithVersion}"/>
+                <Border Padding="10,8"
+                        Background="{DynamicResource MaterialDesignPaper}"
+                        CornerRadius="5">
+                    <Grid>
+                        <Label Name="TrayTooltipLabel"
+                               Padding="0"
+                               Content="{x:Static local:App.AppNameWithVersion}">
+                            <Label.Style>
+                                <Style TargetType="Label">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasLyricsIdentity}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Label.Style>
+                        </Label>
+                        <Grid>
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasLyricsIdentity}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Width="64"
+                                    Height="64"
+                                    Margin="0,0,10,0"
+                                    VerticalAlignment="Center"
+                                    CornerRadius="5">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Thumbnail}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <Border.Background>
+                                    <ImageBrush ImageSource="{Binding Thumbnail}" Stretch="UniformToFill"/>
+                                </Border.Background>
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock MaxWidth="220"
+                                           FontSize="15"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MaterialDesignBody}"
+                                           Text="{Binding LyricsTitle}"
+                                           TextTrimming="CharacterEllipsis"
+                                           TextWrapping="NoWrap">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding LyricsTitle}" Value="{x:Null}">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding LyricsTitle}" Value="">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <TextBlock MaxWidth="220"
+                                           Margin="0,1,0,0"
+                                           FontSize="13"
+                                           Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                           Text="{Binding LyricsArtist}"
+                                           TextTrimming="CharacterEllipsis"
+                                           TextWrapping="NoWrap">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding LyricsArtist}" Value="{x:Null}">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding LyricsArtist}" Value="">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
                 </Border>
             </tb:TaskbarIcon.TrayToolTip>
         </tb:TaskbarIcon>
