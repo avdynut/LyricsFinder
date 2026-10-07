@@ -126,7 +126,7 @@
                 <TextBlock Margin="0,8,0,16"
                            FontSize="12"
                            Foreground="{DynamicResource MaterialDesignBodyLight}"
-                           Text="Purchase Pro to support the author. Includes priority support and Dark mode. Exclusive Pro features will be added in future updates (modern UI, etc.). The main features remain free."
+                           Text="Purchase Pro to support the author. Includes priority support, Dark mode, and click-through. Exclusive Pro features will be added in future updates (modern UI, etc.). The main features remain free."
                            TextWrapping="Wrap"
                            Visibility="{Binding IsPro, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
                 <TextBlock Margin="0,8,0,16"

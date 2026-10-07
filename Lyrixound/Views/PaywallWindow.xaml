@@ -55,6 +55,9 @@
                            Text="• Light and Dark theme"
                            TextWrapping="Wrap"/>
                 <TextBlock FontSize="13"
+                           Text="• Click-through lyrics overlay"
+                           TextWrapping="Wrap"/>
+                <TextBlock FontSize="13"
                            Text="• Priority support from the author"
                            TextWrapping="Wrap"/>
                 <TextBlock FontSize="13"

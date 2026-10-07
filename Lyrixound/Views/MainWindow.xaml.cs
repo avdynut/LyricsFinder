@@ -43,10 +43,10 @@ namespace Lyrixound.Views
         private static readonly Uri FreeIconUri = new Uri("pack://application:,,,/lyrics.ico");
         private static readonly Uri ProIconUri = new Uri("pack://application:,,,/lyrics-pro.ico");
 
-        [LibraryImport("user32.dll")]
+        [LibraryImport("user32.dll", EntryPoint = "GetWindowLongW", SetLastError = true)]
         private static partial int GetWindowLong(IntPtr hwnd, int index);
 
-        [LibraryImport("user32.dll")]
+        [LibraryImport("user32.dll", EntryPoint = "SetWindowLongW", SetLastError = true)]
         private static partial int SetWindowLong(IntPtr hwnd, int index, int newStyle);
 
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
@@ -145,6 +145,16 @@ namespace Lyrixound.Views
                 SupportAuthorMenuItem.Visibility = isPro
                     ? Visibility.Collapsed
                     : Visibility.Visible;
+            }
+
+            if (ClickThroughMenuItem != null)
+            {
+                ClickThroughMenuItem.Header = isPro ? "Click Through" : "Click Through 👑";
+            }
+
+            if (!isPro && _isClickThrough)
+            {
+                DisableClickThrough();
             }
         }
 
@@ -271,7 +281,7 @@ namespace Lyrixound.Views
 
         private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
-            if (msg != WM_NCHITTEST || _isClickThrough || WindowState != WindowState.Normal)
+            if (msg != WM_NCHITTEST || IsClickThroughEngaged || WindowState != WindowState.Normal)
                 return IntPtr.Zero;
 
             var packed = lParam.ToInt64();
@@ -325,6 +335,7 @@ namespace Lyrixound.Views
         protected override void OnActivated(EventArgs e)
         {
             base.OnActivated(e);
+            SetClickThroughEngaged(false);
             UpdateChrome();
             UpdateSearchPanelForContent();
         }
@@ -334,6 +345,7 @@ namespace Lyrixound.Views
             base.OnDeactivated(e);
 
             Lyrics.IsReadOnly = true;
+            SetClickThroughEngaged(true);
             UpdateChrome();
             UpdateSearchPanelForContent();
         }
@@ -341,6 +353,9 @@ namespace Lyrixound.Views
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
             base.OnMouseLeftButtonDown(e);
+
+            if (IsClickThroughEngaged)
+                return;
 
             DragMove();
         }
@@ -434,23 +449,91 @@ namespace Lyrixound.Views
             Lyrics.IsReadOnly = false;
         }
 
-        private void OnClickThroughToggle(object sender, RoutedEventArgs e)
-        {
-            _isClickThrough = !_isClickThrough;
+        private bool IsClickThroughEngaged => _isClickThrough && !IsActive;
 
+        private void SetClickThroughEngaged(bool engaged)
+        {
+            try
+            {
+                SetClickThroughStyle(_isClickThrough && engaged);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Failed to update click-through for focus");
+            }
+        }
+
+        private void SetClickThroughStyle(bool enabled)
+        {
             var hwnd = new WindowInteropHelper(this).Handle;
             var extStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
+            var newStyle = enabled
+                ? extStyle | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE
+                : extStyle & ~WS_EX_TRANSPARENT & ~WS_EX_NOACTIVATE;
 
-            if (_isClickThrough)
+            if (newStyle != extStyle)
             {
-                SetWindowLong(hwnd, GWL_EXSTYLE, extStyle | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE);
+                SetWindowLong(hwnd, GWL_EXSTYLE, newStyle);
+            }
+        }
+
+        private void DisableClickThrough()
+        {
+            try
+            {
+                SetClickThroughStyle(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Failed to disable click-through");
+            }
+
+            _isClickThrough = false;
+            if (ClickThroughMenuItem != null)
+            {
+                ClickThroughMenuItem.IsChecked = false;
+            }
+
+            UpdateChrome();
+            UpdateSearchPanelForContent();
+        }
+
+        private void OnClickThroughToggle(object sender, RoutedEventArgs e)
+        {
+            var enable = !_isClickThrough;
+
+            if (enable && !_licenseService.IsPro)
+            {
+                ClickThroughMenuItem.IsChecked = false;
+                var purchased = PaywallWindow.Show(this, _licenseService, _licenseAnalytics, "click_through") == true;
+                ApplyProUi();
+                if (!purchased || !_licenseService.IsPro)
+                {
+                    return;
+                }
+            }
+
+            try
+            {
+                SetClickThroughStyle(enable && !IsActive);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Failed to toggle click-through");
+                ClickThroughMenuItem.IsChecked = _isClickThrough;
+                return;
+            }
+
+            _isClickThrough = enable;
+
+            if (IsClickThroughEngaged)
+            {
                 Lyrics.IsReadOnly = true;
                 SetSearchPanelOpen(false);
                 UpdateChrome(animate: false);
             }
             else
             {
-                SetWindowLong(hwnd, GWL_EXSTYLE, extStyle & ~WS_EX_TRANSPARENT & ~WS_EX_NOACTIVATE);
                 UpdateChrome();
                 UpdateSearchPanelForContent();
             }
@@ -480,7 +563,7 @@ namespace Lyrixound.Views
 
         private void UpdateChrome(bool animate = true)
         {
-            var allowChrome = !_isClickThrough && IsActive;
+            var allowChrome = IsActive;
             SetChromeElementVisible(TitleBarButtons, allowChrome && _titleBarHovered, animate);
             var overLyricsChrome = LyricsPanel.IsMouseOver || TrackHeader.IsMouseOver;
             SetChromeElementVisible(LyricsChrome, allowChrome && overLyricsChrome, animate);
@@ -551,7 +634,7 @@ namespace Lyrixound.Views
                 return;
             }
 
-            if (_isClickThrough || DataContext is not ViewModels.MainWindowViewModel viewModel)
+            if (DataContext is not ViewModels.MainWindowViewModel viewModel)
             {
                 return;
             }
