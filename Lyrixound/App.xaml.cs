@@ -98,9 +98,7 @@ namespace Lyrixound
             }
 
             containerRegistry
-                //.Register<MusicWatcher, SystemMediaWatcher>()
                 .RegisterInstance(new CyclicalSmtcWatcher(settings.CheckInterval))
-                //.RegisterInstance(new NpsmWatcher(settings.CheckInterval))
                 .RegisterInstance(new MultiTrackInfoProvider(() => ActiveProviders(settings, providersByName)));
         }
 

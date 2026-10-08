@@ -111,7 +111,7 @@ namespace SmtcWatcher
         {
             if (_currentSession?.GetPlaybackInfo() is GlobalSystemMediaTransportControlsSessionPlaybackInfo playback)
             {
-                PlayerState = SystemMediaWatcher.GetPlayerState(playback.PlaybackStatus);
+                PlayerState = GetPlayerState(playback.PlaybackStatus);
                 //_logger.Debug($"PlaybackType: {playback.PlaybackType}, PlaybackStatus: {playback.PlaybackStatus}, Rate: {playback.PlaybackRate}");
             }
         }
@@ -131,5 +131,14 @@ namespace SmtcWatcher
             _cancellationTokenSource.Cancel();
             _cancellationTokenSource.Dispose();
         }
+
+        private static PlayerState GetPlayerState(GlobalSystemMediaTransportControlsSessionPlaybackStatus playbackStatus) =>
+            playbackStatus switch
+            {
+                GlobalSystemMediaTransportControlsSessionPlaybackStatus.Stopped => PlayerState.Stopped,
+                GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing => PlayerState.Playing,
+                GlobalSystemMediaTransportControlsSessionPlaybackStatus.Paused => PlayerState.Paused,
+                _ => PlayerState.Unknown
+            };
     }
 }

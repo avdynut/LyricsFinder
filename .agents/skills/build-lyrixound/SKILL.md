@@ -14,7 +14,7 @@ Top-level file: `LyricsFinder.sln`. Projects of interest:
 - `Lyrixound` - WinExe WPF app, the thing to run.
 - `LyricsFinder.Core` - shared models, `netstandard2.0`.
 - `Providers/LyricsProviders` + `.Demo` + `.Tests`.
-- `Watchers/SmtcWatcher` + `Watchers/PlayerWatching` + `Watchers/Win10Watcher`.
+- `Watchers/SmtcWatcher` + `Watchers/PlayerWatching`.
 - `ShazamIO` - audio recognition client.
 - `LyrixoundPackaging` - MSIX `.wapproj`.
 
@@ -45,11 +45,6 @@ dotnet run --project Lyrixound -c Debug
 **Provider smoke test (no UI):**
 ```powershell
 dotnet run --project Providers/LyricsProviders.Demo -c Debug
-```
-
-**SMTC console test:**
-```powershell
-dotnet run --project Watchers/SmtcWatcher.ConsoleTest -c Debug
 ```
 
 **Tests:**
