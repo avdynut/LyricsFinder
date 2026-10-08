@@ -1,9 +1,9 @@
-﻿using LyricsFinder.Core;
+﻿using AngleSharp.Html.Parser;
+using LyricsFinder.Core;
 using LyricsFinder.Core.LyricTypes;
-using MSHTML;
 using NLog;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -119,24 +119,28 @@ public class GeniusTrackInfoProvider : ITrackInfoProvider
             : null;
     }
 
-    private static string ParseLyricsHtml(string html)
+    internal static string ParseLyricsHtml(string html)
     {
         if (string.IsNullOrEmpty(html))
             return null;
 
-        var doc = (IHTMLDocument2)new HTMLDocument();
-        doc.write(html);
-        var htmlDoc = (HTMLDocument)doc;
-
+        var document = new HtmlParser().ParseDocument(html);
         var sb = new StringBuilder();
-        foreach (IHTMLElement element in htmlDoc.getElementsByTagName("div"))
+        foreach (var element in document.QuerySelectorAll("div[data-lyrics-container]"))
         {
-            var attr = element.getAttribute("data-lyrics-container", 0);
-            if (attr == null || !string.Equals(attr.ToString(), "true", StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(element.GetAttribute("data-lyrics-container"), "true", StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            RemoveExcludedNodes(element);
-            var text = element.innerText?.Trim();
+            foreach (var excluded in element.QuerySelectorAll("[data-exclude-from-selection]").ToList())
+            {
+                if (string.Equals(excluded.GetAttribute("data-exclude-from-selection"), "true", StringComparison.OrdinalIgnoreCase))
+                    excluded.Remove();
+            }
+
+            foreach (var lineBreak in element.QuerySelectorAll("br").ToList())
+                lineBreak.Replace(document.CreateTextNode("\n"));
+
+            var text = element.TextContent?.Trim();
             if (!string.IsNullOrEmpty(text))
             {
                 if (sb.Length > 0)
@@ -153,31 +157,5 @@ public class GeniusTrackInfoProvider : ITrackInfoProvider
         lyrics = Regex.Replace(lyrics, @"[ \t]+\r?\n", "\n");
         lyrics = Regex.Replace(lyrics, @"(\r?\n){3,}", "\n\n");
         return lyrics.Trim();
-    }
-
-    private static void RemoveExcludedNodes(IHTMLElement container)
-    {
-        var toRemove = new List<IHTMLElement>();
-        if (container.all is not IHTMLElementCollection all)
-            return;
-
-        foreach (IHTMLElement child in all)
-        {
-            var excl = child.getAttribute("data-exclude-from-selection", 0);
-            if (excl != null && string.Equals(excl.ToString(), "true", StringComparison.OrdinalIgnoreCase))
-                toRemove.Add(child);
-        }
-
-        foreach (var child in toRemove)
-        {
-            try
-            {
-                child.outerHTML = string.Empty;
-            }
-            catch
-            {
-                // Ignore COM removal failures; lyrics text may include minor header noise.
-            }
-        }
     }
 }
