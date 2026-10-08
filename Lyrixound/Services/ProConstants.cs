@@ -16,5 +16,5 @@ internal static class ProConstants
     /// </summary>
     public const string ProStoreId = "9NB91P434L55";
 
-    public const string SupportEmail = "a.arekhva@gmail.com";
+    public const string SupportEmail = "support@lyrixound.app";
 }
