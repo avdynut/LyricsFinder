@@ -452,6 +452,7 @@
                                 <Setter Property="Padding" Value="0"/>
                                 <Setter Property="Margin" Value="0"/>
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="IsHitTestVisible" Value="False"/>
                                 <Setter Property="Width" Value="{Binding ViewportWidth, RelativeSource={RelativeSource AncestorType=ScrollViewer}}"/>
                                 <Setter Property="Template">
                                     <Setter.Value>
