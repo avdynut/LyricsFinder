@@ -36,6 +36,8 @@ namespace Lyrixound.Views
         private const int HTBOTTOMLEFT = 16;
         private const int HTBOTTOMRIGHT = 17;
         private const double ResizeBorderThickness = 6;
+        private const int WH_MOUSE_LL = 14;
+        private const int WM_LBUTTONDOWN = 0x0201;
 
         private static readonly Duration ShowDuration = TimeSpan.FromSeconds(0.3);
         private static readonly Duration FadeDuration = TimeSpan.FromSeconds(0.5);
@@ -49,6 +51,18 @@ namespace Lyrixound.Views
         [LibraryImport("user32.dll", EntryPoint = "SetWindowLongW", SetLastError = true)]
         private static partial int SetWindowLong(IntPtr hwnd, int index, int newStyle);
 
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+        private delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
+
+        [LibraryImport("user32.dll", EntryPoint = "SetWindowsHookExW")]
+        private static partial IntPtr SetWindowsHookEx(int idHook, LowLevelMouseProc lpfn, IntPtr hMod, uint threadId);
+
+        [LibraryImport("user32.dll")]
+        private static partial int UnhookWindowsHookEx(IntPtr hook);
+
+        [LibraryImport("user32.dll")]
+        private static partial IntPtr CallNextHookEx(IntPtr hook, int nCode, IntPtr wParam, IntPtr lParam);
+
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private SolidColorBrush _lyricsPanelBrush;
         private readonly WindowSettings _settings;
@@ -58,6 +72,11 @@ namespace Lyrixound.Views
         private readonly ThemeService _themeService;
         private bool _isClickThrough;
         private bool _titleBarHovered;
+        private bool _isForeground;
+        private bool _focusedAtMouseDown;
+        private WindowState _trackedWindowState = WindowState.Normal;
+        private IntPtr _mouseHook;
+        private LowLevelMouseProc _mouseProc;
         private bool _searchPanelDismissed;
         private LyricsSettingsWindow _lyricsSettingsWindow;
 
@@ -277,6 +296,9 @@ namespace Lyrixound.Views
         {
             base.OnSourceInitialized(e);
             ((HwndSource)PresentationSource.FromVisual(this)).AddHook(WndProc);
+            _trackedWindowState = WindowState;
+            _mouseProc = OnLowLevelMouse;
+            InstallMouseHook();
         }
 
         private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -326,6 +348,7 @@ namespace Lyrixound.Views
         protected override void OnStateChanged(EventArgs e)
         {
             base.OnStateChanged(e);
+            _trackedWindowState = WindowState;
 
             var iconKind = WindowState == WindowState.Maximized ? PackIconKind.WindowRestore : PackIconKind.WindowMaximize;
             MaximizeButton.Content = new PackIcon { Kind = iconKind };
@@ -335,6 +358,7 @@ namespace Lyrixound.Views
         protected override void OnActivated(EventArgs e)
         {
             base.OnActivated(e);
+            _isForeground = true;
             SetClickThroughEngaged(false);
             UpdateChrome();
             UpdateSearchPanelForContent();
@@ -343,6 +367,7 @@ namespace Lyrixound.Views
         protected override void OnDeactivated(EventArgs e)
         {
             base.OnDeactivated(e);
+            _isForeground = false;
 
             Lyrics.IsReadOnly = true;
             SetClickThroughEngaged(true);
@@ -367,6 +392,12 @@ namespace Lyrixound.Views
             if (DataContext is IDisposable disposable)
             {
                 disposable.Dispose();
+            }
+
+            if (_mouseHook != IntPtr.Zero)
+            {
+                UnhookWindowsHookEx(_mouseHook);
+                _mouseHook = IntPtr.Zero;
             }
 
             TrayIcon.Dispose();
@@ -397,16 +428,63 @@ namespace Lyrixound.Views
             }
         }
 
+        private void InstallMouseHook()
+        {
+            if (_mouseHook != IntPtr.Zero)
+            {
+                UnhookWindowsHookEx(_mouseHook);
+                _mouseHook = IntPtr.Zero;
+            }
+
+            _mouseHook = SetWindowsHookEx(WH_MOUSE_LL, _mouseProc, IntPtr.Zero, 0);
+            if (_mouseHook == IntPtr.Zero)
+                _logger.Error("Failed to install tray focus hook");
+        }
+
+        private IntPtr OnLowLevelMouse(int nCode, IntPtr wParam, IntPtr lParam)
+        {
+            try
+            {
+                if (nCode >= 0 && wParam == WM_LBUTTONDOWN)
+                {
+                    // Plain fields only. Touching WPF properties here is slow enough that
+                    // Windows removes the hook, and later tray clicks use a stale value.
+                    _focusedAtMouseDown = _isForeground && _trackedWindowState != WindowState.Minimized;
+                }
+            }
+            catch
+            {
+                // An exception escaping this hook makes Windows uninstall it permanently.
+            }
+
+            return CallNextHookEx(_mouseHook, nCode, wParam, lParam);
+        }
+
         private void OnTaskbarIconTrayLeftMouseUp(object sender, RoutedEventArgs e)
         {
-            if (WindowState == WindowState.Minimized)
-            {
-                WindowState = WindowState.Normal;
-            }
+            if (_trackedWindowState == WindowState.Minimized || !_focusedAtMouseDown)
+                ShowAndActivate();
             else
-            {
                 MinimizeWindow();
+        }
+
+        private void ShowAndActivate()
+        {
+            if (WindowState == WindowState.Minimized)
+                WindowState = WindowState.Normal;
+
+            try
+            {
+                if (_isClickThrough)
+                    SetClickThroughStyle(false);
             }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Failed to clear click-through before tray activation");
+            }
+
+            Show();
+            Activate();
         }
 
         private void OnMinimizeButtonClick(object sender, RoutedEventArgs e)
@@ -434,9 +512,9 @@ namespace Lyrixound.Views
 
         private void MinimizeWindow()
         {
+            // ShowInTaskbar=false cannot stay minimized; WPF cancels it and only unfocuses the window.
             ShowInTaskbar = true;
             WindowState = WindowState.Minimized;
-            ShowInTaskbar = _settings.DisplayInTaskbar;
         }
 
         private void MaximizeWindow()
