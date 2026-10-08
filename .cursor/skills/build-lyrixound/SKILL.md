@@ -14,7 +14,7 @@ Top-level file: `LyricsFinder.sln`. Projects of interest:
 - `Lyrixound` - WinExe WPF app, the thing to run.
 - `LyricsFinder.Core` - shared models, `net10.0`.
 - `Providers/LyricsProviders` + `.Demo` + `.Tests`.
-- `Watchers/SmtcWatcher` + `Watchers/PlayerWatching`.
+- `Watchers/SmtcWatcher`.
 - `ShazamIO` - audio recognition client.
 - `LyrixoundPackaging` - MSIX `.wapproj`.
 
@@ -50,7 +50,7 @@ dotnet run --project Providers/LyricsProviders.Demo -c Debug
 **Tests:**
 ```powershell
 dotnet test Providers/LyricsProviders.Tests
-dotnet test Watchers/PlayerWatching.Tests
+dotnet test LyricsFinder.Core.Tests
 ```
 
 The lyrics-provider tests hit live APIs (LrcLib, LyricsOvh, Musixmatch, Genius). Expect occasional flakes if a service is rate-limiting; that's not a regression unless multiple sources fail together.

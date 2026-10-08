@@ -14,8 +14,7 @@ WPF desktop app (Windows, .NET 10) that auto-detects the currently playing track
 | `LyricsFinder.Core` | `net10.0` | Shared models: `Track`, `TrackInfo`, `PlayerState`, `ILyric` + `SyncedLyric`/`UnsyncedLyric`/`NoneLyric`, `LrcParser` |
 | `Providers/LyricsProviders` | `net10.0` | `ITrackInfoProvider` + `MultiTrackInfoProvider` (fallback chain) + `WebTrackInfoProvider` base. Concrete providers: `Directories`, `LrcLib`, `Musixmatch`, `Genius`, `LyricsOvh` |
 | `Providers/LyricsProviders.Tests` / `.Demo` | `net10.0` | Provider tests / CLI demo |
-| `Watchers/SmtcWatcher` | `net10.0-windows10.0.17763.0` | `MusicWatcher` base + `CyclicalSmtcWatcher` polling `GlobalSystemMediaTransportControlsSession`. This is the watcher actually used by the app. |
-| `Watchers/PlayerWatching` (+ `.Demo` / `.Tests`) | `net10.0-windows` | Newer `IPlayerWatcher` abstraction (SMTC, Yandex.Music). Not yet wired into the WPF app. |
+| `Watchers/SmtcWatcher` | `net10.0-windows10.0.17763.0` | `MusicWatcher` base + `CyclicalSmtcWatcher` polling `GlobalSystemMediaTransportControlsSession`. This is the watcher used by the app. |
 | `ShazamIO` | `net10.0` | Reverse-engineered Shazam client used for system-audio song recognition |
 | `Lyrixound` | `net10.0-windows10.0.17763.0`, `WinExe`, `UseWPF` | WPF app shell, MVVM, services |
 | `LyrixoundPackaging` | `wapproj` | MSIX packaging |
