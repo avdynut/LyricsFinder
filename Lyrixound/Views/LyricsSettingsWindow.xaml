@@ -101,7 +101,7 @@
                                        Text="{Binding Name}"/>
                             <TextBlock Margin="4,0,0,0"
                                        VerticalAlignment="Center"
-                                       Text="👑"
+                                       Text="💎"
                                        Visibility="{Binding ShowProBadge, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                         </StackPanel>
                     </Button>

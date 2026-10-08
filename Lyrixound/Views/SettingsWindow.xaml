@@ -104,8 +104,26 @@
                           Content="Run at startup"
                           IsChecked="{Binding RunAtStartup}"/>
                 <CheckBox Margin="0,4,0,0"
-                          Content="Dark mode 👑"
-                          IsChecked="{Binding IsDarkTheme}"/>
+                          IsChecked="{Binding IsDarkTheme}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock VerticalAlignment="Center" Text="Dark mode"/>
+                        <TextBlock Margin="4,0,0,0"
+                                   VerticalAlignment="Center"
+                                   Text="💎"
+                                   Visibility="{Binding IsPro, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                    </StackPanel>
+                </CheckBox>
+                <CheckBox Margin="0,4,0,0"
+                          IsChecked="{Binding IsClickThrough}"
+                          ToolTip="Let clicks pass through the lyrics overlay while it is in the background">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock VerticalAlignment="Center" Text="Click through"/>
+                        <TextBlock Margin="4,0,0,0"
+                                   VerticalAlignment="Center"
+                                   Text="💎"
+                                   Visibility="{Binding IsPro, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                    </StackPanel>
+                </CheckBox>
             </StackPanel>
         </TabItem>
 
@@ -144,7 +162,7 @@
                 <TextBlock Margin="0,8,0,16"
                            FontSize="12"
                            Foreground="{DynamicResource MaterialDesignBodyLight}"
-                           Text="Purchase Pro to support the author. Includes priority support, Dark mode, and click-through. Exclusive Pro features will be added in future updates (modern UI, etc.). The main features remain free."
+                           Text="Purchase Pro to get Dark mode, click-through, and Pro lyrics styles. More exclusive Pro features will be added in future updates. The main features remain free."
                            TextWrapping="Wrap"
                            Visibility="{Binding IsPro, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
                 <TextBlock Margin="0,8,0,16"
@@ -162,7 +180,7 @@
                         Padding="12,6"
                         HorizontalAlignment="Left"
                         Command="{Binding UnlockProCommand}"
-                        Content="Get Lyrixound Pro"
+                        Content="Get Lyrixound Pro 💎"
                         Style="{StaticResource MaterialDesignRaisedButton}"
                         Visibility="{Binding IsPro, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
                 <TextBlock Margin="0,8,0,8"

@@ -20,6 +20,7 @@ namespace Lyrixound.ViewModels
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly DirectoriesProviderSettings _directoriesSettings;
+        private readonly WindowSettings _windowSettings;
         private readonly ILicenseService _licenseService;
         private readonly ILicenseAnalytics _licenseAnalytics;
         private readonly ThemeService _themeService;
@@ -28,12 +29,14 @@ namespace Lyrixound.ViewModels
         public SettingsWindowViewModel(
             Settings settings,
             DirectoriesProviderSettings directoriesSettings,
+            WindowSettings windowSettings,
             ILicenseService licenseService,
             ILicenseAnalytics licenseAnalytics,
             ThemeService themeService)
         {
             Settings = settings;
             _directoriesSettings = directoriesSettings;
+            _windowSettings = windowSettings;
             _licenseService = licenseService;
             _licenseAnalytics = licenseAnalytics;
             _themeService = themeService;
@@ -75,6 +78,38 @@ namespace Lyrixound.ViewModels
                 RaisePropertyChanged();
             }
         }
+
+        public bool IsClickThrough
+        {
+            get => _licenseService.IsPro && _windowSettings.IsClickThrough;
+            set
+            {
+                if (value == IsClickThrough)
+                {
+                    return;
+                }
+
+                if (value && !_licenseService.IsPro)
+                {
+                    ShowPaywall("click_through");
+                    if (!_licenseService.IsPro)
+                    {
+                        RaisePropertyChanged();
+                        return;
+                    }
+                }
+
+                _windowSettings.IsClickThrough = value;
+                if (Application.Current?.MainWindow is MainWindow main)
+                {
+                    main.ApplySavedClickThrough();
+                }
+
+                RaisePropertyChanged();
+            }
+        }
+
+        public void RefreshClickThrough() => RaisePropertyChanged(nameof(IsClickThrough));
 
         public string ProStatusText => IsPro
             ? "Thank you for supporting Lyrixound!"
@@ -192,12 +227,14 @@ namespace Lyrixound.ViewModels
             }
         }
 
-        private void ShowPaywall()
+        private void ShowPaywall() => ShowPaywall("settings");
+
+        private void ShowPaywall(string source)
         {
             var owner = Application.Current.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive)
                 ?? Application.Current.MainWindow;
 
-            PaywallWindow.Show(owner, _licenseService, _licenseAnalytics, "settings");
+            PaywallWindow.Show(owner, _licenseService, _licenseAnalytics, source);
             RaiseProStatusChanged();
         }
 
@@ -229,6 +266,7 @@ namespace Lyrixound.ViewModels
             RaisePropertyChanged(nameof(IsPro));
             RaisePropertyChanged(nameof(ProStatusText));
             RaisePropertyChanged(nameof(IsDarkTheme));
+            RaisePropertyChanged(nameof(IsClickThrough));
         }
 
         private void OpenWebsite()

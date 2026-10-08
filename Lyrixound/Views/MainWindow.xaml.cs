@@ -79,6 +79,7 @@ namespace Lyrixound.Views
         private LowLevelMouseProc _mouseProc;
         private bool _searchPanelDismissed;
         private LyricsSettingsWindow _lyricsSettingsWindow;
+        private SettingsWindow _settingsWindow;
 
         public MainWindow(
             WindowSettings settings,
@@ -168,13 +169,10 @@ namespace Lyrixound.Views
 
             if (ClickThroughMenuItem != null)
             {
-                ClickThroughMenuItem.Header = isPro ? "Click Through" : "Click Through 👑";
+                ClickThroughMenuItem.Header = isPro ? "Click Through" : "Click Through 💎";
             }
 
-            if (!isPro && _isClickThrough)
-            {
-                DisableClickThrough();
-            }
+            ApplySavedClickThrough();
         }
 
         private void OnSyncedLyricsSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -289,7 +287,7 @@ namespace Lyrixound.Views
             };
             ThemeButton.ToolTip = isDark
                 ? "Light mode"
-                : _licenseService.IsPro ? "Dark mode" : "Dark mode 👑";
+                : _licenseService.IsPro ? "Dark mode" : "Dark mode 💎";
         }
 
         protected override void OnSourceInitialized(EventArgs e)
@@ -560,6 +558,11 @@ namespace Lyrixound.Views
         private void SetClickThroughStyle(bool enabled)
         {
             var hwnd = new WindowInteropHelper(this).Handle;
+            if (hwnd == IntPtr.Zero)
+            {
+                return;
+            }
+
             var extStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
             var newStyle = enabled
                 ? extStyle | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE
@@ -571,42 +574,13 @@ namespace Lyrixound.Views
             }
         }
 
-        private void DisableClickThrough()
+        public void ApplySavedClickThrough()
         {
-            try
-            {
-                SetClickThroughStyle(false);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, "Failed to disable click-through");
-            }
-
-            _isClickThrough = false;
-            if (ClickThroughMenuItem != null)
-            {
-                ClickThroughMenuItem.IsChecked = false;
-            }
-
-            UpdateChrome();
-            UpdateSearchPanelForContent();
+            ApplyClickThroughState(_licenseService.IsPro && _settings.IsClickThrough);
         }
 
-        private void OnClickThroughToggle(object sender, RoutedEventArgs e)
+        private void ApplyClickThroughState(bool enable)
         {
-            var enable = !_isClickThrough;
-
-            if (enable && !_licenseService.IsPro)
-            {
-                ClickThroughMenuItem.IsChecked = false;
-                var purchased = PaywallWindow.Show(this, _licenseService, _licenseAnalytics, "click_through") == true;
-                ApplyProUi();
-                if (!purchased || !_licenseService.IsPro)
-                {
-                    return;
-                }
-            }
-
             try
             {
                 SetClickThroughStyle(enable && !IsActive);
@@ -614,7 +588,25 @@ namespace Lyrixound.Views
             catch (Exception ex)
             {
                 _logger.Error(ex, "Failed to toggle click-through");
-                ClickThroughMenuItem.IsChecked = _isClickThrough;
+                _settings.IsClickThrough = _isClickThrough;
+                if (ClickThroughMenuItem != null)
+                {
+                    ClickThroughMenuItem.IsChecked = _isClickThrough;
+                }
+
+                NotifySettingsClickThrough();
+                return;
+            }
+
+            if (ClickThroughMenuItem != null)
+            {
+                ClickThroughMenuItem.IsChecked = enable;
+            }
+
+            NotifySettingsClickThrough();
+
+            if (enable == _isClickThrough)
+            {
                 return;
             }
 
@@ -631,6 +623,36 @@ namespace Lyrixound.Views
                 UpdateChrome();
                 UpdateSearchPanelForContent();
             }
+        }
+
+        private static void NotifySettingsClickThrough()
+        {
+            foreach (Window window in Application.Current.Windows)
+            {
+                if (window.DataContext is ViewModels.SettingsWindowViewModel viewModel)
+                {
+                    viewModel.RefreshClickThrough();
+                }
+            }
+        }
+
+        private void OnClickThroughToggle(object sender, RoutedEventArgs e)
+        {
+            var enable = !_isClickThrough;
+
+            if (enable && !_licenseService.IsPro)
+            {
+                ClickThroughMenuItem.IsChecked = false;
+                var purchased = PaywallWindow.Show(this, _licenseService, _licenseAnalytics, "click_through") == true;
+                if (!purchased || !_licenseService.IsPro)
+                {
+                    ApplyProUi();
+                    return;
+                }
+            }
+
+            _settings.IsClickThrough = enable;
+            ApplyProUi();
         }
 
         private void OnTitleBarMouseEnter(object sender, MouseEventArgs e)
@@ -818,8 +840,18 @@ namespace Lyrixound.Views
 
         private void OnSettingsButtonClick(object sender, RoutedEventArgs e)
         {
-            var settingsWindow = new SettingsWindow(_themeService) { Owner = this };
-            settingsWindow.Show();
+            if (_settingsWindow != null)
+            {
+                if (_settingsWindow.WindowState == WindowState.Minimized)
+                    _settingsWindow.WindowState = WindowState.Normal;
+
+                _settingsWindow.Activate();
+                return;
+            }
+
+            _settingsWindow = new SettingsWindow(_themeService) { Owner = this };
+            _settingsWindow.Closed += (_, _) => _settingsWindow = null;
+            _settingsWindow.Show();
             ApplyProUi();
         }
 
