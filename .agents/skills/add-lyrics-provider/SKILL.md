@@ -107,14 +107,12 @@ containerRegistry
     .RegisterInstance(directoriesSettings)
     .RegisterInstance(LoadSettings<LyricsSettings>("lyrics.json"))
     .RegisterInstance(LoadSettings<WindowSettings>("window.json"))
-    .RegisterInstance(LoadSettings<GoogleProviderSettings>("google_provider.json"))
     // 👇 add settings registration if you created a settings class
     .RegisterInstance(LoadSettings<<Name>ProviderSettings>("<name>_provider.json"))
     .Register<ITrackInfoProvider, DirectoriesTrackInfoProvider>(DirectoriesTrackInfoProvider.Name)
     .Register<ITrackInfoProvider, LrcLibTrackInfoProvider>(LrcLibTrackInfoProvider.Name)
     .Register<ITrackInfoProvider, MusixmatchTrackInfoProvider>(MusixmatchTrackInfoProvider.Name)
     .Register<ITrackInfoProvider, LyricsOvhTrackInfoProvider>(LyricsOvhTrackInfoProvider.Name)
-    .Register<ITrackInfoProvider, GoogleTrackInfoProvider>(GoogleTrackInfoProvider.Name)
     // 👇 add the provider
     .Register<ITrackInfoProvider, <Name>TrackInfoProvider>(<Name>TrackInfoProvider.Name);
 ```

@@ -51,7 +51,9 @@ namespace Lyrixound.Configuration
 
         private void OnAfterLoad(JsonSettings settings, bool successfulLoad)
         {
-            LyricsProviders = new ObservableCollection<Element>(LyricsProviders.Union(_defaultProviders));
+            var known = new HashSet<string>(_defaultProviders.Select(p => p.Name));
+            var kept = LyricsProviders.Where(p => known.Contains(p.Name));
+            LyricsProviders = new ObservableCollection<Element>(kept.Union(_defaultProviders));
         }
     }
 }

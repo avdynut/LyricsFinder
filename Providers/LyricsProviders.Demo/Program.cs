@@ -1,5 +1,5 @@
 ﻿using LyricsFinder.Core;
-using LyricsProviders.GoogleProvider;
+using LyricsProviders.LrcLib;
 using System.Threading.Tasks;
 
 namespace LyricsProviders.Demo
@@ -8,7 +8,7 @@ namespace LyricsProviders.Demo
     {
         static async Task Main(string[] args)
         {
-            var provider = new GoogleTrackInfoProvider(new GoogleProviderSettings());
+            var provider = new LrcLibTrackInfoProvider();
             var trackInfo = new TrackInfo { Artist = "Elevation Worship", Title = "Available (Live)" };
 
             var track = await provider.FindTrackAsync(trackInfo);
