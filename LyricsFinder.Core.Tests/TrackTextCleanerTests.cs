@@ -5,7 +5,7 @@ namespace LyricsFinder.Core.Tests
     [TestClass]
     public class TrackTextCleanerTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(null, null)]
         [DataRow("", "")]
         [DataRow("   ", "   ")]
@@ -14,7 +14,7 @@ namespace LyricsFinder.Core.Tests
             Assert.AreEqual(expected, TrackTextCleaner.Clean(input));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("Song Title | Channel Name", "Song Title")]
         [DataRow("Song Title｜Channel Name", "Song Title")]
         [DataRow("Song Title | Official Audio", "Song Title")]
@@ -23,7 +23,7 @@ namespace LyricsFinder.Core.Tests
             Assert.AreEqual(expected, TrackTextCleaner.Clean(input));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("Song Title (Official Music Video)", "Song Title")]
         [DataRow("Song Title (Official Video)", "Song Title")]
         [DataRow("Song Title [Official Audio]", "Song Title")]
@@ -39,7 +39,7 @@ namespace LyricsFinder.Core.Tests
             Assert.AreEqual(expected, TrackTextCleaner.Clean(input));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("(Don't Fear) The Reaper", "(Don't Fear) The Reaper")]
         [DataRow("Snow (Hey Oh)", "Snow (Hey Oh)")]
         [DataRow("Song (Live)", "Song (Live)")]
@@ -50,7 +50,7 @@ namespace LyricsFinder.Core.Tests
             Assert.AreEqual(expected, TrackTextCleaner.Clean(input));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("Artist Name - Topic", "Artist Name")]
         [DataRow("ArtistNameVEVO", "Artist Name")]
         [DataRow("PhilWickhamVEVO", "Phil Wickham")]
@@ -74,7 +74,7 @@ namespace LyricsFinder.Core.Tests
                 TrackTextCleaner.Clean("Bohemian Rhapsody (Official Video) | Queen"));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("Queen - Bohemian Rhapsody", "Queen", "Bohemian Rhapsody")]
         [DataRow("queen - Bohemian Rhapsody", "Queen", "Bohemian Rhapsody")]
         [DataRow("Queen – Bohemian Rhapsody", "Queen", "Bohemian Rhapsody")]
@@ -94,7 +94,7 @@ namespace LyricsFinder.Core.Tests
             Assert.AreEqual(expected, TrackTextCleaner.CleanTitle(title, artist));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("Bohemian Rhapsody", "Queen", "Bohemian Rhapsody")]
         [DataRow("Queen II", "Queen", "Queen II")]
         [DataRow("X-Ray", "X", "X-Ray")]

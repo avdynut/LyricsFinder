@@ -1,5 +1,6 @@
 using NAudio.Wave;
 using ShazamIO.Algorithm;
+using System.Runtime.Versioning;
 
 namespace ShazamIO.Services;
 
@@ -15,6 +16,7 @@ public class AudioConverter
     /// <summary>
     /// Normalizes audio data to 16-bit, 16 KHz, mono PCM.
     /// </summary>
+    [SupportedOSPlatform("windows")]
     public static byte[] NormalizeAudioData(byte[] audioData)
     {
         using var inputStream = new MemoryStream(audioData);
