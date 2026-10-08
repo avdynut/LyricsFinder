@@ -1,3 +1,4 @@
+using System.Runtime.Versioning;
 using System.Text.Json;
 using ShazamIO.Algorithm;
 using ShazamIO.Client;
@@ -55,6 +56,7 @@ public class Shazam : IDisposable
     /// <param name="audioBytes">Audio data bytes</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Recognition response</returns>
+    [SupportedOSPlatform("windows")]
     public async Task<JsonDocument> RecognizeAsync(byte[] audioBytes, CancellationToken cancellationToken = default)
     {
         var normalizedAudio = AudioConverter.NormalizeAudioData(audioBytes);

@@ -66,6 +66,8 @@
     <!-- This project compiles nothing; Nucs.JsonSettings.Autosave's weave targets arrive here
          transitively and fail looking for AspectInjector. Lyrixound does its own weaving. -->
     <AspectInjector_Enabled>false</AspectInjector_Enabled>
+    <!-- NuGet restores this packaging project as UAP, so desktop WPF dependencies warn NU1701. -->
+    <NoWarn>$(NoWarn);NU1701</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <AppxBundle>Always</AppxBundle>

@@ -43,24 +43,26 @@ namespace Lyrixound.Services
         private async Task<byte[]> CaptureSystemAudioAsync(int durationSeconds)
         {
             var audioBuffer = new MemoryStream();
-            WasapiLoopbackCapture capture = null;
+            WasapiRecorder capture = null;
             WaveFileWriter waveWriter = null;
             var writeLock = new object();
             var recordingStopped = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             try
             {
-                capture = new WasapiLoopbackCapture();
+                capture = new WasapiRecorderBuilder()
+                    .WithLoopbackCapture()
+                    .Build();
                 waveWriter = new WaveFileWriter(audioBuffer, capture.WaveFormat);
 
-                capture.DataAvailable += (s, e) =>
+                capture.DataAvailable += (buffer, _, _, _) =>
                 {
                     lock (writeLock)
                     {
-                        if (waveWriter == null || e.BytesRecorded <= 0)
+                        if (waveWriter == null || buffer.IsEmpty)
                             return;
 
-                        waveWriter.Write(e.Buffer, 0, e.BytesRecorded);
+                        waveWriter.Write(buffer);
                     }
                 };
 
