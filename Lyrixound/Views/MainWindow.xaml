@@ -430,6 +430,15 @@
                       Background="Transparent"
                       MouseEnter="OnLyricsChromeAreaMouseEnter"
                       MouseLeave="OnLyricsChromeAreaMouseLeave">
+                    <Grid.Resources>
+                        <Style x:Key="LyricsScrollBar" BasedOn="{StaticResource MaterialDesignScrollBarMinimal}" TargetType="ScrollBar">
+                            <Setter Property="md:ScrollBarAssist.ButtonsVisibility" Value="Collapsed"/>
+                            <Setter Property="md:ScrollBarAssist.ThumbCornerRadius" Value="3"/>
+                            <Setter Property="md:ScrollBarAssist.ThumbWidth" Value="6"/>
+                            <Setter Property="Width" Value="10"/>
+                            <Setter Property="MinWidth" Value="10"/>
+                        </Style>
+                    </Grid.Resources>
                     <!-- Synced Lyrics Display -->
                     <ListBox Name="SyncedLyricsList"
                              Background="Transparent"
@@ -445,6 +454,9 @@
                              SizeChanged="OnSyncedLyricsListSizeChanged"
                              VirtualizingPanel.ScrollUnit="Pixel"
                              Visibility="{Binding Track.HasSyncedLyrics, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <ListBox.Resources>
+                            <Style BasedOn="{StaticResource LyricsScrollBar}" TargetType="ScrollBar"/>
+                        </ListBox.Resources>
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
                                 <Setter Property="Background" Value="Transparent"/>
@@ -546,6 +558,9 @@
                              TextWrapping="Wrap"
                              Visibility="{Binding Track.HasSyncedLyrics, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
                              VerticalScrollBarVisibility="Auto">
+                        <TextBox.Resources>
+                            <Style BasedOn="{StaticResource LyricsScrollBar}" TargetType="ScrollBar"/>
+                        </TextBox.Resources>
                         <TextBox.Foreground>
                             <SolidColorBrush Color="{Binding LyricsSettings.TextColor}"/>
                         </TextBox.Foreground>
@@ -562,6 +577,7 @@
                             VerticalAlignment="Bottom"
                             Background="{DynamicResource MaterialDesignPaper}"
                             CornerRadius="8"
+                            Margin="10,0"
                             IsHitTestVisible="False"
                             Visibility="{Binding Track.HasSyncedLyrics, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <views:RepeatStepper HorizontalAlignment="Center"
