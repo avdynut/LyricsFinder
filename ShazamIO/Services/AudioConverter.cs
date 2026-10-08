@@ -36,23 +36,6 @@ public class AudioConverter
     }
 
     /// <summary>
-    /// Reads an audio file and returns normalized PCM data.
-    /// </summary>
-    public static async Task<byte[]> ReadAudioFileAsync(string filePath)
-    {
-        var audioData = await File.ReadAllBytesAsync(filePath);
-        return NormalizeAudioData(audioData);
-    }
-
-    /// <summary>
-    /// Normalizes audio bytes from any supported format.
-    /// </summary>
-    public static byte[] NormalizeAudioBytes(byte[] audioBytes)
-    {
-        return NormalizeAudioData(audioBytes);
-    }
-
-    /// <summary>
     /// Creates a signature generator from normalized audio data.
     /// </summary>
     public static SignatureGenerator CreateSignatureGenerator(byte[] normalizedAudio)

@@ -1,7 +1,6 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Extensions.Http;
 using Polly.Retry;
@@ -16,7 +15,6 @@ namespace ShazamIO.Client;
 public class ShazamHttpClient : IHttpClient
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger<ShazamHttpClient>? _logger;
     private readonly AsyncRetryPolicy<HttpResponseMessage> _retryPolicy;
     private bool _disposed;
 
@@ -37,9 +35,8 @@ public class ShazamHttpClient : IHttpClient
         };
     }
 
-    public ShazamHttpClient(RetryOptions? retryOptions = null, ILogger<ShazamHttpClient>? logger = null)
+    public ShazamHttpClient(RetryOptions? retryOptions = null)
     {
-        _logger = logger;
         retryOptions ??= new RetryOptions();
 
         var handler = new HttpClientHandler
@@ -57,39 +54,18 @@ public class ShazamHttpClient : IHttpClient
             .OrResult(response => retryOptions.RetryOnStatusCodes.Contains(response.StatusCode))
             .WaitAndRetryAsync(
                 retryOptions.MaxRetries,
-                retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-                onRetry: (outcome, timespan, retryAttempt, context) =>
-                {
-                    _logger?.LogDebug(
-                        "Retry {RetryAttempt} after {Delay}ms for {Url}. Status: {StatusCode}",
-                        retryAttempt,
-                        timespan.TotalMilliseconds,
-                        context["url"],
-                        outcome.Result?.StatusCode);
-                });
+                retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
     }
 
-    public async Task<JsonDocument> RequestAsync(
-        HttpMethod method,
+    public async Task<JsonDocument> PostAsync(
         string url,
+        object jsonBody,
         Dictionary<string, string>? headers = null,
-        Dictionary<string, string>? queryParams = null,
-        object? jsonBody = null,
-        string? proxy = null,
         CancellationToken cancellationToken = default)
     {
-        if (queryParams != null && queryParams.Count > 0)
+        var response = await _retryPolicy.ExecuteAsync(async () =>
         {
-            var queryString = string.Join("&", 
-                queryParams.Select(kvp => $"{Uri.EscapeDataString(kvp.Key)}={Uri.EscapeDataString(kvp.Value)}"));
-            url = url.Contains('?') ? $"{url}&{queryString}" : $"{url}?{queryString}";
-        }
-
-        var context = new Context { ["url"] = url };
-
-        var response = await _retryPolicy.ExecuteAsync(async ctx =>
-        {
-            using var request = new HttpRequestMessage(method, url);
+            using var request = new HttpRequestMessage(HttpMethod.Post, url);
 
             if (headers != null)
             {
@@ -99,25 +75,13 @@ public class ShazamHttpClient : IHttpClient
                 }
             }
 
-            if (jsonBody != null && method == HttpMethod.Post)
-            {
-                var json = JsonSerializer.Serialize(jsonBody);
-                request.Content = new StringContent(json, Encoding.UTF8, "application/json");
-            }
-
-            _logger?.LogDebug("Sending {Method} request to {Url}", method, url);
+            var json = JsonSerializer.Serialize(jsonBody);
+            request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
             return await _httpClient.SendAsync(request, cancellationToken);
-        }, context);
+        });
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-
-        // Check if response is successful
-        if (!response.IsSuccessStatusCode)
-        {
-            _logger?.LogWarning("HTTP request failed with status {StatusCode}: {Content}", 
-                response.StatusCode, content.Length > 500 ? content[..500] : content);
-        }
 
         try
         {
@@ -128,26 +92,6 @@ public class ShazamHttpClient : IHttpClient
             var preview = content.Length > 200 ? content[..200] + "..." : content;
             throw new FailedDecodeJsonException($"Failed to decode JSON response. Content preview: {preview}", ex);
         }
-    }
-
-    public Task<JsonDocument> GetAsync(
-        string url,
-        Dictionary<string, string>? headers = null,
-        Dictionary<string, string>? queryParams = null,
-        string? proxy = null,
-        CancellationToken cancellationToken = default)
-    {
-        return RequestAsync(HttpMethod.Get, url, headers, queryParams, null, proxy, cancellationToken);
-    }
-
-    public Task<JsonDocument> PostAsync(
-        string url,
-        object jsonBody,
-        Dictionary<string, string>? headers = null,
-        string? proxy = null,
-        CancellationToken cancellationToken = default)
-    {
-        return RequestAsync(HttpMethod.Post, url, headers, null, jsonBody, proxy, cancellationToken);
     }
 
     public void Dispose()
