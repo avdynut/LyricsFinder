@@ -63,4 +63,18 @@ public class GeniusTrackInfoProviderTests
         Assert.IsTrue(track.Lyrics.Source == null ||
                       !track.Lyrics.Source.AbsoluteUri.Contains("magic-johnson", StringComparison.OrdinalIgnoreCase));
     }
+
+    [TestMethod]
+    public void ParseLyricsHtmlKeepsLineBreaksAndDropsExcludedNodes()
+    {
+        const string html = """
+            <div data-lyrics-container="true">First line<br>Second line<span data-exclude-from-selection="true">Contributors</span></div>
+            <div data-lyrics-container="true">Chorus<br>Again</div>
+            """;
+
+        var lyrics = GeniusTrackInfoProvider.ParseLyricsHtml(html);
+
+        var expected = "First line\nSecond line" + Environment.NewLine + Environment.NewLine + "Chorus\nAgain";
+        Assert.AreEqual(expected, lyrics);
+    }
 }
