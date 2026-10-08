@@ -41,12 +41,12 @@
                     <MenuItem Name="SupportAuthorMenuItem"
                               Padding="10,0,10,0"
                               Click="OnSupportAuthorClick"
-                              Header="Get Lyrixound Pro"/>
+                              Header="Get Lyrixound Pro 💎"/>
                     <Separator/>
                     <MenuItem Name="ClickThroughMenuItem"
                               Padding="10,0,10,0"
                               Click="OnClickThroughToggle"
-                              Header="Click Through 👑"
+                              Header="Click Through 💎"
                               IsCheckable="True"/>
                     <Separator/>
                     <MenuItem Margin="0,0,0,-10"
@@ -220,7 +220,7 @@
                                 Padding="0"
                                 Click="OnThemeButtonClick"
                                 Style="{StaticResource MaterialDesignIconButton}"
-                                ToolTip="Dark mode 👑">
+                                ToolTip="Dark mode 💎">
                             <md:PackIcon Width="18"
                                          Height="18"
                                          Kind="WeatherNight"/>
