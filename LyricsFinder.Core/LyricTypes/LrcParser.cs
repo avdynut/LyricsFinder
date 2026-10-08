@@ -110,53 +110,6 @@ namespace LyricsFinder.Core.LyricTypes
 
             return $"[{minutes:D2}:{seconds:D2}.{centiseconds:D2}]{text}";
         }
-
-        /// <summary>
-        /// Converts plain text lyrics to LRC format (with [00:00.00] timestamp for all lines)
-        /// </summary>
-        /// <param name="plainText">Plain text lyrics</param>
-        /// <returns>LRC formatted text</returns>
-        public static string ConvertPlainTextToLrc(string plainText)
-        {
-            if (string.IsNullOrWhiteSpace(plainText))
-                return plainText;
-
-            var lines = plainText.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
-            var lrcLines = lines.Select(line => FormatLine(TimeSpan.Zero, line));
-
-            return string.Join(Environment.NewLine, lrcLines);
-        }
-
-        /// <summary>
-        /// Removes LRC timestamps from text, returning plain lyrics
-        /// </summary>
-        /// <param name="lrcText">LRC formatted text</param>
-        /// <returns>Plain text lyrics without timestamps</returns>
-        public static string RemoveTimestamps(string lrcText)
-        {
-            if (string.IsNullOrWhiteSpace(lrcText))
-                return lrcText;
-
-            var lines = lrcText.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
-            var plainLines = new List<string>();
-
-            foreach (var line in lines)
-            {
-                // Skip metadata lines
-                if (MetadataPattern.IsMatch(line) && !TimestampPattern.IsMatch(line))
-                    continue;
-
-                // Remove all timestamps from the line
-                var plainLine = TimestampPattern.Replace(line, "").Trim();
-
-                if (!string.IsNullOrWhiteSpace(plainLine))
-                {
-                    plainLines.Add(plainLine);
-                }
-            }
-
-            return string.Join(Environment.NewLine, plainLines);
-        }
     }
 
     /// <summary>

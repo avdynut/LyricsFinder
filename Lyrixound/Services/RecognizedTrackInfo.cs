@@ -18,7 +18,6 @@ namespace Lyrixound.Services
         public string YouTubeUrl { get; set; }
         public string Isrc { get; set; }
         public string Key { get; set; }
-        public int? Bpm { get; set; }
 
         public bool IsRecognized => !string.IsNullOrEmpty(Title) && !string.IsNullOrEmpty(Artist);
     }
