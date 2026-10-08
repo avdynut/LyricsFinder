@@ -29,7 +29,16 @@ namespace Lyrixound
     /// </summary>
     public partial class App : PrismApplication
     {
-        public const string HelpUrl = "https://lyrixound.app/";
+        public const string WebsiteHomeUrl = "https://lyrixound.app/";
+
+        public static string WebsiteUrlFor(string placement)
+        {
+            return WebsiteHomeUrl
+                + "?utm_source=lyrixound&utm_medium=app&utm_campaign=in_app&utm_content="
+                + Uri.EscapeDataString(placement);
+        }
+
+        public static string JumpListWebsiteUrl { get; } = WebsiteUrlFor("jumplist");
 
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly string _dataFolder;

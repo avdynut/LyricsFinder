@@ -536,7 +536,7 @@ namespace Lyrixound.ViewModels
         {
             try
             {
-                await Launcher.LaunchUriAsync(new Uri(App.HelpUrl));
+                await Launcher.LaunchUriAsync(new Uri(App.WebsiteUrlFor("tray")));
             }
             catch (Exception ex)
             {
