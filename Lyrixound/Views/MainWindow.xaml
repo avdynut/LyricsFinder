@@ -471,41 +471,59 @@
                         </ListBox.ItemContainerStyle>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Name="LyricLine"
-                                           Margin="0"
-                                           Padding="10,8"
-                                           FontFamily="{Binding DataContext.LyricsSettings.FontFamily, RelativeSource={RelativeSource AncestorType=Window}}"
-                                           FontSize="{Binding DataContext.LyricsSettings.FontSize, RelativeSource={RelativeSource AncestorType=Window}}"
-                                           FontStyle="{Binding DataContext.LyricsSettings.FontStyle, RelativeSource={RelativeSource AncestorType=Window}}"
-                                           FontWeight="{Binding DataContext.LyricsSettings.FontWeight, RelativeSource={RelativeSource AncestorType=Window}}"
-                                           Text="{Binding Text}"
-                                           TextAlignment="{Binding DataContext.LyricsSettings.TextAlignment, RelativeSource={RelativeSource AncestorType=Window}}"
-                                           TextWrapping="Wrap">
-                                    <TextBlock.Foreground>
-                                        <SolidColorBrush Color="{Binding DataContext.LyricsSettings.TextColor, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                                    </TextBlock.Foreground>
-                                    <TextBlock.Effect>
-                                        <DropShadowEffect BlurRadius="{Binding DataContext.LyricsSettings.BlurRadius, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                          Opacity="{Binding DataContext.LyricsSettings.ShadowColor.A, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource ByteToOpacityConverter}}"
-                                                          ShadowDepth="{Binding DataContext.LyricsSettings.ShadowDepth, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                          Color="{Binding DataContext.LyricsSettings.ShadowColor, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                                    </TextBlock.Effect>
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
+                                <Border MaxWidth="{Binding ViewportWidth, RelativeSource={RelativeSource AncestorType=ScrollViewer}}"
+                                        Padding="16,8"
+                                        CornerRadius="5">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="Background" Value="Transparent"/>
                                             <Style.Triggers>
+                                                <DataTrigger Binding="{Binding DataContext.LyricsSettings.TextAlignment, RelativeSource={RelativeSource AncestorType=Window}}" Value="{x:Static TextAlignment.Left}">
+                                                    <Setter Property="HorizontalAlignment" Value="Left"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding DataContext.LyricsSettings.TextAlignment, RelativeSource={RelativeSource AncestorType=Window}}" Value="{x:Static TextAlignment.Right}">
+                                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                </DataTrigger>
                                                 <DataTrigger Binding="{Binding IsActive}" Value="True">
                                                     <Setter Property="Background">
                                                         <Setter.Value>
                                                             <SolidColorBrush Color="{Binding DataContext.LyricsSettings.ActiveLineBackgroundColor, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                                         </Setter.Value>
                                                     </Setter>
-                                                    <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Primary.Foreground}"/>
-                                                    <Setter Property="FontWeight" Value="Bold"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
+                                    </Border.Style>
+                                    <TextBlock Name="LyricLine"
+                                               FontFamily="{Binding DataContext.LyricsSettings.FontFamily, RelativeSource={RelativeSource AncestorType=Window}}"
+                                               FontSize="{Binding DataContext.LyricsSettings.FontSize, RelativeSource={RelativeSource AncestorType=Window}}"
+                                               FontStyle="{Binding DataContext.LyricsSettings.FontStyle, RelativeSource={RelativeSource AncestorType=Window}}"
+                                               FontWeight="{Binding DataContext.LyricsSettings.FontWeight, RelativeSource={RelativeSource AncestorType=Window}}"
+                                               Text="{Binding Text}"
+                                               TextAlignment="{Binding DataContext.LyricsSettings.TextAlignment, RelativeSource={RelativeSource AncestorType=Window}}"
+                                               TextWrapping="Wrap">
+                                        <TextBlock.Foreground>
+                                            <SolidColorBrush Color="{Binding DataContext.LyricsSettings.TextColor, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        </TextBlock.Foreground>
+                                        <TextBlock.Effect>
+                                            <DropShadowEffect BlurRadius="{Binding DataContext.LyricsSettings.BlurRadius, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                              Opacity="{Binding DataContext.LyricsSettings.ShadowColor.A, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource ByteToOpacityConverter}}"
+                                                              ShadowDepth="{Binding DataContext.LyricsSettings.ShadowDepth, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                              Color="{Binding DataContext.LyricsSettings.ShadowColor, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        </TextBlock.Effect>
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Primary.Foreground}"/>
+                                                        <Setter Property="FontWeight" Value="Bold"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Border>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
