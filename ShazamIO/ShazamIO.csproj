@@ -9,7 +9,7 @@
     <AssemblyName>ShazamIO</AssemblyName>
     <Version>0.8.0</Version>
     <Authors>dotX12</Authors>
-    <Description>An asynchronous library for the reverse-engineered Shazam API written in C# with async/await.</Description>
+    <Description>Recognizes a song from audio bytes using the reverse-engineered Shazam API.</Description>
     <PackageTags>shazam;music;recognize;api;async;identification;audio;fingerprint</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/dotX12/ShazamIO</RepositoryUrl>
@@ -21,7 +21,6 @@
     <PackageReference Include="NAudio.Wasapi" Version="3.1.0" />
     <PackageReference Include="Polly" Version="8.8.0" />
     <PackageReference Include="Polly.Extensions.Http" Version="3.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.12" />
   </ItemGroup>
 
 </Project>
