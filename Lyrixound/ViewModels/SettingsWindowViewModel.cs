@@ -237,7 +237,7 @@ namespace Lyrixound.ViewModels
             {
                 Process.Start(new ProcessStartInfo
                 {
-                    FileName = App.HelpUrl,
+                    FileName = App.WebsiteUrlFor("settings"),
                     UseShellExecute = true
                 });
             }

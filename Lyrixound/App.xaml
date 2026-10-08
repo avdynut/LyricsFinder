@@ -33,7 +33,7 @@
     <JumpList.JumpList>
         <JumpList>
             <JumpTask Title="Lyrixound Website"
-                      ApplicationPath="{x:Static local:App.HelpUrl}"
+                      ApplicationPath="{x:Static local:App.JumpListWebsiteUrl}"
                       Description="Open Lyrixound Website"
                       IconResourceIndex="-1"/>
         </JumpList>
