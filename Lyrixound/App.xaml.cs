@@ -1,7 +1,6 @@
 ﻿using LyricsProviders;
 using LyricsProviders.DirectoriesProvider;
 using LyricsProviders.Genius;
-using LyricsProviders.GoogleProvider;
 using LyricsProviders.LrcLib;
 using LyricsProviders.LyricsOvh;
 using LyricsProviders.MusixMatch;
@@ -69,7 +68,6 @@ namespace Lyrixound
                 .RegisterInstance(directoriesSettings)
                 .RegisterInstance(LoadSettings<LyricsSettings>("lyrics.json"))
                 .RegisterInstance(LoadSettings<WindowSettings>("window.json"))
-                .RegisterInstance(LoadSettings<GoogleProviderSettings>("google_provider.json"))
                 .RegisterSingleton<ILicenseAnalytics, NLogLicenseAnalytics>();
 
 #if DEBUG
@@ -87,8 +85,7 @@ namespace Lyrixound
                 .Register<ITrackInfoProvider, LrcLibTrackInfoProvider>(LrcLibTrackInfoProvider.Name)
                 .Register<ITrackInfoProvider, MusixmatchTrackInfoProvider>(MusixmatchTrackInfoProvider.Name)
                 .Register<ITrackInfoProvider, GeniusTrackInfoProvider>(GeniusTrackInfoProvider.Name)
-                .Register<ITrackInfoProvider, LyricsOvhTrackInfoProvider>(LyricsOvhTrackInfoProvider.Name)
-                .Register<ITrackInfoProvider, GoogleTrackInfoProvider>(GoogleTrackInfoProvider.Name);
+                .Register<ITrackInfoProvider, LyricsOvhTrackInfoProvider>(LyricsOvhTrackInfoProvider.Name);
 
             var providersByName = new Dictionary<string, ITrackInfoProvider>();
             foreach (var provider in settings.LyricsProviders)
