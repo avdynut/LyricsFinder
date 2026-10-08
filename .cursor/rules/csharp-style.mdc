@@ -41,7 +41,7 @@ Wrap external/IO work (HTTP, file, audio capture, SMTC) in `try/catch (Exception
 ## C# language level
 
 - Most projects target the SDK default for net10.0; `ShazamIO` pins `LangVersion=latest`.
-- `LyricsFinder.Core` targets `netstandard2.0`; avoid C# 12+ features there (no collection expressions, no primary constructors, no `field` keyword). Collection expressions (`[ ... ]`) are fine in net10.0 projects (used in `Settings.cs`).
+- `LyricsFinder.Core` targets `net10.0`. Keep regex patterns on `[GeneratedRegex]` partial methods instead of `new Regex`.
 
 ## Naming
 

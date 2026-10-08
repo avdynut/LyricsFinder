@@ -12,7 +12,7 @@ The solution targets .NET 10 on Windows and depends on Windows 10 SDK 10.0.17763
 Top-level file: `LyricsFinder.sln`. Projects of interest:
 
 - `Lyrixound` - WinExe WPF app, the thing to run.
-- `LyricsFinder.Core` - shared models, `netstandard2.0`.
+- `LyricsFinder.Core` - shared models, `net10.0`.
 - `Providers/LyricsProviders` + `.Demo` + `.Tests`.
 - `Watchers/SmtcWatcher` + `Watchers/PlayerWatching`.
 - `ShazamIO` - audio recognition client.
@@ -85,5 +85,5 @@ Settings files (one per registered `JsonSettings`): `app.json`, `directories_pro
 ## Don't
 
 - Don't bump `TargetFramework` away from the pinned Windows 10 SDK (`net10.0-windows10.0.17763.0`) for `Lyrixound` / `SmtcWatcher` - SMTC APIs require that exact platform version.
-- Don't change `LyricsFinder.Core` TFM from `netstandard2.0`; it's intentionally consumed by both legacy and net10 projects.
+- Don't change `LyricsFinder.Core` away from `net10.0`. `[GeneratedRegex]` needs that target.
 - Don't add per-project `nuget.config` or `Directory.Build.props` - the repo deliberately has none.

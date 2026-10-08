@@ -8,17 +8,15 @@ namespace LyricsFinder.Core.LyricTypes
     /// <summary>
     /// Utility class for parsing and validating LRC (Lyrics) files
     /// </summary>
-    public static class LrcParser
+    public static partial class LrcParser
     {
         // Regex pattern to match LRC timestamp format: [mm:ss.xx] or [mm:ss]
-        private static readonly Regex TimestampPattern = new Regex(
-            @"\[(\d{2,3}):(\d{2})(?:\.(\d{2,3}))?\]",
-            RegexOptions.Compiled);
+        [GeneratedRegex(@"\[(\d{2,3}):(\d{2})(?:\.(\d{2,3}))?\]")]
+        private static partial Regex TimestampPattern();
 
         // Regex pattern to match metadata tags like [ar:Artist] or [ti:Title]
-        private static readonly Regex MetadataPattern = new Regex(
-            @"\[([a-z]{2}):(.*?)\]",
-            RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        [GeneratedRegex(@"\[([a-z]{2}):(.*?)\]", RegexOptions.IgnoreCase)]
+        private static partial Regex MetadataPattern();
 
         /// <summary>
         /// Checks if the given text contains LRC format timestamps
@@ -31,7 +29,7 @@ namespace LyricsFinder.Core.LyricTypes
                 return false;
 
             // Look for at least one timestamp pattern
-            return TimestampPattern.IsMatch(text);
+            return TimestampPattern().IsMatch(text);
         }
 
         /// <summary>
@@ -54,11 +52,11 @@ namespace LyricsFinder.Core.LyricTypes
                     continue;
 
                 // Skip metadata lines (like [ar:Artist], [ti:Title], etc.)
-                if (MetadataPattern.IsMatch(line) && !TimestampPattern.IsMatch(line))
+                if (MetadataPattern().IsMatch(line) && !TimestampPattern().IsMatch(line))
                     continue;
 
                 // Find all timestamps in the line
-                var timestamps = TimestampPattern.Matches(line);
+                var timestamps = TimestampPattern().Matches(line);
                 if (timestamps.Count == 0)
                     continue;
 

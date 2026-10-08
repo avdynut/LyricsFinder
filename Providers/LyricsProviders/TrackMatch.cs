@@ -8,27 +8,22 @@ namespace LyricsProviders;
 /// Scores artist/title search hits so providers can reject a different song
 /// even when it happens to have synced lyrics.
 /// </summary>
-internal static class TrackMatch
+internal static partial class TrackMatch
 {
-    private static readonly Regex ParentheticalRegex = new(
-        @"\s*[\(\[].*?[\)\]]",
-        RegexOptions.CultureInvariant | RegexOptions.Compiled);
+    [GeneratedRegex(@"\s*[\(\[].*?[\)\]]", RegexOptions.CultureInvariant)]
+    private static partial Regex ParentheticalRegex();
 
-    private static readonly Regex FeatRegex = new(
-        @"\s+(?:feat\.?|ft\.?|featuring)\s+.+$",
-        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+    [GeneratedRegex(@"\s+(?:feat\.?|ft\.?|featuring)\s+.+$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    private static partial Regex FeatRegex();
 
-    private static readonly Regex PunctuationRegex = new(
-        @"[^\p{L}\p{N}\s]+",
-        RegexOptions.CultureInvariant | RegexOptions.Compiled);
+    [GeneratedRegex(@"[^\p{L}\p{N}\s]+", RegexOptions.CultureInvariant)]
+    private static partial Regex PunctuationRegex();
 
-    private static readonly Regex MultiSpaceRegex = new(
-        @"\s+",
-        RegexOptions.CultureInvariant | RegexOptions.Compiled);
+    [GeneratedRegex(@"\s+", RegexOptions.CultureInvariant)]
+    private static partial Regex MultiSpaceRegex();
 
-    private static readonly Regex LeadingTheRegex = new(
-        @"^the\s+",
-        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+    [GeneratedRegex(@"^the\s+", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    private static partial Regex LeadingTheRegex();
 
     public static int Score(string resultTitle, string resultArtist, TrackInfo query)
     {
@@ -57,11 +52,11 @@ internal static class TrackMatch
             return string.Empty;
 
         var text = value.Trim();
-        text = ParentheticalRegex.Replace(text, string.Empty);
-        text = FeatRegex.Replace(text, string.Empty);
-        text = PunctuationRegex.Replace(text, " ");
-        text = LeadingTheRegex.Replace(text, string.Empty);
-        text = MultiSpaceRegex.Replace(text, " ").Trim().ToLowerInvariant();
+        text = ParentheticalRegex().Replace(text, string.Empty);
+        text = FeatRegex().Replace(text, string.Empty);
+        text = PunctuationRegex().Replace(text, " ");
+        text = LeadingTheRegex().Replace(text, string.Empty);
+        text = MultiSpaceRegex().Replace(text, " ").Trim().ToLowerInvariant();
         return text;
     }
 
