@@ -8,7 +8,7 @@
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:prism="http://prismlibrary.com/"
         xmlns:vm="clr-namespace:Lyrixound.ViewModels"
-        Width="400"
+        Width="410"
         d:DataContext="{d:DesignInstance vm:SettingsWindowViewModel}"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Background="{DynamicResource MaterialDesignPaper}"
@@ -165,6 +165,25 @@
                         Content="Get Lyrixound Pro"
                         Style="{StaticResource MaterialDesignRaisedButton}"
                         Visibility="{Binding IsPro, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                <TextBlock Margin="0,8,0,8"
+                           FontSize="12"
+                           Foreground="{DynamicResource MaterialDesignBodyLight}"
+                           Text="Visit the Lyrixound website for news, tips, and more about the app."
+                           TextWrapping="Wrap"/>
+                <Button Margin="0,0,0,8"
+                        Padding="12,6"
+                        HorizontalAlignment="Left"
+                        Command="{Binding OpenWebsiteCommand}"
+                        Style="{StaticResource MaterialDesignOutlinedButton}">
+                    <StackPanel Orientation="Horizontal">
+                        <md:PackIcon Width="18"
+                                     Height="18"
+                                     Margin="0,0,8,0"
+                                     VerticalAlignment="Center"
+                                     Kind="Web"/>
+                        <TextBlock VerticalAlignment="Center" Text="Visit lyrixound.app"/>
+                    </StackPanel>
+                </Button>
                 <TextBlock Margin="0,8,0,8"
                            FontSize="12"
                            Foreground="{DynamicResource MaterialDesignBodyLight}"
