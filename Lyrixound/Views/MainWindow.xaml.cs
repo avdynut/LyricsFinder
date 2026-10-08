@@ -359,6 +359,7 @@ namespace Lyrixound.Views
         {
             base.OnActivated(e);
             _isForeground = true;
+            UpdateTaskbarButton();
             SetClickThroughEngaged(false);
             UpdateChrome();
             UpdateSearchPanelForContent();
@@ -368,11 +369,22 @@ namespace Lyrixound.Views
         {
             base.OnDeactivated(e);
             _isForeground = false;
+            // After the click finishes, so a minimize in this same click is not cancelled.
+            Dispatcher.BeginInvoke(UpdateTaskbarButton, DispatcherPriority.ApplicationIdle);
 
             Lyrics.IsReadOnly = true;
             SetClickThroughEngaged(true);
             UpdateChrome();
             UpdateSearchPanelForContent();
+        }
+
+        private void UpdateTaskbarButton()
+        {
+            if (_trackedWindowState == WindowState.Minimized)
+                return;
+
+            if (ShowInTaskbar != _isForeground)
+                ShowInTaskbar = _isForeground;
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
@@ -470,6 +482,8 @@ namespace Lyrixound.Views
 
         private void ShowAndActivate()
         {
+            ShowInTaskbar = true;
+            Show();
             if (WindowState == WindowState.Minimized)
                 WindowState = WindowState.Normal;
 
@@ -513,8 +527,10 @@ namespace Lyrixound.Views
         private void MinimizeWindow()
         {
             // ShowInTaskbar=false cannot stay minimized; WPF cancels it and only unfocuses the window.
+            // Hide after minimizing so the taskbar button goes away with the window.
             ShowInTaskbar = true;
             WindowState = WindowState.Minimized;
+            Hide();
         }
 
         private void MaximizeWindow()
