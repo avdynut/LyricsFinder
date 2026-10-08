@@ -8,16 +8,15 @@ namespace LyricsFinder.Core
     /// (channel suffixes after "|", "Official Video" labels, " - Topic", etc.)
     /// without removing parentheses that are part of a real song name.
     /// </summary>
-    public static class TrackTextCleaner
+    public static partial class TrackTextCleaner
     {
         private static readonly char[] PipeSeparators = { '|', '｜' };
 
-        private static readonly Regex UnicodeSpaceRegex = new Regex(
-            @"\s",
-            RegexOptions.Compiled);
+        [GeneratedRegex(@"\s")]
+        private static partial Regex UnicodeSpaceRegex();
 
         // Known promo/format labels in () [] {} or fullwidth brackets.
-        private static readonly Regex NoiseLabelRegex = new Regex(
+        [GeneratedRegex(
             @"\s*[\(\[\{（【]\s*(?:" +
             @"official\s*(?:music\s*)?(?:lyric\s*)?(?:video|audio)|" +
             @"(?:music\s*)?video|" +
@@ -32,41 +31,36 @@ namespace LyricsFinder.Core
             @"4k|" +
             @"remaster(?:ed)?" +
             @")[^\)\]\}）】]*[\)\]\}）】]",
-            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+        private static partial Regex NoiseLabelRegex();
 
-        private static readonly Regex TrailingNoiseRegex = new Regex(
+        [GeneratedRegex(
             @"\s+(?:official\s*(?:music\s*)?(?:lyric\s*)?(?:video|audio)|lyric\s*video|visualizer|audio\s*only)\s*$",
-            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+        private static partial Regex TrailingNoiseRegex();
 
-        private static readonly Regex TopicSuffixRegex = new Regex(
-            @"\s*-\s*Topic\s*$",
-            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+        [GeneratedRegex(@"\s*-\s*Topic\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+        private static partial Regex TopicSuffixRegex();
 
-        private static readonly Regex VevoSuffixRegex = new Regex(
-            @"\s*VEVO\s*$",
-            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+        [GeneratedRegex(@"\s*VEVO\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+        private static partial Regex VevoSuffixRegex();
 
         // "PhilWickham" / "Maroon5" after a VEVO suffix — not "BTS".
-        private static readonly Regex CamelCaseSplitRegex = new Regex(
-            @"(?<=[\p{Ll}\p{N}])(?=\p{Lu})|(?<=\p{L})(?=\p{N})",
-            RegexOptions.Compiled);
+        [GeneratedRegex(@"(?<=[\p{Ll}\p{N}])(?=\p{Lu})|(?<=\p{L})(?=\p{N})")]
+        private static partial Regex CamelCaseSplitRegex();
 
-        private static readonly Regex MultiSpaceRegex = new Regex(
-            @"\s{2,}",
-            RegexOptions.Compiled);
+        [GeneratedRegex(@"\s{2,}")]
+        private static partial Regex MultiSpaceRegex();
 
-        private static readonly Regex InvisibleCharsRegex = new Regex(
-            @"[\u200B-\u200D\uFEFF\u2060]",
-            RegexOptions.Compiled);
+        [GeneratedRegex(@"[\u200B-\u200D\uFEFF\u2060]")]
+        private static partial Regex InvisibleCharsRegex();
 
-        private static readonly Regex PunctuationRegex = new Regex(
-            @"[^\p{L}\p{N}\s]+",
-            RegexOptions.CultureInvariant | RegexOptions.Compiled);
+        [GeneratedRegex(@"[^\p{L}\p{N}\s]+", RegexOptions.CultureInvariant)]
+        private static partial Regex PunctuationRegex();
 
         // First "Artist - Title" split. Spaces around the dash are required so "X-Ray" stays intact.
-        private static readonly Regex ArtistTitleSplitRegex = new Regex(
-            @"^(.*?)\s*(?:[\-\u2010-\u2015\u2212\uFF0D]|--)+\s+(.*)$",
-            RegexOptions.Compiled);
+        [GeneratedRegex(@"^(.*?)\s*(?:[\-\u2010-\u2015\u2212\uFF0D]|--)+\s+(.*)$")]
+        private static partial Regex ArtistTitleSplitRegex();
 
         /// <summary>
         /// Cleans track text for lyrics lookup. Returns the original value when cleaning
@@ -78,21 +72,21 @@ namespace LyricsFinder.Core
                 return text;
 
             var original = text;
-            text = InvisibleCharsRegex.Replace(text, string.Empty);
-            text = UnicodeSpaceRegex.Replace(text, " ");
+            text = InvisibleCharsRegex().Replace(text, string.Empty);
+            text = UnicodeSpaceRegex().Replace(text, " ");
 
             var pipeIndex = text.IndexOfAny(PipeSeparators);
             if (pipeIndex > 0)
                 text = text.Substring(0, pipeIndex);
 
-            text = NoiseLabelRegex.Replace(text, string.Empty);
-            text = TrailingNoiseRegex.Replace(text, string.Empty);
-            text = TopicSuffixRegex.Replace(text, string.Empty);
-            var hadVevo = VevoSuffixRegex.IsMatch(text);
-            text = VevoSuffixRegex.Replace(text, string.Empty);
-            text = MultiSpaceRegex.Replace(text, " ").Trim();
+            text = NoiseLabelRegex().Replace(text, string.Empty);
+            text = TrailingNoiseRegex().Replace(text, string.Empty);
+            text = TopicSuffixRegex().Replace(text, string.Empty);
+            var hadVevo = VevoSuffixRegex().IsMatch(text);
+            text = VevoSuffixRegex().Replace(text, string.Empty);
+            text = MultiSpaceRegex().Replace(text, " ").Trim();
             if (hadVevo && text.IndexOf(' ') < 0)
-                text = CamelCaseSplitRegex.Replace(text, " ");
+                text = CamelCaseSplitRegex().Replace(text, " ");
 
             return string.IsNullOrWhiteSpace(text) ? original.Trim() : text;
         }
@@ -116,7 +110,7 @@ namespace LyricsFinder.Core
 
         private static string StripRedundantArtistPrefix(string title, string artist)
         {
-            var match = ArtistTitleSplitRegex.Match(title);
+            var match = ArtistTitleSplitRegex().Match(title);
             if (!match.Success || !NamesEqual(match.Groups[1].Value, artist))
                 return title;
 
@@ -135,8 +129,8 @@ namespace LyricsFinder.Core
                 return string.Empty;
 
             var text = value.Trim().ToLowerInvariant();
-            text = PunctuationRegex.Replace(text, string.Empty);
-            return MultiSpaceRegex.Replace(text, string.Empty).Trim();
+            text = PunctuationRegex().Replace(text, string.Empty);
+            return MultiSpaceRegex().Replace(text, string.Empty).Trim();
         }
     }
 }
