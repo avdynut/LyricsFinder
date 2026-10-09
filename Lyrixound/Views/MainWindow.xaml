@@ -35,6 +35,7 @@
                     <MenuItem Padding="10,0,10,0"
                               Click="OnLyricsSettingsButtonClick"
                               Header="Lyrics Appearance"/>
+                    <Separator/>
                     <MenuItem Padding="10,0,10,0"
                               Command="{Binding OpenWebsiteCommand}"
                               Header="Lyrixound Website"/>
