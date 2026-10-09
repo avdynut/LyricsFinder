@@ -1,8 +1,10 @@
-﻿using NAudio.Wave;
+﻿using NAudio.CoreAudioApi;
+using NAudio.Wave;
 using NLog;
 using ShazamIO;
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -13,6 +15,12 @@ namespace Lyrixound.Services
     /// </summary>
     public class AudioRecognitionService
     {
+        /// <summary>
+        /// Peak amplitude below this is treated as silence (~ -60 dBFS for float PCM).
+        /// Quiet playback still clears it; digital silence and an idle output do not.
+        /// </summary>
+        private const float SilencePeakThreshold = 0.001f;
+
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         public async Task<RecognizedTrackInfo> RecognizeSongFromSystemAudioAsync(int durationSeconds = 5)
@@ -47,6 +55,7 @@ namespace Lyrixound.Services
             WaveFileWriter waveWriter = null;
             var writeLock = new object();
             var recordingStopped = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var peakAmplitude = 0f;
 
             try
             {
@@ -55,12 +64,21 @@ namespace Lyrixound.Services
                     .Build();
                 waveWriter = new WaveFileWriter(audioBuffer, capture.WaveFormat);
 
-                capture.DataAvailable += (buffer, _, _, _) =>
+                capture.DataAvailable += (buffer, flags, _, _) =>
                 {
                     lock (writeLock)
                     {
                         if (waveWriter == null || buffer.IsEmpty)
                             return;
+
+                        // WASAPI marks idle loopback packets as silent. Their bytes are not
+                        // reliable audio, and a fully silent capture should not be uploaded.
+                        if ((flags & AudioClientBufferFlags.Silent) == 0)
+                        {
+                            var packetPeak = GetPeakAmplitude(buffer, capture.WaveFormat);
+                            if (packetPeak > peakAmplitude)
+                                peakAmplitude = packetPeak;
+                        }
 
                         waveWriter.Write(buffer);
                     }
@@ -85,7 +103,14 @@ namespace Lyrixound.Services
                 {
                     waveWriter.Flush();
                     var audioData = audioBuffer.ToArray();
-                    _logger.Info($"Captured {audioData.Length} bytes of audio");
+
+                    if (peakAmplitude < SilencePeakThreshold)
+                    {
+                        _logger.Info($"System audio is silent (peak {peakAmplitude:0.######}); not sending it for recognition");
+                        return null;
+                    }
+
+                    _logger.Info($"Captured {audioData.Length} bytes of audio (peak {peakAmplitude:0.###})");
                     return audioData;
                 }
             }
@@ -254,6 +279,55 @@ namespace Lyrixound.Services
                 _logger.Error(ex, "Error recognizing audio with Shazam");
                 return new RecognizedTrackInfo();
             }
+        }
+
+        private static float GetPeakAmplitude(ReadOnlySpan<byte> buffer, WaveFormat format)
+        {
+            if (format.BitsPerSample == 32 && buffer.Length >= 4)
+            {
+                // Shared-mode loopback is IEEE float, including WAVE_FORMAT_EXTENSIBLE.
+                var length = buffer.Length - (buffer.Length % sizeof(float));
+                var samples = MemoryMarshal.Cast<byte, float>(buffer[..length]);
+                var peak = 0f;
+                foreach (var sample in samples)
+                {
+                    var abs = MathF.Abs(sample);
+                    if (float.IsNaN(abs) || float.IsInfinity(abs))
+                        continue;
+
+                    // Far outside [-1, 1] is not normalized float PCM.
+                    if (abs > 8f)
+                        return 1f;
+
+                    if (abs > peak)
+                        peak = abs;
+                }
+
+                return peak;
+            }
+
+            if (format.BitsPerSample == 16 && buffer.Length >= 2)
+            {
+                var length = buffer.Length - (buffer.Length % sizeof(short));
+                var samples = MemoryMarshal.Cast<byte, short>(buffer[..length]);
+                var peak = 0;
+                foreach (var sample in samples)
+                {
+                    var abs = Math.Abs((int)sample);
+                    if (abs > peak)
+                        peak = abs;
+                }
+
+                return peak / 32768f;
+            }
+
+            foreach (var b in buffer)
+            {
+                if (b != 0)
+                    return 1f;
+            }
+
+            return 0f;
         }
 
         private static string GetStringProperty(JsonElement element, string propertyName)
