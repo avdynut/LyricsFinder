@@ -501,7 +501,7 @@
                                                 <DataTrigger Binding="{Binding IsActive}" Value="True">
                                                     <Setter Property="Background">
                                                         <Setter.Value>
-                                                            <SolidColorBrush Color="{Binding DataContext.LyricsSettings.ActiveLineBackgroundColor, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                            <SolidColorBrush Color="{Binding DataContext.LyricsSettings.ActiveLineBackgroundColor, RelativeSource={RelativeSource AncestorType=Window}, FallbackValue=#00000000}"/>
                                                         </Setter.Value>
                                                     </Setter>
                                                 </DataTrigger>
@@ -517,13 +517,13 @@
                                                TextAlignment="{Binding DataContext.LyricsSettings.TextAlignment, RelativeSource={RelativeSource AncestorType=Window}}"
                                                TextWrapping="Wrap">
                                         <TextBlock.Foreground>
-                                            <SolidColorBrush Color="{Binding DataContext.LyricsSettings.TextColor, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                            <SolidColorBrush Color="{Binding DataContext.LyricsSettings.TextColor, RelativeSource={RelativeSource AncestorType=Window}, FallbackValue=Black}"/>
                                         </TextBlock.Foreground>
                                         <TextBlock.Effect>
-                                            <DropShadowEffect BlurRadius="{Binding DataContext.LyricsSettings.BlurRadius, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                              Opacity="{Binding DataContext.LyricsSettings.ShadowColor.A, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource ByteToOpacityConverter}}"
-                                                              ShadowDepth="{Binding DataContext.LyricsSettings.ShadowDepth, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                              Color="{Binding DataContext.LyricsSettings.ShadowColor, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                            <DropShadowEffect BlurRadius="{Binding DataContext.LyricsSettings.BlurRadius, RelativeSource={RelativeSource AncestorType=Window}, FallbackValue=0}"
+                                                              Opacity="{Binding DataContext.LyricsSettings.ShadowColor.A, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource ByteToOpacityConverter}, FallbackValue=0}"
+                                                              ShadowDepth="{Binding DataContext.LyricsSettings.ShadowDepth, RelativeSource={RelativeSource AncestorType=Window}, FallbackValue=0}"
+                                                              Color="{Binding DataContext.LyricsSettings.ShadowColor, RelativeSource={RelativeSource AncestorType=Window}, FallbackValue=#00000000}"/>
                                         </TextBlock.Effect>
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
